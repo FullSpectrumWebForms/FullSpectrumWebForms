@@ -27,18 +27,19 @@
             <a class="ui green ribbon label">C#</a>
             <pre>
             <code>
-public Polinet.Controls.Html.Button BT_test = new Polinet.Controls.Html.Button();
-public void OnGet()
-{
-    InitializePolinetControls();
-    BT_test.OnClicked += BT_test_OnClicked;
-    BT_test.Text = "Button test";
-}
+        public FSW.Controls.Html.Button BT_test = new FSW.Controls.Html.Button();
+        public override void OnPageLoad()
+        {
+            base.OnPageLoad();
 
-private void BT_test_OnClicked(Polinet.Controls.Html.HtmlControlBase control)
-{
-    BT_test.Text = "You clicked me !";
-}
+            BT_test.OnClicked += BT_test_OnClicked;
+            BT_test.Text = "Button test";
+        }
+
+        private void BT_test_OnClicked(FSW.Controls.Html.HtmlControlBase control)
+        {
+            BT_test.Text = "You clicked me !";
+        }
                 </code>
             </pre>
         </div>
