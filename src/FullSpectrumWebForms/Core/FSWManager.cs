@@ -152,9 +152,10 @@ namespace FSW.Core
             if (parameters != null)
             {
                 // get the theorical paraemeters name
-                string[] paramNames = m.GetParameters().Select(p => p.Name).ToArray();
+                var methodParameters = m.GetParameters();
+                var paramNames = methodParameters.Select(p => p.Name).ToList();
                 // list of actual parameters to be sent to the method
-                parametersParsed = new object[paramNames.Length];
+                parametersParsed = new object[methodParameters.Length];
                 // initialize them all to missing
                 // so if the client did not sent that parameter, it will be marked as missing
                 for (int i = 0; i < parametersParsed.Length; ++i)
@@ -164,10 +165,12 @@ namespace FSW.Core
                 {
                     var paramName = item.Key;
                     // set the parameter in the parameters list to be sent to the method
-                    var paramIndex = Array.IndexOf(paramNames, paramName);
+                    var paramIndex = paramNames.IndexOf(paramName);
                     if (paramIndex == -1)
                         throw new Exception($"Invalid parameter name:{paramName} in {eventName} in control {controlId}");
-                    parametersParsed[paramIndex] = item.Value;
+
+                    var value = Convert.ChangeType(item.Value, methodParameters[paramIndex].ParameterType);
+                    parametersParsed[paramIndex] = value;
                 }
             }
             // the actual call of the method/event
