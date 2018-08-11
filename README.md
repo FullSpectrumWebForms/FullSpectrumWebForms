@@ -10,29 +10,30 @@ For the full documentation, head to the [the wiki](https://github.com/FullSpectr
 ## For Windows:
 ### Using Visual Studio
 
-1. Install Visual Studio [Here](https://visualstudio.microsoft.com/downloads/)
+1. Install Visual Studio from [Here](https://visualstudio.microsoft.com/downloads/)
 2. Make sure to install the TypeScript SDK 2.5, you can find it in the "Individual Components" section of the installer
-3. If you want to use the .net core instead of .net framework, download and install the lastest .net Core SDK [Here](https://www.microsoft.com/net/download)
-4. To get the source code from git, take a look [Here](https://docs.microsoft.com/en-us/vsts/repos/git/clone?view=vsts&tabs=visual-studio#clone-from-another-git-provider) and use this url: https://github.com/FullSpectrumWebForms/FullSpectrumWebForms.git
+3. If you want to use the .net core instead of .net framework, download and install the lastest .net Core SDK from [Here](https://www.microsoft.com/net/download)
+4. To get the source code from git, take a look from [Here](https://docs.microsoft.com/en-us/vsts/repos/git/clone?view=vsts&tabs=visual-studio#clone-from-another-git-provider) and use this url: https://github.com/FullSpectrumWebForms/FullSpectrumWebForms.git
 5. Open FullSpectrumWebForms.sln with Visual Studio
 6. Hit f5 to launch the test project!
 
 ### Using VSCode
 
-1. Install VSCode [Here](https://code.visualstudio.com/download)
-2. If you want to use the .net core instead of .net framework, download and install the lastest .net Core SDK [Here](https://www.microsoft.com/net/download)
+1. Install VSCode from [Here](https://code.visualstudio.com/download)
+2. If you want to use the .net core instead of .net framework, download and install the lastest .net Core SDK from [Here](https://www.microsoft.com/net/download)
 3. We need npm. It is contained in the NodeJs installation: [Here](https://nodejs.org/en/download/current/)
 4. Install Typescript
 ```shell
 npm install -g typescript@2.5
 ```
-5. Get the source code from git.
+5. Download git for windows from [Here](https://gitforwindows.org/)
+6. Get the source code from git.
 ```shell
 git clone https://github.com/FullSpectrumWebForms/FullSpectrumWebForms.git
 ```
-6. Open the project folder in VSCode
-7. You will be prompted to install OmniSharp plugin.
-8. Hit F5 To launch the test project!
+7. Open the project folder in VSCode
+8. You will be prompted to install OmniSharp plugin.
+9. Hit F5 To launch the test project!
 
 ## For Linux:
 
