@@ -50,4 +50,5 @@ sudo npm install -g typescript@2.5
 ```shell
 git clone https://github.com/FullSpectrumWebForms/FullSpectrumWebForms.git
 ```
-5. After opening the source in VsCode you will be prompt to install OmniSharp plugin, from here you must be able to hit F5 to      start the server
+5. You will be prompted to install OmniSharp plugin.
+6. Hit F5 To launch the test project!
