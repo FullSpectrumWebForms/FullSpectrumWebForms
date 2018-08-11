@@ -12,7 +12,8 @@
     "outputFileName": "wwwroot/fsw.semantic.min.js",
     "inputFiles": [
       "wwwroot/semantic/semantic.min.js",
-      "wwwroot/js/semantic/controls/**/*.js"
+      "wwwroot/js/semantic/controls/html/checkbox.js",
+      "wwwroot/js/semantic/controls/html/iconTextButton.js"
     ],
     // Optionally specify minification options
     "minify": {
