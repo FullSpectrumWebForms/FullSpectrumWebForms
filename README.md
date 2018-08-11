@@ -34,7 +34,7 @@ git clone https://github.com/FullSpectrumWebForms/FullSpectrumWebForms.git
 7. You will be prompted to install OmniSharp plugin.
 8. Hit F5 To launch the test project!
 
-For Linux:
+## For Linux:
 
 1. Install the last .net Core for your distribution [Here](https://www.microsoft.com/net/download/linux-package-manager/rhel/sdk-current)
 2. Install npm and git
