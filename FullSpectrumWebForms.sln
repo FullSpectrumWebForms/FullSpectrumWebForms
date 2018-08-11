@@ -61,8 +61,8 @@ Global
 		{C83F04C6-B972-4D53-B366-26A0C1AFE201}.Release|Any CPU.Build.0 = Release|Any CPU
 		{79B35F69-A3BE-49C3-9040-A15C4E647B83}.Azure|Any CPU.ActiveCfg = Azure|Any CPU
 		{79B35F69-A3BE-49C3-9040-A15C4E647B83}.Azure|Any CPU.Build.0 = Azure|Any CPU
-		{79B35F69-A3BE-49C3-9040-A15C4E647B83}.Debug_NetFramework|Any CPU.ActiveCfg = Debug|Any CPU
-		{79B35F69-A3BE-49C3-9040-A15C4E647B83}.Debug_NetFramework|Any CPU.Build.0 = Debug|Any CPU
+		{79B35F69-A3BE-49C3-9040-A15C4E647B83}.Debug_NetFramework|Any CPU.ActiveCfg = Debug_NetFramework|Any CPU
+		{79B35F69-A3BE-49C3-9040-A15C4E647B83}.Debug_NetFramework|Any CPU.Build.0 = Debug_NetFramework|Any CPU
 		{79B35F69-A3BE-49C3-9040-A15C4E647B83}.Debug_Test|Any CPU.ActiveCfg = Debug|Any CPU
 		{79B35F69-A3BE-49C3-9040-A15C4E647B83}.Debug_Test|Any CPU.Build.0 = Debug|Any CPU
 		{79B35F69-A3BE-49C3-9040-A15C4E647B83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
