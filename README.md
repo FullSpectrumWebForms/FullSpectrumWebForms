@@ -4,9 +4,9 @@ Full Spectrum Web Forms is a library that simplify development of Web and deskto
 For the full documentation, head to the [the wiki](https://github.com/FullSpectrumWebForms/FullSpectrumWebForms/wiki) !
 
 #Get started
-#Windows
-Comming soon.
-#Linux
+For Windows:
+Coming soon
+For Linux:
 1. Install the last .net Core for your distribution [Here](https://www.microsoft.com/net/download/linux-package-manager/rhel/sdk-current)
 2. Install nodejs, npm and git ex: sudo apt-get install nodejs npm git
 3. Install VsCode from [here](https://code.visualstudio.com/)
