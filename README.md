@@ -6,12 +6,14 @@ For the full documentation, head to the [the wiki](https://github.com/FullSpectr
 ## Installing / Getting started
 For Windows:
 
-1. Coming soon
+1. Install VsCode or VisualStudio
+2. Download and install the last .net Core [Here](https://www.microsoft.com/net/download)
+
 
 For Linux:
 
 1. Install the last .net Core for your distribution [Here](https://www.microsoft.com/net/download/linux-package-manager/rhel/sdk-current)
-2. Install nodejs, npm and git
+2. Install npm and git
 ```shell
 sudo apt-get install nodejs npm git
 ```
