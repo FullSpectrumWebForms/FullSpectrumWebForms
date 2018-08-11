@@ -45,8 +45,4 @@
     <TypeScriptMapRoot />
     <TypeScriptSourceRoot />
   </PropertyGroup>
-  <PropertyGroup>
-    <UserSecretsId>project-8084c8e7-0000-0000-b266-b33f42dd88c0</UserSecretsId>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-  </PropertyGroup>
 </Project>
