@@ -12,7 +12,7 @@ For the full documentation, head to the [the wiki](https://github.com/FullSpectr
 
 1. Install Visual Studio [Here](https://visualstudio.microsoft.com/downloads/)
 2. Make sure to install the TypeScript SDK 2.5, you can find it in the "Individual Components" section of the installer
-3. If you want to use the .net core instead of .net framework, download and install the lastest .net Core SDK [Here]
+3. If you want to use the .net core instead of .net framework, download and install the lastest .net Core SDK [Here](https://www.microsoft.com/net/download)
 4. To get the source code from git, take a look [Here](https://docs.microsoft.com/en-us/vsts/repos/git/clone?view=vsts&tabs=visual-studio#clone-from-another-git-provider) and use this url: https://github.com/FullSpectrumWebForms/FullSpectrumWebForms.git
 5. Open FullSpectrumWebForms.sln with Visual Studio
 6. Hit f5 to launch the test project!
