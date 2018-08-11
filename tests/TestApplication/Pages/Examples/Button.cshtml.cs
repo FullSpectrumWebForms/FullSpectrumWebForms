@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace TestApplication.Pages.Examples
 {
-    public class ButtonPage : Polinet.Core.PolinetPage
+    public class ButtonPage : FSW.Core.FSWPage
     {
-        public Polinet.Controls.Html.Button BT_test = new Polinet.Controls.Html.Button();
+        public FSW.Controls.Html.Button BT_test = new FSW.Controls.Html.Button();
         public override void OnPageLoad()
         {
             base.OnPageLoad();
@@ -18,7 +18,7 @@ namespace TestApplication.Pages.Examples
             BT_test.Text = "Button test";
         }
 
-        private void BT_test_OnClicked(Polinet.Controls.Html.HtmlControlBase control)
+        private void BT_test_OnClicked(FSW.Controls.Html.HtmlControlBase control)
         {
             BT_test.Text = "You clicked me !";
         }

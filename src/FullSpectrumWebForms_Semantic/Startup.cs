@@ -22,7 +22,7 @@ namespace FSW.Semantic
         {
             app.UseStaticFiles(new StaticFileOptions()
             {
-                FileProvider = new EmbeddedFileProvider(typeof(Startup).Assembly, "Polinet.Semantic.wwwroot")
+                FileProvider = new EmbeddedFileProvider(typeof(Startup).Assembly, "FSW.Semantic.wwwroot")
             });
         }
     }

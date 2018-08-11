@@ -20,3 +20,4 @@
 /src/FullSpectrumWebForms_Semantic/wwwroot/js/semantic/controls/**/*.map
 /tests/TestApplication/obj
 /tests/TestApplication/Properties
+/tests/TestApplication/bin/Debug

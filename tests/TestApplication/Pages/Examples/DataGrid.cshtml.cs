@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Polinet.Controls.Html;
+using FSW.Controls.Html;
 
 namespace TestApplication.Pages.Examples
 {
-    public class DataGridPage : Polinet.Core.PolinetPage
+    public class DataGridPage : FSW.Core.FSWPage
     {
         public override void OnPageLoad()
         {

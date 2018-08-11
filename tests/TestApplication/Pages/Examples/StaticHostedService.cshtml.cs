@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Polinet.Controls.Html;
+using FSW.Controls.Html;
 
 namespace TestApplication.Pages
 {
-    public class StaticHostedServicePage : Polinet.Core.PolinetPage
+    public class StaticHostedServicePage : FSW.Core.FSWPage
     {
         public static readonly Static_StaticHostedServicePage StaticHostedServicePageSingleton = new Static_StaticHostedServicePage();
 
@@ -34,7 +34,7 @@ namespace TestApplication.Pages
         {
             var div = new Div(this)
             {
-                InitialChildren = new List<Polinet.Core.ControlBase>
+                InitialChildren = new List<FSW.Core.ControlBase>
                 {
                     new Label(this)
                     {
@@ -62,7 +62,7 @@ namespace TestApplication.Pages
 
     }
 
-    public class Static_StaticHostedServicePage : Polinet.Core.StaticHostedService<StaticHostedServicePage>
+    public class Static_StaticHostedServicePage : FSW.Core.StaticHostedService<StaticHostedServicePage>
     {
 
         public Static_StaticHostedServicePage()

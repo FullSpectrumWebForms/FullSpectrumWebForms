@@ -22,12 +22,6 @@ namespace FSW_ASPC
 
 
             var signalr_ = services.AddSignalR();
-#if AZURE
-            signalr_.AddAzureSignalR(signalr =>
-            {
-                signalr.ConnectionString = "Endpoint=https://polinetsignalr.service.signalr.net;AccessKey=U7DAdTkQD8VJKk62JAdj1ltnkz47KH/vcjhaOmj7coA=;";
-            });
-#endif
 
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, FSWSessionCleanerService>();
 

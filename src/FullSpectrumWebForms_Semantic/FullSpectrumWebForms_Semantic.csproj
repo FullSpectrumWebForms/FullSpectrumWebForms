@@ -22,21 +22,8 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <EmbeddedResource Include="wwwroot\**\*.js"></EmbeddedResource>
-    <EmbeddedResource Include="wwwroot\**\*.map"></EmbeddedResource>
-    <EmbeddedResource Include="wwwroot\**\*.css"></EmbeddedResource>
-    <EmbeddedResource Include="wwwroot\**\*.woff2"></EmbeddedResource>
-    <EmbeddedResource Include="wwwroot\**\*.woff"></EmbeddedResource>
-    <EmbeddedResource Include="wwwroot\**\*.ttf"></EmbeddedResource>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Content Remove="wwwroot\js\semantic\controls\html\checkbox.ts" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <EmbeddedResource Remove="wwwroot\js\semantic\controls\html\checkbox.js" />
-    <EmbeddedResource Remove="wwwroot\js\semantic\controls\html\checkbox.js.map" />
+    <EmbeddedResource Include="wwwroot\fsw.semantic.min.js"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\fsw.semantic.min.css"></EmbeddedResource>
   </ItemGroup>
   
   <ItemGroup>
@@ -54,11 +41,6 @@
     <ProjectReference Include="..\FullSpectrumWebForms\FullSpectrumWebForms.csproj" />
   </ItemGroup>
   
-  <ItemGroup>
-    <TypeScriptCompile Include="wwwroot\js\semantic\controls\html\checkbox.ts" />
-    <TypeScriptCompile Include="wwwroot\js\semantic\controls\html\iconTextButton.ts" />
-  </ItemGroup>
-
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptJSXEmit>None</TypeScriptJSXEmit>

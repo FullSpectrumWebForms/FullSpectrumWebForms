@@ -21,21 +21,21 @@ namespace TestApplication
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            Polinet_ASPC.Startup.ConfigureServices(services);
-            Polinet.Semantic.Startup.ConfigureServices(services);
+            FSW_ASPC.Startup.ConfigureServices(services);
+            FSW.Semantic.Startup.ConfigureServices(services);
 
 
             var mvc = services.AddMvc();
-            Polinet_ASPC.Startup.ConfigureMvc(mvc);
-            Polinet.Semantic.Startup.ConfigureMvc(mvc);
+            FSW_ASPC.Startup.ConfigureMvc(mvc);
+            FSW.Semantic.Startup.ConfigureMvc(mvc);
             
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            Polinet_ASPC.Startup.Configure(app, env);
-            Polinet.Semantic.Startup.Configure(app, env);
+            FSW_ASPC.Startup.Configure(app, env);
+            FSW.Semantic.Startup.Configure(app, env);
 
             if (env.IsDevelopment())
             {

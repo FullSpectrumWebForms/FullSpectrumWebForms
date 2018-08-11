@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Polinet.Controls.Html;
+using FSW.Controls.Html;
 
 namespace TestApplication.Pages
 {
-    public class TextBoxPage: Polinet.Core.PolinetPage
+    public class TextBoxPage: FSW.Core.FSWPage
     {
         public TextBox TB_Test = new TextBox();
         public Label LB_Test = new Label();

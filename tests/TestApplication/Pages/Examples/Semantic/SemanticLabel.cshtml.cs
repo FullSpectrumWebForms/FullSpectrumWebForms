@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace TestApplication.Pages.Examples.Semantic
 {
 
-    public class SemanticLabelPage : Polinet.Core.PolinetPage
+    public class SemanticLabelPage : FSW.Core.FSWPage
     {
-        public Polinet.Semantic.Controls.Html.Label LB_Test = new Polinet.Semantic.Controls.Html.Label();
+        public FSW.Semantic.Controls.Html.Label LB_Test = new FSW.Semantic.Controls.Html.Label();
         public override void OnPageLoad()
         {
             base.OnPageLoad();

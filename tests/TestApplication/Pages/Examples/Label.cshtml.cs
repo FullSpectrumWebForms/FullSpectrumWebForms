@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace TestApplication.Pages.Examples
 {
 
-    public class LabelPage: Polinet.Core.PolinetPage
+    public class LabelPage: FSW.Core.FSWPage
     {
-        public Polinet.Controls.Html.Label LB_Test = new Polinet.Controls.Html.Label();
+        public FSW.Controls.Html.Label LB_Test = new FSW.Controls.Html.Label();
 
         public override void OnPageLoad()
         {
