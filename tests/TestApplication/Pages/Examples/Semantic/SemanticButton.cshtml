@@ -1,0 +1,117 @@
+﻿@page
+@model Polinet_ASPC.ModelBase<SemanticButtonPage>
+@{
+    ViewData["Title"] = "Button";
+    Layout = "~/Pages/_Layout.cshtml";
+}
+<script>hljs.initHighlightingOnLoad();</script>
+
+<h2>Semntic Buttons</h2>
+
+<button id="@nameof(Semantic.SemanticButtonPage.BT_Test)"></button>
+
+<br /><br />
+
+<div class="ui styled accordion" style="width:100%">
+    <div class="title">
+        <i class="dropdown icon"></i>
+        Source
+    </div>
+    <div class="content">
+
+        <div class="ui raise segment">
+            <a class="ui orange ribbon label">HTML</a>
+            <pre><code>&lt;button id="&commat;nameof(Semantic.SemanticButtonPage.BT_Test)"&gt;&lt;/button&gt;</code></pre>
+        </div>
+
+        <div class="ui raise segment">
+            <a class="ui green ribbon label">C#</a>
+            <pre>
+            <code>
+ public class SemanticButtonModel : Polinet.ModelBase
+ {
+
+    public override void OnGet()
+    {
+       base.OnGet();
+       RegisterPolinetPage&lt;SemanticButtonPage&gt;();
+    }
+                                    
+
+ }
+
+ public class SemanticButtonPage : Polinet.Core.PolinetPage
+ {
+    public Polinet.Semantic.Controls.Html.Button BT_Test = new Polinet.Semantic.Controls.Html.Button();
+    public override void OnPageLoad()
+    {
+        base.OnPageLoad();
+
+        BT_Test.Text = "Test Text";
+        BT_Test.OnClicked += BT_Test_OnClicked;
+    }
+
+    private void BT_Test_OnClicked(Polinet.Controls.Html.HtmlControlBase control)
+    {
+        BT_Test.Text = "You clicked me !";
+    }
+ }
+                      </code>
+            </pre>
+        </div>
+
+    </div>
+</div>
+
+<h2>Semantic Buttons Primary/Secondary</h2>
+
+<button id="@nameof(Semantic.SemanticButtonPage.BT_TestPrimary)"></button>
+<button id="@nameof(Semantic.SemanticButtonPage.BT_TestSecondary)"></button>
+<br /><br />
+
+<div class="ui styled accordion" style="width:100%">
+    <div class="title">
+        <i class="dropdown icon"></i>
+        Source
+    </div>
+    <div class="content">
+
+        <div class="ui raise segment">
+            <a class="ui orange ribbon label">HTML</a>
+            <pre><code>
+    &lt;button id="&commat;nameof(Semantic.SemanticButtonPage.BT_TestPrimary)"&gt;&lt;/button&gt;
+    &lt;button id="&commat;nameof(Semantic.SemanticButtonPage.BT_TestSecondary)"&gt;&lt;/button&gt;
+</code></pre>
+        </div>
+
+        <div class="ui raise segment">
+            <a class="ui green ribbon label">C#</a>
+            <pre>
+            <code>
+   public Polinet.Semantic.Controls.Html.Button BT_TestPrimary = new Polinet.Semantic.Controls.Html.Button();
+   public Polinet.Semantic.Controls.Html.Button BT_TestNoPrimary = new Polinet.Semantic.Controls.Html.Button();
+
+   public override void OnPageLoad()
+   {
+    base.OnPageLoad();
+
+    BT_TestPrimary.Text = "Accept";
+    BT_TestPrimary.Primary = true;
+    BT_TestSecondary.Text = "Cancel";
+    BT_TestSecondary.Secondary = true;
+   }
+                </code>
+</pre>
+        </div>
+    </div>
+    </div>
+
+
+    <br /><br />
+    <div id="BT_TestLabel"></div>
+
+    <script>
+        $('.ui.accordion')
+            .accordion()
+            ;
+    </script>

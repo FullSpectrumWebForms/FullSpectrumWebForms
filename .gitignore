@@ -1,0 +1,22 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/src/.vs/config
+/src/FullSpectrumWebForms/bin
+/src/FullSpectrumWebForms/node_modules
+/src/FullSpectrumWebForms/obj
+/src/FullSpectrumWebForms/Properties/PublishProfiles
+/src/FullSpectrumWebForms/wwwroot/js/controls/**/*.map
+/src/FullSpectrumWebForms/wwwroot/js/core/**/*.map
+/src/FullSpectrumWebForms/wwwroot/js/treeTable/treeTable.js.map
+/src/FullSpectrumWebForms_ASPC/bin
+/src/FullSpectrumWebForms_ASPC/obj
+/src/FullSpectrumWebForms_Semantic/bin
+/src/FullSpectrumWebForms_Semantic/node_modules/@types/jquery
+/src/FullSpectrumWebForms_Semantic/obj
+/src/FullSpectrumWebForms_Semantic/Properties
+/src/FullSpectrumWebForms_Semantic/wwwroot/js/semantic/controls/**/*.map
+/tests/TestApplication/obj
+/tests/TestApplication/Properties

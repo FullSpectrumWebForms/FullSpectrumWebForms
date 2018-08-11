@@ -1,0 +1,66 @@
+﻿@page
+@model Polinet_ASPC.ModelBase<CalendarPage>
+@{
+    ViewData["Title"] = "TextBox";
+    Layout = "~/Pages/_Layout.cshtml";
+}
+<script>hljs.initHighlightingOnLoad();</script>
+<h2>Calendar</h2>
+
+
+<div id="@nameof(CalendarPage.C_Test)"></div>
+
+<br />
+
+<div class="ui styled accordion" style="width:100%">
+    <div class="title">
+        <i class="dropdown icon"></i>
+        Source
+    </div>
+    <div class="content">
+        <div class="ui raise segment">
+            <a class="ui orange ribbon label">HTML</a>
+            <pre><code>&lt;div id="&commat;nameof(Model.C_Test)"&gt;&lt;/div&gt;</code></pre>
+        </div>
+
+        <div class="ui raise segment">
+            <a class="ui green ribbon label">C#</a>
+            <pre>
+            <code>
+    public Calendar C_Test = new Calendar();
+
+    public void OnGet()
+    {
+        InitializePolinetControls();
+
+        C_Test.OnRefreshRequest += C_Test_OnRefreshRequest;
+        C_Test.CurrentView = Calendar.AvailableView.AgendaWeek;
+
+        C_Test.Width = "1500px";
+        C_Test.Height = "900px";
+    }
+
+    private List&lt;CalendarEvent&gt; C_Test_OnRefreshRequest(DateTime rangeStart, DateTime rangeEnd)
+    {
+        var sunday = rangeStart - TimeSpan.FromDays((int)rangeStart.DayOfWeek);
+        return new List&lt;CalendarEvent&gt;()
+        {
+            new CalendarEvent()
+            {
+                Id = "1",
+                Start =  sunday + TimeSpan.FromDays(1) + TimeSpan.FromHours(8),
+                End = sunday + TimeSpan.FromDays(1) + TimeSpan.FromHours(17),
+                Title = "Working shift 1"
+            }
+        };
+    }
+    </code>
+    </pre>
+        </div>
+    </div>
+</div>
+<script>
+    $('.ui.accordion')
+        .accordion()
+        ;
+</script>

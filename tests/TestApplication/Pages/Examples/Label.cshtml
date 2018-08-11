@@ -1,0 +1,42 @@
+﻿@page
+@model Polinet_ASPC.ModelBase<LabelPage>
+@{
+    ViewData["Title"] = "Label";
+    Layout = "~/Pages/_Layout.cshtml";
+}
+<script>hljs.initHighlightingOnLoad();</script>
+<h2>Label</h2>
+<label id="@nameof(LabelPage.LB_Test)"></label>
+
+<br /><br />
+<div class="ui styled accordion" style="width:100%">
+    <div class="title">
+        <i class="dropdown icon"></i>
+        Source
+    </div>
+    <div class="content">
+        <div class="ui raise segment">
+            <a class="ui orange ribbon label">HTML</a>
+            <pre><code>&lt;label id="&commat;nameof(LabelPage.LB_Test)"&gt;&lt;/label&gt;</code></pre>
+        </div>
+
+        <div class="ui raise segment">
+            <a class="ui green ribbon label">C#</a>
+            <pre>
+                <code>
+public Polinet.Controls.Html.Label LB_Test = new Polinet.Controls.Html.Label();
+public void OnGet()
+{
+    InitializePolinetControls();
+    LB_Test.Text = "Lable example";
+}
+                </code>
+            </pre>
+        </div>
+        </div>
+    </div>
+        <script>
+            $('.ui.accordion')
+                .accordion()
+                ;
+        </script>

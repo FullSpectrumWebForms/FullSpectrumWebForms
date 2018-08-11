@@ -1,0 +1,16 @@
+﻿@page
+@model Polinet_ASPC.ModelBase<StaticHostedServicePage>
+@{
+    ViewData["Title"] = "TextBox";
+    Layout = "~/Pages/_Layout.cshtml";
+}
+<script>hljs.initHighlightingOnLoad();</script>
+<h2>StaticHostedService</h2>
+
+<div>
+    <label>feed!</label>
+    <div id="@nameof(StaticHostedServicePage.DIV_Feed)">
+
+    </div>
+    <input id="@nameof(StaticHostedServicePage.TB_Feed)" />
+</div>

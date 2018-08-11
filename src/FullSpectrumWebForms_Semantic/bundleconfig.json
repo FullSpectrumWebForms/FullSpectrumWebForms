@@ -1,0 +1,25 @@
+﻿// Configure bundling and minification for the project.
+// More info at https://go.microsoft.com/fwlink/?LinkId=808241
+[
+  {
+    "outputFileName": "wwwroot/fsw.semantic.min.css",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/semantic/semantic.min.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/fsw.semantic.min.js",
+    "inputFiles": [
+      "wwwroot/semantic/semantic.min.js",
+      "wwwroot/js/semantic/controls/**/*.js"
+    ],
+    // Optionally specify minification options
+    "minify": {
+      "enabled": false,
+      "renameLocals": true
+    },
+    // Optionally generate .map file
+    "sourceMap": false
+  }
+]

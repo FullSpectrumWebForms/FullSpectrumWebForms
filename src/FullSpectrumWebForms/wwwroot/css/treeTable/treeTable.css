@@ -1,0 +1,40 @@
+﻿.cell-title {
+    font-weight: bold;
+}
+
+.cell-effort-driven {
+    text-align: center;
+}
+
+.toggle {
+    height: 9px;
+    width: 9px;
+    display: inline-block;
+}
+
+    .toggle.expand {
+        background: url(/resources/css/slickGrid/images/expand.gif) no-repeat center center;
+    }
+
+    .toggle.collapse {
+        background: url(/resources/css/slickGrid/images/collapse.gif) no-repeat center center;
+    }
+
+.hidden-columns {
+    display: none !important;
+}
+
+.bigDropDrown {
+    width: 400px !important;
+}
+
+.slick-cell.active {
+    border-color: black !important;
+    border-style: solid !important;
+    border-width: 1px !important;
+}
+.inFocus .slick-cell.active {
+    border-color: black !important;
+    border-style: solid !important;
+    border-width: 3px !important;
+}

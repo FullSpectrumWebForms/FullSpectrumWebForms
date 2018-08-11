@@ -1,0 +1,462 @@
+﻿@page
+@model Polinet_ASPC.ModelBase<DataGridPage>
+@{
+    ViewData["Title"] = "DataGrid";
+    Layout = "~/Pages/_Layout.cshtml";
+}
+<script>hljs.initHighlightingOnLoad();</script>
+
+<h2>DataGrid</h2>
+
+<h2 class="ui dividing header">Basic</h2>
+
+<div style="height:100px;width: 200px" id="@nameof(DataGridPage.Grid_Basic)"></div>
+
+
+<div class="ui styled accordion" style="width:100%">
+    <div class="title">
+        <i class="dropdown icon"></i>
+        Source
+    </div>
+    <div class="content">
+
+
+        <div class="ui raise segment">
+            <a class="ui orange ribbon label">HTML</a>
+            <pre>
+            <code>
+            &lt;div style="height:200px;width: 200px" id="&commat;nameof(DataGridPage.BT_test)"&gt;&lt;/button&gt;
+        </code>
+    </pre>
+        </div>
+
+        <div class="ui raise segment">
+            <a class="ui green ribbon label">C#</a>
+            <pre>
+            <code>
+            public class Item
+            {
+                public string Col1;
+                public string Col2;
+            }
+            public DataGrid&lt;Item&gt; Grid_Basic = new DataGrid&lt;Item&gt;();
+        
+            public void OnGet()
+            {
+                InitializePolinetControls();
+                Grid_Basic.InitializeColumns();
+                Grid_Basic.Datas = new List&lt;Item&gt;()
+                {
+                    new Item()
+                    {
+                        Col1 = "test",
+                        Col2 = "test 2"
+                    },
+                    new Item()
+                    {
+                        Col1 = "test 3",
+                        Col2 = "test 4"
+                    }
+                };
+            }
+        </code>
+    </pre>
+        </div>
+
+    </div>
+</div>
+<!--               -->
+
+<h2 class="ui dividing header">Editing ( basic )</h2>
+
+<div style="height:125px;width: 500px" id="@nameof(DataGridPage.Grid_Basic2)"></div>
+
+
+
+<div class="ui styled accordion" style="width:100%">
+    <div class="title">
+        <i class="dropdown icon"></i>
+        Source
+    </div>
+    <div class="content">
+        <div class="ui raise segment">
+            <a class="ui orange ribbon label">HTML</a>
+            <pre>
+            <code>
+            &lt;div style="height:200px;width: 200px" id="&commat;nameof(DataGridPage.BT_test)"&gt;&lt;/button&gt;
+        </code>
+    </pre>
+        </div>
+
+        <div class="ui raise segment">
+            <a class="ui green ribbon label">C#</a>
+            <pre>
+            <code>
+        public class Item2
+        {
+            public string Col1;
+            public string Col2;
+            public int Col3;
+            public float Col4;
+        }
+        public DataGrid&lt;Item2&gt; Grid_Basic2 = new DataGrid&lt;Item2&gt;();
+
+        public void OnGet()
+        {
+            InitializePolinetControls();
+            Grid_Basic2.Datas = new List&lt;Item2&gt;()
+            {
+                new Item2()
+                {
+                    Col1 = "test",
+                    Col2 = "test 2",
+                    Col3 = 10,
+                    Col4 = 22.22f
+                },
+                new Item2()
+                {
+                    Col1 = "test 3",
+                    Col2 = "test 4",
+                    Col3 = 20,
+                    Col4 = 55.55f
+                }
+            };
+
+            // this will activate the editing on every columns with their default editor
+            // the editors depends on the data type
+            Grid_Basic2.AllowEdit = true;
+
+            // the InitializeColumns() must be called after you set "AllowEdit" to true
+            // because the Columns will each need to initialized "Editors"
+            Grid_Basic2.InitializeColumns();
+
+            Grid_Basic2.OnCellChanged += Grid_Basic2_OnCellChanged;
+        }
+
+        private void Grid_Basic2_OnCellChanged(DataGridColumn col, int row, Item2 item, object newValue)
+        {
+            MessageBox.Success("Success", $"Col {col.Name} was modified on row {row}. The new value is now: {newValue}");
+        }
+        </code>
+    </pre>
+        </div>
+    </div>
+</div>
+<!--               -->
+
+
+<h2 class="ui dividing header">Editing ( advanced )</h2>
+
+<div style="height:125px;width: 500px" id="@nameof(DataGridPage.Grid_Editing_Advanced)"></div>
+
+
+<div class="ui styled accordion"  style="width:100%" >
+    <div class="title">
+        <i class="dropdown icon"></i>
+        Source
+    </div>
+    <div class="content">
+
+        <div class="ui raise segment">
+            <a class="ui orange ribbon label">HTML</a>
+            <pre>
+            <code>
+                    &lt;div style="height:200px;width: 200px" id="&commat;nameof(DataGridPage.Grid_Editing_Advanced)"&gt;&lt;/button&gt;
+                </code>
+    </pre>
+        </div>
+
+        <div class="ui raise segment">
+            <a class="ui green ribbon label">C#</a>
+            <pre>
+            <code>
+        
+        public class Item3
+        {
+            public KeyValuePair&lt;string, string&gt; Col1;
+            public string Col2;
+            // specify a min-max. The user won't be able to enter less than -15 and more than or equal to 15
+            [DataGridColumn.IntEditor(-15, 15)]
+            public int Col3;
+            // specify a min-max. The user won't be able to enter less than -15 and more than or equal to 15
+            // also specify the precision of the formatter, so that if the raw data is "22.12345"
+            // it will only show "22.12"
+            [DataGridColumn.FloatEditor(-15, 15, Precision = 2)]
+            public float Col4;
+        }
+        public DataGrid&lt;Item3&gt; Grid_Editing_Advanced = new DataGrid&lt;Item3&gt;();
+        public void OnGet()
+        {
+            InitializePolinetControls();
+
+            Grid_Editing_Advanced.Datas = new List&lt;Item3&gt;()
+            {
+                new Item3()
+                {
+                    Col1 = new KeyValuePair&lt;string, string&gt;("test","Test string 1"),
+                    Col2 = "test 2",
+                    Col3 = 10,
+                    Col4 = 22.22f
+                },
+                new Item3()
+                {
+                    Col1 = new KeyValuePair<string, string>("test 3","Test string 3"),
+                    Col2 = "test 4",
+                    Col3 = 20,
+                    Col4 = 55.55f
+                }
+            };
+
+            // this will activate the editing on every columns with their default editor
+            // the editors depends on the data type
+            Grid_Editing_Advanced.AllowEdit = true;
+
+            // the InitializeColumns() must be called after you set "AllowEdit" to true
+            // because the Columns will each need to initialized "Editors"
+            Grid_Editing_Advanced.InitializeColumns();
+
+            // after the "InitializeColumns" we can fine tune the editors
+            Grid_Editing_Advanced.Columns[nameof(Item3.Col1)].Editor = new DataGridColumn.ComboBoxAjaxEditor()
+            {
+                AllowEdit = true,
+                AllowNull = false,
+                IsMultiple = false, // user can enter multiple value in the combo box. Here we have a simple "KeyValuePair&lt;string, string&gt;", so no!
+                UseLargeDropDown = true, // this will force the combo box to show a large drop down, in case the col width is very small
+                OnRequest = OnGrid_Basic3_Request
+            };
+
+            Grid_Editing_Advanced.Columns.Set(Grid_Editing_Advanced.Columns.ToDictionary(x => x.Key, x => x.Value));
+
+            Grid_Editing_Advanced.OnCellChanged += Grid_Basic3_OnCellChanged;
+        }
+        Dictionary&lt;string, string&gt; TestDictionary = new Dictionary&lt;string, string&gt;
+        {
+            ["test"] = "Test string 1",
+            ["test 2"] = "Test string 2",
+            ["test 3"] = "Test string 3",
+            ["test 4"] = "Test string 4",
+            ["test 5"] = "Test string 5",
+        };
+        private Dictionary&lt;string, string&gt; OnGrid_Basic3_Request(string searchString)
+        {
+            return TestDictionary.Where( x=> 
+                x.Key.ToLower().Contains(searchString.ToLower()) ||
+                x.Value.ToLower().Contains(searchString.ToLower())).ToDictionary( x=> x.Key, x => x.Value );
+        }
+        private void Grid_Basic3_OnCellChanged(DataGridColumn col, int row, Item3 item, object newValue)
+        {
+            MessageBox.Success("Success", $"Col {col.Name} was modified on row {row}. The new value is now: {newValue}");
+        }
+    }
+        </code>
+    </pre>
+        </div>
+
+    </div>
+</div>
+<!--               -->
+
+<style>
+    .background-red {
+        background-color: red !important
+    }
+
+    .group {
+        font-weight: bold;
+    }
+</style>
+
+<h2 class="ui dividing header">Formatting</h2>
+
+<div style="height:125px;width: 500px" id="@nameof(DataGridPage.Grid_Formatting)"></div>
+
+
+<div class="ui styled accordion"  style="width:100%">
+    <div class="title">
+        <i class="dropdown icon"></i>
+        Source
+    </div>
+    <div class="content">
+
+        <div class="ui raise segment">
+            <a class="ui orange ribbon label">HTML</a>
+            <pre>
+                <code>
+                    &lt;style&gt;
+                    .background-red {
+                    background-color: red !important
+                    }
+                    .group {
+                    font-weight: bold;
+                    }
+                    &lt;/style&gt;
+
+                    &lt;div style="height:200px;width: 200px" id="&commat;nameof(DataGridPage.Grid_Formatting)"&gt;&lt;/div&gt;
+                </code>
+    </pre>
+        </div>
+
+        <div class="ui raise segment" >
+            <a class="ui green ribbon label">C#</a>
+            <pre>
+            <code>
+        public class Item4
+        {
+            public string Name;
+            public string Col2;
+
+            // IgnoreColumn will prevent the dataGrid from displaying the value of this field
+            [DataGridColumn.IgnoreColumn]
+            public bool IsError;
+            [DataGridColumn.IgnoreColumn]
+            public bool IsGroup;
+        }
+        public DataGrid&lt;Item4&gt; Grid_Formatting = new DataGrid&lt;Item4&gt;();
+
+        public void OnGet()
+        {
+            InitializePolinetControls();
+            Grid_Formatting.InitializeColumns();
+            // specify the code to be called when the data grid wants to update the metas data
+            Grid_Formatting.OnGenerateMetasData += Grid_Formatting_OnGenerateMetasData;
+
+            Grid_Formatting.Datas = new List&lt;Item4&gt;()
+            {
+                new Item4()
+                {
+                    Name = "Group name!",
+                    IsGroup = true
+                },
+                new Item4()
+                {
+                    Name = "test",
+                    Col2 = "test 2",
+                    IsError = true
+                },
+                new Item4()
+                {
+                    Name = "test 4",
+                    Col2 = "test 5",
+                    IsError = false
+                },
+            };
+        }
+
+        private void Grid_Formatting_OnGenerateMetasData()
+        {
+            // generate metas data for each row
+            Grid_Formatting.MetaDatas.Set(Grid_Formatting.Datas.Select(Grid_Formatting_OnGenerateMetasData));
+        }
+        private DataGridColumn.MetaData Grid_Formatting_OnGenerateMetasData(Item4 item)
+        {
+            var meta = new DataGridColumn.MetaData();
+            if (item.IsGroup)
+            {
+                meta.Columns[nameof(Item4.Name)] = new DataGridColumn.MetaDataColumn(Colspan: Grid_Formatting.Columns.Count);
+                meta.CssClasses = "group";
+            }
+            else
+                meta.CssClasses = item.IsError ? "background-red" : "";
+            return meta;
+        }
+    </code>
+    </pre>
+        </div>
+    </div>
+</div>
+<!--               -->
+
+
+<h2 class="ui dividing header">Single row updates</h2>
+
+<div style="height:125px;width: 500px" id="@nameof(DataGridPage.Grid_UpdateSingleRow)"></div>
+
+
+<div class="ui styled accordion"  style="width:100%">
+    <div class="title">
+        <i class="dropdown icon"></i>
+        Source
+    </div>
+    <div class="content">
+
+        <div class="ui raise segment">
+            <a class="ui orange ribbon label">HTML</a>
+            <pre>
+            <code>
+         &lt;style&gt;
+         .background-red {
+             background-color: red !important
+         }
+         &lt;/style&gt;
+
+         &lt;div style="height:200px;width: 200px" id="&commat;nameof(DataGridPage.Grid_UpdateSingleRow)"&gt;&lt;/div&gt;
+                </code>
+    </pre>
+        </div>
+
+        <div class="ui raise segment">
+            <a class="ui green ribbon label">C#</a>
+            <pre><code>
+                
+        public class Item5
+        {
+            public string Col1;
+            public int Col2;
+        }
+        public DataGrid&lt;Item5&gt; Grid_UpdateSingleRow = new DataGrid&lt;Item5&gt;();
+        public void Init_UpdateSingleRow()
+        {
+            Grid_Basic.InitializeColumns();
+            Grid_UpdateSingleRow.Datas = new List&lt;Item5&gt;()
+            {
+                new Item5()
+                {
+                    Col1 = "test",
+                    Col2 = 123
+                },
+                new Item5()
+                {
+                    Col1 = "test 3",
+                    Col2 = 0
+                },
+                new Item5()
+                {
+                    Col1 = "test 5",
+                    Col2 = 234
+                }
+            };
+            Grid_UpdateSingleRow.OnGenerateMetasData += Grid_UpdateSingleRow_OnGenerateMetasData;
+
+            // update the value every 2 seconds
+            int count = 0;
+            RegisterHostedService(TimeSpan.FromSeconds(2), () =>
+            {
+                using (ServerSideLock)
+                {
+                    // write directly to the datas and the index we want
+                    Grid_UpdateSingleRow.Datas[1].Col2 = ++count;
+                    // and then update the index we juste modified
+                    // if not specified otherwise, this will also generate the metas for this row
+                    Grid_UpdateSingleRow.RefreshRow(1);
+                }
+            });
+        }
+
+        private void Grid_UpdateSingleRow_OnGenerateMetasData(int row, Item5 item, out DataGridColumn.MetaData metaData)
+        {
+            if (item.Col2 % 2 == 0)
+                metaData = new DataGridColumn.MetaData("background-red");
+            else
+                metaData = null;
+        }
+            </code></pre>
+        </div>
+    </div>
+</div>
+<!--               -->
+
+<script>
+    $('.ui.accordion')
+        .accordion()
+        ;
+</script>

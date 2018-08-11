@@ -1,0 +1,106 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+
+  <PropertyGroup>
+    <Configurations>Debug;Release;Azure; Debug_NetFramework</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NetFramework|AnyCPU'">
+    <TargetFramework>net461</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TypeScriptToolsVersion>2.5</TypeScriptToolsVersion>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
+    <AssemblyName>FSW.Semantic</AssemblyName>
+    <RootNamespace>FSW.Semantic</RootNamespace>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="wwwroot\**\*.js"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.map"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.css"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.woff2"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.woff"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.ttf"></EmbeddedResource>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Remove="wwwroot\js\semantic\controls\html\checkbox.ts" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Remove="wwwroot\js\semantic\controls\html\checkbox.js" />
+    <EmbeddedResource Remove="wwwroot\js\semantic\controls\html\checkbox.js.map" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
+    <PackageReference Include="jquery.TypeScript.DefinitelyTyped" Version="3.1.2" />
+    <PackageReference Include="jqueryui.TypeScript.DefinitelyTyped" Version="1.5.1" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.1.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.1.1" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\FullSpectrumWebForms\FullSpectrumWebForms.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <TypeScriptCompile Include="wwwroot\js\semantic\controls\html\checkbox.ts" />
+    <TypeScriptCompile Include="wwwroot\js\semantic\controls\html\iconTextButton.ts" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptModuleKind />
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug_Test'">
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptModuleKind />
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Azure|AnyCPU'">
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+  </PropertyGroup>
+<!--
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy /Y &quot;$(TargetPath)&quot; &quot;$(TargetDir)win7-x86\$(TargetFileName)&quot;" />
+  </Target>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="if not exist &quot;$(TargetDir)win7-x86&quot; mkdir &quot;$(TargetDir)win7-x86&quot;" />
+  </Target>
+-->
+</Project>

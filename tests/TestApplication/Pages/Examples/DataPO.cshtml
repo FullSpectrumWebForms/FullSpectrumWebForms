@@ -1,0 +1,14 @@
+﻿@page
+@model Polinet_ASPC.ModelBase<DataPOPage>
+@{
+    ViewData["Title"] = "DataPO";
+    Layout = "~/Pages/_Layout.cshtml";
+}
+
+<h2>DataPO</h2>
+
+<span id="@nameof(DataPOPage.spanTest1)" data-po-Text="Super text"></span>
+
+<br />
+
+<input id="@nameof(DataPOPage.spanTest2)" data-po-Text="Super text 2"/>

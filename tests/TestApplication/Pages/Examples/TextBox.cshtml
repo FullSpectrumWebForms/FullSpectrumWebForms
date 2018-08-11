@@ -1,0 +1,58 @@
+﻿@page
+@model Polinet_ASPC.ModelBase<TextBoxPage>
+@{
+    ViewData["Title"] = "TextBox";
+    Layout = "~/Pages/_Layout.cshtml";
+}
+<script>hljs.initHighlightingOnLoad();</script>
+<h2>TextBox</h2>
+
+<input id="@nameof(TextBoxPage.TB_Test)"/>
+
+
+<br />
+
+<label id="@nameof(TextBoxPage.LB_Test)"></label>
+
+<br />
+
+<div class="ui styled accordion" style="width:100%">
+    <div class="title">
+        <i class="dropdown icon"></i>
+        Source
+    </div>
+    <div class="content">
+
+        <div class="ui raise segment">
+            <a class="ui orange ribbon label">HTML</a>
+            <pre><code>&lt;input id="&commat;nameof(TextBoxPage.TB_Test)"/&gt;</code></pre>
+        </div>
+
+        <div class="ui raise segment">
+            <a class="ui green ribbon label">C#</a>
+            <pre>
+            <code>
+public TextBox TB_Test = new TextBox();
+public Label LB_Test = new Label();
+
+public void OnGet()
+{
+    InitializePolinetControls();
+    TB_Test.OnTextChanged += TB_Test_OnTextChanged;
+}
+
+private void TB_Test_OnTextChanged(TextBox sender, string previousText, string newText)
+{
+    LB_Test.Text = "You entered:" + newText;
+}    
+        </code>
+    </pre>
+        </div>
+        </div>
+    </div>
+
+        <script>
+            $('.ui.accordion')
+                .accordion()
+                ;
+        </script>

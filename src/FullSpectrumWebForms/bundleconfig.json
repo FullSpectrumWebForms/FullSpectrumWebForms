@@ -1,0 +1,66 @@
+﻿// Configure bundling and minification for the project.
+// More info at https://go.microsoft.com/fwlink/?LinkId=808241
+[
+  {
+    "outputFileName": "wwwroot/fsw.min.css",
+    // An array of relative input file paths. Globbing patterns supported
+    "inputFiles": [
+      "wwwroot/css/jqueryContextMenu/jquery.contextMenu.min.css",
+      "wwwroot/css/fullcalendar/fullcalendar.min.css",
+      "wwwroot/css/fullcalendar/scheduler.min.css",
+      "wwwroot/css/jquery/jquery-ui.min.css",
+      "wwwroot/css/noty/noty.css",
+      "wwwroot/css/pikaday/pikaday.css",
+      "wwwroot/css/jqueryTimepicker/jquery.timepicker.css",
+      "wwwroot/css/select2/select2.css",
+      "wwwroot/css/slickGrid/slick.grid.css",
+      "wwwroot/css/slickGrid/slick-default-theme.css",
+      "wwwroot/css/treeTable/treeTable.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/fsw.min.js",
+    "inputFiles": [
+      "wwwroot/js/moment/moment.js",
+      "wwwroot/js/moment/moment-with-locales.js",
+      "wwwroot/js/jquery/jquery-2.2.0.js",
+      "wwwroot/js/jquery/jquery-ui.js",
+      "wwwroot/js/fullcalendar/fullcalendar.min.js",
+      "wwwroot/js/jqueryContextMenu/jquery.ui.position.min.js",
+      "wwwroot/js/jqueryContextMenu/jquery.contextMenu.min.js",
+      "wwwroot/js/ExcelBuilder/download2.js",
+      "wwwroot/js/ExcelBuilder/excel-builder.compiled.js",
+      "wwwroot/js/jquery/jquery.event.drag-2.3.0.js",
+      "wwwroot/js/js.cookie/js.cookie.js",
+      "wwwroot/js/jquery/jquery.event.drop-2.3.0.js",
+      "wwwroot/js/SlickGrid/slick.core.js",
+      "wwwroot/js/SlickGrid/slick.formatters.js",
+      "wwwroot/js/SlickGrid/slick.editors.js",
+      "wwwroot/js/SlickGrid/customEditor.js",
+      "wwwroot/js/SlickGrid/slick.grid.js",
+      "wwwroot/js/SlickGrid/slick.dataview.js",
+      "wwwroot/js/treeTable/treeTable.js",
+      "wwwroot/js/fsw/genericAjax.js",
+      "wwwroot/js/fsw/utility.js",
+      "wwwroot/js/fsw/po_utility.js",
+      "wwwroot/js/select2/select2.full.min.js",
+      "wwwroot/js/noty/noty.js",
+      "wwwroot/js/pikaday/pikaday.js",
+      "wwwroot/js/jqueryTimepicker/jquery.timepicker.js",
+      "wwwroot/js/signalR/signalr.min.js",
+      "wwwroot/js/core/coreProperty.js",
+      "wwwroot/js/core/fswManager.js",
+      "wwwroot/js/core/controlBase.js",
+      "wwwroot/js/controls/html/htmlControlBase.js",
+      "wwwroot/js/controls/html/div.js",
+      "wwwroot/js/controls/**/*.js"
+    ],
+    // Optionally specify minification options
+    "minify": {
+      "enabled": false,
+      "renameLocals": true
+    },
+    // Optionally generate .map file
+    "sourceMap": false
+  }
+]

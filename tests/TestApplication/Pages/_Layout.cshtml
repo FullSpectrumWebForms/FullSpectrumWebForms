@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<input id="pageId" style="display:none" value="@Model.CurrentPageID" />
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - TestApplication</title>
+
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link href="/css/fullcalendar/fullcalendar.min.css" rel="stylesheet" />
+    <link href="/css/fullcalendar/scheduler.min.css" rel="stylesheet" />
+
+    <link href="/css/slickGrid/slick.grid.css" rel="stylesheet" />
+    <link href="/css/slickGrid/slick-default-theme.css" rel="stylesheet" />
+    <link href="/css/treeTable/treeTable.css" rel="stylesheet" />
+    <link href="/css/select2/select2.css" rel="stylesheet" />
+
+    <link href="~/css/highlight/default.css" rel="stylesheet" />
+    <link href="~/css/highlight/vs2015.css" rel="stylesheet" />
+    <link href="\semantic\semantic.css" rel="stylesheet" />
+
+    <script src="~/js/highlight/highlight.pack.js"></script>
+    <script src="\js\moment\moment.js"></script>
+    <script src="\js\moment\moment-with-locales.js"></script>
+    <script src="\js\jquery/jquery-2.2.0.js"></script>
+    <script src="\js\jquery/jquery-ui.js"></script>
+
+    <script src="\js\fullcalendar\fullcalendar.min.js"></script>
+
+    <script src="\js\polinet\genericAjax.js"></script>
+    <script src="\js\polinet\utility.js"></script>
+    <script src="\js\polinet\po_utility.js"></script>
+
+    <script src="\js\select2\select2.full.min.js"></script>
+    <script src="\js\noty\noty.js"></script>
+    <script src="\js\pikaday\pikaday.js"></script>
+
+    <script src="/js/jqueryContextMenu/jquery.ui.position.min.js"></script>
+    <script src="/js/jqueryContextMenu/jquery.contextMenu.min.js"></script>
+    <script src="/js/jqueryContextMenu/jquery.contextMenu.js"></script>
+
+    <script src="/js/jquery/jquery.event.drag-2.3.0.js"></script>
+    <script src="/js/jquery/jquery.event.drop-2.3.0.js"></script>
+    <script src="/js/SlickGrid/slick.core.js"></script>
+    <script src="/js/SlickGrid/slick.formatters.js"></script>
+    <script src="/js/SlickGrid/slick.editors.js"></script>
+    <script src="/js/SlickGrid/customEditor.js"></script>
+    <script src="/js/SlickGrid/slick.grid.js"></script>
+    <script src="/js/SlickGrid/slick.dataview.js"></script>
+
+    <script src="\js\treeTable\treeTable.js"></script>
+
+    <script src="\js\signalR\signalr.min.js"></script>
+
+    <script src="\js\core\coreProperty.js"></script>
+    <script src="\js\core\polinetManager.js"></script>
+    <script src="\js\core\controlBase.js"></script>
+
+    <script src="\js\controls\html\htmlControlBase.js"></script>
+    <script src="\js\controls\html\div.js"></script>
+    <script src="\js\controls\html\header.js"></script>
+    <script src="\js\controls\html\Label.js"></script>
+    <script src="\js\controls\html\button.js"></script>
+    <script src="\js\controls\html\checkbox.js"></script>
+    <script src="\js\controls\html\radio.js"></script>
+    <script src="\js\controls\html\span.js"></script>
+    <script src="\js\controls\html\textarea.js"></script>
+    <script src="\js\controls\html\textBox.js"></script>
+    <script src="\js\controls\html\Calendar.js"></script>
+    <script src="\js\controls\html\dataGrid.js"></script>
+
+    <script src="\js\controls\timer.js"></script>
+    <script src="\js\controls\messageBox.js"></script>
+
+    <script src="\semantic\semantic.js"></script>
+
+    <script>hljs.initHighlightingOnLoad();</script>
+</head>
+<body>
+    <div class="ui inverted left vertical fixed menu" style="height:100%">
+        <div class="item">
+            <div class="header">Home</div>
+            <div class="header">Documentations</div>
+            <div class="header">Base HTML Elements</div>
+            <div class="menu">
+                <a class="item" href="~/Examples/Button">Button</a>
+                <a class="item" href="~/Examples/TextBox">TextBox</a>
+                <a class="item" href="~/Examples/Label">Label</a>
+                <a class="item" href="~/Examples/ComboBox">ComboBox</a>
+                <a class="item" href="~/Examples/DataGrid">DataGrid</a>
+                <a class="item" href="~/Examples/StaticHostedService">Static hosted service</a>
+            </div>
+            <div class="header">Sementic Elements</div>
+            <div class="menu">
+                <a class="item" href="~/Examples/Semantic/SemanticButton">Button</a>
+                <a class="item" href="~/Examples/Semantic/SemanticLabel">Label</a>
+                <a class="item" href="~/Examples/Search">Search</a>
+            </div>
+
+            <div class="header">Other Elements</div>
+            <div class="menu">
+                <a class="item" href="~/Examples/Grid">Grid</a>
+                <a class="item" href="~/Examples/DataPO">Data Properties</a>
+                <a class="item" href="~/Examples/Calendar">Calendar</a>
+            </div>
+        </div>
+    </div>
+
+    <div style="width: calc( 100% - 215px ); left: 215px; position: relative; height: 100%">
+        @RenderBody()
+    </div>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
