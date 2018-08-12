@@ -14,7 +14,7 @@ namespace TestApplication.Pages.Examples.Semantic
         public override void OnPageLoad()
         {
             base.OnPageLoad();
-            LB_Test.Text = "Labke Example";
+            LB_Test.Text = "Label Example";
             LB_Test.Icon = "heart";
             LB_Test.Icon = "cloud";
         }
