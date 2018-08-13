@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -17,13 +17,13 @@
 
  <ItemGroup>
      <Reference Include="FSW.Semantic">
-       <HintPath>\Reference\FSW.Semantic.dll</HintPath>
+       <HintPath>\References\FSW.Semantic.dll</HintPath>
      </Reference>
      <Reference Include="FullSpectrumWebForms">
-       <HintPath>\Reference\FullSpectrumWebForms.dll</HintPath>
+       <HintPath>\References\FullSpectrumWebForms.dll</HintPath>
      </Reference>
      <Reference Include="FullSpectrumWebForms_ASPC">
-       <HintPath>\Reference\FullSpectrumWebForms_ASPC.dll</HintPath>
+       <HintPath>\References\FullSpectrumWebForms_ASPC.dll</HintPath>
      </Reference>
    </ItemGroup>
 
