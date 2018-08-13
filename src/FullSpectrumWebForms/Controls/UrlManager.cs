@@ -22,14 +22,14 @@ namespace FSW.Controls
         {
 
         }
-        public void UpdateParameter(string parameterName, string value)
+        public void UpdateParameter(string parameterName, string value, bool clearEverythingElse = false)
         {
             UpdateParameters(new Dictionary<string, string>
             {
                 [parameterName] = value
-            }, true);
+            }, !clearEverythingElse);
         }
-        public void UpdateParameters(Dictionary<string, string> parameters, bool mergeWithPreviousParameters)
+        public void UpdateParameters(Dictionary<string, string> parameters, bool mergeWithPreviousParameters = true)
         {
             var copyOfOldParameters = mergeWithPreviousParameters ? Parameters.ToDictionary(x => x.Key, x => x.Value) : new Dictionary<string, string>();
             foreach (var parameter in parameters)
