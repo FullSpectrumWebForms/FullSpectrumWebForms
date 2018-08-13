@@ -41,6 +41,7 @@ git clone https://github.com/FullSpectrumWebForms/FullSpectrumWebForms.git
 2. Install npm and git
 ```shell
 sudo apt-get install nodejs npm git
+sudo snap install powershell
 ```
 3. Install Typescript
 ```shell
