@@ -136,7 +136,10 @@ namespace FSW.Core
         {
             if (Properties.TryGetValue(name, out var property))
             {
-                value = (T)Convert.ChangeType(property.Value, typeof(T));
+                if (property.Value is Newtonsoft.Json.Linq.JObject jObject)
+                    value = jObject.ToObject<T>();
+                else
+                    value = (T)Convert.ChangeType(property.Value, typeof(T));
                 return true;
             }
             value = default(T);
