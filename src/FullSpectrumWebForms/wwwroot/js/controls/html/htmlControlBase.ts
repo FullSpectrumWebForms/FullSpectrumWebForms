@@ -250,7 +250,7 @@ namespace controls.html {
             if (keys.length == 0)
                 return;
 
-            let style = $('<style>' + keys.map(x => x + '{' + Object.keys(this.InternalStyles[x]).map(y => y + ':' + this.InternalStyles[x][y] + ';').join() + '} ').join() + '</style>');
+            let style = $('<style>' + keys.map(x => x + '{' + Object.keys(this.InternalStyles[x]).map(y => y + ':' + this.InternalStyles[x][y]).join(';') + '}').join(' ') + '</style>');
 
             this.element.append(style);
         }
