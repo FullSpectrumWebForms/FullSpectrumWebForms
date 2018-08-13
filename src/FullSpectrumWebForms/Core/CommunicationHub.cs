@@ -140,7 +140,7 @@ namespace FSW.Core
             var pageId = ModelBase.RegisterFSWPage(page, sessionId, sessionAuth, out string newSessionId, out string newSessionAuth).id;
             return (pageId, page, newSessionId, newSessionAuth);
         }
-        public Task InitializeCore(int pageId, string sessionId, string sessionAuth, string auth, string typePath)
+        public Task InitializeCore(int pageId, string url, Dictionary<string, string> urlParameters, string sessionId, string sessionAuth, string auth, string typePath)
         {
             FSWPage page;
             lock (PageAwaitingConnections)
@@ -165,7 +165,6 @@ namespace FSW.Core
                 page = PageAwaitingConnections[pageId];
                 PageAwaitingConnections.Remove(pageId);
 
-
                 if (page.PageAuth != auth)
                     return BackgroundHub.SendAsync_ID(ConnectionId, "error", "Invalid page auth");
             }
@@ -181,7 +180,7 @@ namespace FSW.Core
             InitializationCoreServerAnswer res;
             var manager = page.Manager;
             lock (manager._lock)
-                res = manager.InitializePageFromClient(ConnectionId);
+                res = manager.InitializePageFromClient(ConnectionId, url, urlParameters);
             res.SessionId = sessionId;
             res.SessionAuth = sessionAuth;
             res.ConnectionId = ConnectionId;

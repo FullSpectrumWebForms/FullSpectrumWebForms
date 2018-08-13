@@ -157,6 +157,17 @@ namespace core {
                 that.propertyUpdateFromServerStep1(data);
             });
 
+            function URLToArray(url) {
+                var request = {};
+                var pairs = url.substring(url.indexOf('?') + 1).split('&');
+                for (var i = 0; i < pairs.length; i++) {
+                    if (!pairs[i])
+                        continue;
+                    var pair = pairs[i].split('=');
+                    request[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+                }
+                return request;
+            }
 
             await this.connection.start();
 
@@ -165,7 +176,9 @@ namespace core {
                 pageIdAuth: that.pageIdAuth,
                 sessionId: Cookies.get('polinetSessionId'),
                 sessionAuth: Cookies.get('polinetSessionAuth'),
-                typePath: that.typePath
+                typePath: that.typePath,
+                url: document.location.pathname,
+                urlParameters: URLToArray(document.location.search)
             });
         }
         updateLocked = 0;

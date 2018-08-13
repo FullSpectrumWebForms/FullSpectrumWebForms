@@ -31,8 +31,10 @@ namespace FSW_ASPC.Core
             var sessionId = data["sessionId"].ToObject<string>();
             var sessionAuth = data["sessionAuth"].ToObject<string>();
             var typePath = data["typePath"].ToObject<string>();
+            var url = data["url"].ToObject<string>();
+            var urlParameters = data["urlParameters"].ToObject<Dictionary<string, string>>();
 
-            return PolinetHub.InitializeCore(pageId, sessionId, sessionAuth, pageIdAuth, typePath);
+            return PolinetHub.InitializeCore(pageId, url, urlParameters, sessionId, sessionAuth, pageIdAuth, typePath);
         }
 
         public Task CustomControlEvent(Newtonsoft.Json.Linq.JObject data)

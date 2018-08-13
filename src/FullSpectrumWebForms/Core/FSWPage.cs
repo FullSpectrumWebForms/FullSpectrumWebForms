@@ -8,9 +8,10 @@ namespace FSW.Core
     public class FSWPage
     {
         public FSWPage Page => this;
+
         public Controls.MessageBox MessageBox;
         public Controls.LoadingScreen LoadingScreen;
-        public Controls.Redirect Redirect;
+        public Controls.UrlManager UrlManager;
 
         public string ID;
         public string PageAuth;
@@ -19,12 +20,14 @@ namespace FSW.Core
 
         public FSWManager Manager;
 
-        internal void InitializeFSWControls(string connectionId)
+        internal void InitializeFSWControls(string connectionId, string url, Dictionary<string, string> urlParameters)
         {
             ID = connectionId;
             MessageBox = new Controls.MessageBox();
             LoadingScreen = new Controls.LoadingScreen();
-            Redirect = new Controls.Redirect();
+            UrlManager = new Controls.UrlManager(url, urlParameters);
+
+
 
             var type = GetType();
             var fields = type.GetFields(System.Reflection.BindingFlags.FlattenHierarchy | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -63,7 +66,7 @@ namespace FSW.Core
 
         public void RedirectToUrl(string url)
         {
-            Redirect.RedirectToUrl(url);
+            UrlManager.UpdateUrlAndReload(url);
         }
 
         internal void InvokePageUnload()

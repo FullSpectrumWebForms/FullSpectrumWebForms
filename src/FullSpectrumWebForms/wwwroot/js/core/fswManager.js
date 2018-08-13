@@ -100,13 +100,26 @@ var core;
                     data = JSON.parse(data);
                     that.propertyUpdateFromServerStep1(data);
                 });
+                function URLToArray(url) {
+                    var request = {};
+                    var pairs = url.substring(url.indexOf('?') + 1).split('&');
+                    for (var i = 0; i < pairs.length; i++) {
+                        if (!pairs[i])
+                            continue;
+                        var pair = pairs[i].split('=');
+                        request[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+                    }
+                    return request;
+                }
                 yield this.connection.start();
                 this.connection.send('InitializeCore', {
                     pageId: that.pageId,
                     pageIdAuth: that.pageIdAuth,
                     sessionId: Cookies.get('polinetSessionId'),
                     sessionAuth: Cookies.get('polinetSessionAuth'),
-                    typePath: that.typePath
+                    typePath: that.typePath,
+                    url: document.location.pathname,
+                    urlParameters: URLToArray(document.location.search)
                 });
             });
         }
