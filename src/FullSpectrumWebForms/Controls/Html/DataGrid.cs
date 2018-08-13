@@ -452,7 +452,7 @@ namespace FSW.Controls.Html
             });
         }
         [CoreEvent]
-        private object OnActiveCellChangedFromClient(int row, string col)
+        protected object OnActiveCellChangedFromClient(int row, string col)
         {
             if (row == -1 && col == null)
             {
@@ -471,7 +471,7 @@ namespace FSW.Controls.Html
             return null;
         }
         [CoreEvent]
-        private object OnCellChangedFromClient(int row, string col, object value = null)
+        protected object OnCellChangedFromClient(int row, string col, object value = null)
         {
             if (row >= Datas.Count)
                 throw new Exception($"Invalid row {row} in control {Id}");
@@ -698,132 +698,5 @@ namespace FSW.Controls.Html
             return Columns;
         }
     }
-
-    //public class TableDataGrid<DataContext> : DataGrid<object> where DataContext : System.Data.Linq.DataContext
-    //{
-    //    public interface IEventBinder
-    //    {
-    //        Func<DataContext, DataGridColumn, object, object, object> UpdateValueInDB { get; }
-    //        /// <summary>
-    //        ///  context, DataType object, id object, and the return TableType object
-    //        /// </summary>
-    //        Func<DataContext, object, object, object> FindRow { get; }
-    //        Func<DataContext, IQueryable<object>> GetTable { get; }
-    //        Action<DataContext, object> CommitRow { get; }
-    //        Func<DataContext, IQueryable<object>> Selector { get; }
-    //        Func<object, object> GetIdFromData { get; }
-    //        Func<DataContext> ContextProvider { get; }
-    //
-    //    }
-    //    public class EventBinder<DataType, TableType> : IEventBinder
-    //    {
-    //        TableDataGrid<DataContext> DataGrid;
-    //        public Func<DataContext, DataGridColumn, DataType, object, TableType> UpdateValueInDB;
-    //        /// <summary>
-    //        ///  context, DataType object, id object, and the return TableType object
-    //        /// </summary>
-    //        public Func<DataContext, DataType, object, TableType> FindRow;
-    //        public Func<DataContext, IQueryable<TableType>> GetTable;
-    //        public Action<DataContext, TableType> CommitRow;
-    //        public Func<DataContext, IQueryable<DataType>> Selector;
-    //        public Func<DataType, object> GetIdFromData;
-    //        public Func<DataContext> ContextProvider;
-    //
-    //        private string UniqueIDFieldName;
-    //
-    //        Func<DataContext, DataGridColumn, object, object, object> IEventBinder.UpdateValueInDB
-    //        {
-    //            get => (context, col, obj, value) => UpdateValueInDB(context, col, (DataType)obj, value);
-    //        }
-    //        Func<DataContext, object, object, object> IEventBinder.FindRow => (context, data, id) => FindRow(context, (DataType)data, id);
-    //        Func<DataContext, IQueryable<object>> IEventBinder.GetTable => (context) => (IQueryable<object>)GetTable(context);
-    //        Action<DataContext, object> IEventBinder.CommitRow => (context, obj) => CommitRow(context, (TableType)obj);
-    //        Func<DataContext, IQueryable<object>> IEventBinder.Selector => (context) => (IQueryable<object>)Selector(context);
-    //        Func<object, object> IEventBinder.GetIdFromData => (data) => GetIdFromData((DataType)data);
-    //        Func<DataContext> IEventBinder.ContextProvider => ContextProvider;
-    //
-    //        private static Expression GetProperty(Expression parent, string name)
-    //        {
-    //            var names = name.Split('.');
-    //            foreach (var subName in names)
-    //                parent = Expression.Property(parent, subName);
-    //            return parent;
-    //        }
-    //        public EventBinder(TableDataGrid<DataContext> dataGrid, Func<DataContext, IQueryable<TableType>> getTable, Func<DataContext, IQueryable<DataType>> selector)
-    //        {
-    //            DataGrid = dataGrid;
-    //            GetTable = getTable;
-    //            Selector = selector;
-    //
-    //            DataGrid.OnCellChanged += DataGrid_OnCellChanged;
-    //
-    //
-    //            // -------------------------------------------- get the UniqueID field name to set a default FindRow behavior
-    //            var tableType = typeof(TableType);
-    //            var properties = tableType.GetProperties();
-    //            string uniqueIdName = null;
-    //            foreach (var property in properties)
-    //            {
-    //                var attributes = property.GetCustomAttributes(typeof(System.Data.Linq.Mapping.ColumnAttribute), false);
-    //                if (attributes != null && attributes.Length != 0)
-    //                {
-    //                    var attr = (System.Data.Linq.Mapping.ColumnAttribute)attributes[0];
-    //                    if (attr.IsPrimaryKey)
-    //                    {
-    //                        uniqueIdName = property.Name;
-    //                        break;
-    //                    }
-    //                }
-    //            }
-    //            UniqueIDFieldName = uniqueIdName;
-    //            if (UniqueIDFieldName != null)
-    //            {
-    //                FindRow = (context, initialObj, id) =>
-    //                {
-    //                    var arg = Expression.Parameter(typeof(TableType));
-    //                    var property = GetProperty(arg, UniqueIDFieldName);
-    //                    var equal = Expression.Equal(property, Expression.Constant(id));
-    //
-    //                    return GetTable(context).FirstOrDefault(Expression.Lambda<Func<TableType, bool>>(equal, arg));
-    //                };
-    //                GetIdFromData = (arg) => arg?.GetType().GetProperty(uniqueIdName)?.GetValue(arg);
-    //            }
-    //            CommitRow = (context, table) =>
-    //            {
-    //                var c = (System.Data.Linq.DataContext)(object)context;
-    //                c.SubmitChanges();
-    //            };
-    //            UpdateValueInDB = DefaultUpdateValueInDB;
-    //        }
-    //
-    //        public TableType DefaultUpdateValueInDB(DataContext context, DataGridColumn col, DataType data, object newColValue)
-    //        {
-    //            var row = FindRow(context, data, GetIdFromData?.Invoke(data));
-    //            row.GetType().GetProperty(col.Id).SetValue(row, newColValue);
-    //            return row;
-    //        }
-    //
-    //        private void DataGrid_OnCellChanged(DataGridColumn col, int row, object item, object newValue)
-    //        {
-    //            using (var context = ContextProvider())
-    //            {
-    //                var row_ = UpdateValueInDB(context, col, (DataType)item, newValue);
-    //                OnCellChanged?.Invoke(context, col, (DataType)item, row_);
-    //
-    //                CommitRow(context, row_);
-    //            }
-    //        }
-    //
-    //        public delegate void OnCellChangedHandler(DataContext context, DataGridColumn col, DataType selectedObject, TableType newObjectFromDB);
-    //        public event OnCellChangedHandler OnCellChanged;
-    //    }
-    //
-    //    public IEventBinder Binder;
-    //    public EventBinder<DataType, TableType> InitialiseTable<TableType, DataType>(Func<DataContext, IQueryable<TableType>> getTable, Func<DataContext, IQueryable<DataType>> selector)
-    //    {
-    //        var binder = new EventBinder<DataType, TableType>(this, getTable, selector);
-    //        Binder = binder;
-    //        return binder;
-    //    }
-    //}
+    
 }

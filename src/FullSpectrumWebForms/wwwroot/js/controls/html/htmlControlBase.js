@@ -49,6 +49,10 @@ var controls;
             set Attributes(value) {
                 this.setPropertyValue("Attributes", value);
             }
+            // ------------------------------------------------------------------------   Attributes
+            get InternalStyles() {
+                return this.getPropertyValue("InternalStyles");
+            }
             // ------------------------------------------------------------------------   CustomSelector
             get CustomSelector() {
                 return this.getPropertyValue("CustomSelector");
@@ -150,6 +154,7 @@ var controls;
                 this.getProperty("PopupTitle").onChangedFromClient.register(this.onPopupChanged.bind(this));
                 this.getProperty("PopupContent").onChangedFromServer.register(this.onPopupChanged.bind(this), true);
                 this.getProperty("PopupContent").onChangedFromClient.register(this.onPopupChanged.bind(this));
+                this.getProperty("InternalStyles").onChangedFromServer.register(this.onInternalStylesChanged.bind(this), true);
                 if (this.properties["InnerText"])
                     this.getProperty("InnerText").onChangedFromServer.register(this.onInnerTextChanged.bind(this), true);
                 this.getProperty("RightClickMenu").onChangedFromServer.register(this.onRightClickMenuChanged.bind(this), true);
@@ -197,6 +202,17 @@ var controls;
                 var tag = this.tryGetPropertyValue("HtmlDefaultTag") || "div";
                 this.element = $('<' + tag + '></' + tag + '>');
                 this.appendElementToParent();
+            }
+            onInternalStylesChanged(property, args) {
+                let keys = Object.keys(this.InternalStyles);
+                if (this.internalStyles) {
+                    this.internalStyles.remove();
+                    this.internalStyles = null;
+                }
+                if (keys.length == 0)
+                    return;
+                let style = $('<style>' + keys.map(x => x + '{' + Object.keys(this.InternalStyles[x]).map(y => y + ':' + this.InternalStyles[x][y] + ';').join() + '} ').join() + '</style>');
+                this.element.append(style);
             }
             onCssPropertiesChanged(property, args) {
                 this.element.css(this.CssProperties);

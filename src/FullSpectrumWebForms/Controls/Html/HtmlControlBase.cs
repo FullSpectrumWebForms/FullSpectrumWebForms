@@ -210,6 +210,8 @@ namespace FSW.Controls.Html
             set => CssProperties["display"] = value.ToString().ToLower();
         }
 
+        public Utility.ControlPropertyDictionary<Dictionary<string, string>> InternalStyles { get; private set; }
+
         // please if you set the PopupTitle just freaking set the PopupContent too...
         // come on...
         public string PopupTitle
@@ -245,6 +247,7 @@ namespace FSW.Controls.Html
             CssProperties = new Utility.ControlPropertyDictionary<string>(this, nameof(CssProperties));
             Attributes = new Utility.ControlPropertyDictionary<string>(this, nameof(Attributes));
             Classes = new Utility.ControlPropertyList<string>(this, nameof(Classes));
+            InternalStyles = new Utility.ControlPropertyDictionary<Dictionary<string, string>>(this, nameof(InternalStyles));
             GenerateClickEvents = false;
             RightClickMenu = null;
             PopupTitle = null;

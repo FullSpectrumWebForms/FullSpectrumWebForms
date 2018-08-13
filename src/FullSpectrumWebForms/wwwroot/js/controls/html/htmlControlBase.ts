@@ -58,6 +58,10 @@ namespace controls.html {
         set Attributes(value: { [name: string]: string }) {
             this.setPropertyValue<this>("Attributes", value);
         }
+        // ------------------------------------------------------------------------   Attributes
+        get InternalStyles(): { [selector: string]: { [name: string]: string } } {
+            return this.getPropertyValue<this, any>("InternalStyles");
+        }
         // ------------------------------------------------------------------------   CustomSelector
         get CustomSelector(): string {
             return this.getPropertyValue<this, string>("CustomSelector");
@@ -174,6 +178,8 @@ namespace controls.html {
             this.getProperty<this, any>("PopupContent").onChangedFromServer.register(this.onPopupChanged.bind(this), true);
             this.getProperty<this, any>("PopupContent").onChangedFromClient.register(this.onPopupChanged.bind(this));
 
+            this.getProperty<this, any>("InternalStyles").onChangedFromServer.register(this.onInternalStylesChanged.bind(this), true);
+
             if (this.properties["InnerText"])
                 this.getProperty<this, any>("InnerText").onChangedFromServer.register(this.onInnerTextChanged.bind(this), true);
 
@@ -234,6 +240,20 @@ namespace controls.html {
 
         }
 
+        internalStyles: JQuery;
+        private onInternalStylesChanged(property: core.controlProperty<any>, args: { old: any, new: any }) {
+            let keys = Object.keys(this.InternalStyles);
+            if (this.internalStyles) {
+                this.internalStyles.remove();
+                this.internalStyles = null;
+            }
+            if (keys.length == 0)
+                return;
+
+            let style = $('<style>' + keys.map(x => x + '{' + Object.keys(this.InternalStyles[x]).map(y => y + ':' + this.InternalStyles[x][y] + ';').join() + '} ').join() + '</style>');
+
+            this.element.append(style);
+        }
         private onCssPropertiesChanged(property: core.controlProperty<any>, args: { old: any, new: any }) {
             this.element.css(this.CssProperties);
         }
