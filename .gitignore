@@ -22,3 +22,8 @@
 /tests/TestApplication/Properties
 /tests/TestApplication/bin/Debug
 /tests/TestApplication/bin/Debug_NetFramework
+/ProjectTemplate/ProjectTemplate/bin
+/ProjectTemplate/ProjectTemplate/obj
+/ProjectTemplate/ProjectTemplate/Reference/FSW.Semantic.dll
+/ProjectTemplate/ProjectTemplate/Reference/FullSpectrumWebForms.dll
+/ProjectTemplate/ProjectTemplate/Reference/FullSpectrumWebForms_ASPC.dll
