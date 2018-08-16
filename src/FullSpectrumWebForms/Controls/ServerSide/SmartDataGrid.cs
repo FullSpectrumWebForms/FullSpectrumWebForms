@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace FSW.Controls.ServerSide.DataGrid
 {
@@ -121,7 +120,12 @@ namespace FSW.Controls.ServerSide.DataGrid
 
         private void SmartDataGrid_OnGenerateMetasData(int row, DataType item, out DataGridColumn.MetaData metaData)
         {
-            bool invalid = false;
+            if (OnSmartDataGridGenerateMetasData != null)
+                OnSmartDataGridGenerateMetasData.Invoke(row, item, out metaData);
+            else
+                metaData = null;
+
+            var invalid = false;
             if (item is DataInterfaces.IAutomaticInvalidOrIncompleteRow automaticInvalidOrIncompleteRow)
                 invalid = automaticInvalidOrIncompleteRow.IsRowInvalidOrIncomplete_Automatic();
             else if (item is DataInterfaces.IInvalidOrIncompleteRow invalidOrIncompleteRow)
@@ -132,7 +136,10 @@ namespace FSW.Controls.ServerSide.DataGrid
 
             if (invalid)
             {
-                metaData = new DataGridColumn.MetaData("invalidRow");
+                if (metaData == null)
+                    metaData = new DataGridColumn.MetaData("invalidRow");
+
+                metaData.CssClasses += "invalidRow";
 
                 foreach (var col in RequiredCols)
                 {
@@ -141,17 +148,15 @@ namespace FSW.Controls.ServerSide.DataGrid
                         metaData.CssClasses += " " + col.Value.cssName + "_row";
                 }
             }
-            else
-                metaData = null;
         }
 
         private void SmartDataGrid_OnCellChanged(DataGridColumn col, int row, DataType item, object newValue)
         {
-            bool isDeleted = (item as DataInterfaces.IDeleteRow)?.IsRowDeleted ?? false;
+            var isDeleted = (item as DataInterfaces.IDeleteRow)?.IsRowDeleted ?? false;
 
             if (isDeleted)
             {
-                bool removeAndRefresh = false;
+                var removeAndRefresh = false;
                 OnDeleteExistingRow?.Invoke(item, row, out removeAndRefresh);
                 if (removeAndRefresh)
                 {
@@ -161,7 +166,7 @@ namespace FSW.Controls.ServerSide.DataGrid
                 return;
             }
 
-            bool isInvalidOrIncomplete = false;
+            var isInvalidOrIncomplete = false;
             if (item is DataInterfaces.IAutomaticInvalidOrIncompleteRow automaticInvalidOrIncompleteRow)
                 isInvalidOrIncomplete = automaticInvalidOrIncompleteRow.IsRowInvalidOrIncomplete_Automatic();
             else if (item is DataInterfaces.IInvalidOrIncompleteRow invalidOrIncompleteRow)
@@ -175,8 +180,8 @@ namespace FSW.Controls.ServerSide.DataGrid
             }
 
             var isNewRow = (item as DataInterfaces.INewRow)?.IsNewRow ?? false;
-            
-            if( isNewRow )
+
+            if (isNewRow)
             {
                 OnNewRowValidated?.Invoke(item, row);
                 if (((DataInterfaces.INewRow)item).IsNewRow)
@@ -199,10 +204,10 @@ namespace FSW.Controls.ServerSide.DataGrid
             if (OnInitializeNewEmptyRow == null)
                 return;
 
-            bool refresh = false;
+            var refresh = false;
             while (true)
             {
-                OnInitializeNewEmptyRow(out DataType newRow, out int? rowIndex);
+                OnInitializeNewEmptyRow(out var newRow, out var rowIndex);
 
                 if (newRow != null)
                 {
