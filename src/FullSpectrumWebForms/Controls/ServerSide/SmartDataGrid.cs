@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace FSW.Controls.ServerSide.DataGrid
 {
@@ -15,6 +14,10 @@ namespace FSW.Controls.ServerSide.DataGrid
         public interface INewRow : IEmptyRow
         {
             bool IsNewRow { get; }
+        }
+        public interface IDeleteRow
+        {
+            bool IsRowDeleted { get; }
         }
 
         public class RequiredColAttribute : Attribute
@@ -39,13 +42,6 @@ namespace FSW.Controls.ServerSide.DataGrid
             bool SkipAutomaticValidation { get; }
         }
     }
-    namespace GridInterfaces
-    {
-        public interface INewRowDataGrid
-        {
-            DataInterfaces.INewRow CreateNewEmptyRow(out int? rowIndex);
-        }
-    }
     [Obsolete("!!WIP!!")]
     public class SmartDataGrid<DataType> : DataGrid<DataType> where DataType : class
     {
@@ -55,14 +51,50 @@ namespace FSW.Controls.ServerSide.DataGrid
 
         private Dictionary<string, (string cssName, DataInterfaces.RequiredColAttribute attribute)> RequiredCols = new Dictionary<string, (string cssName, DataInterfaces.RequiredColAttribute attribute)>();
 
+        public delegate void OnInitializeNewEmptyRowHandler(out DataType item, out int? row);
+        public event OnInitializeNewEmptyRowHandler OnInitializeNewEmptyRow;
+
+        public delegate void OnNewRowValidatedHandler(DataType item, int row);
+        public event OnNewRowValidatedHandler OnNewRowValidated;
+
+        public delegate void OnDeleteExistingRowHandler(DataType item, int row, out bool removeAndRefresh);
+        public event OnDeleteExistingRowHandler OnDeleteExistingRow;
+
+        public event OnGenerateMetasDataHandler OnSmartDataGridGenerateMetasData;
+
+
+        public void CreateNewEmptyRow_DefaultImplementation(out DataType item, out int? rowIndex)
+        {
+            if ((Datas?.LastOrDefault() as DataInterfaces.INewRow)?.IsNewRow != true)
+            {
+                rowIndex = Datas?.Count ?? 0;
+                item = Activator.CreateInstance<DataType>();
+            }
+            else
+            {
+                rowIndex = null;
+                item = null;
+            }
+        }
+
         public void InitializeSmartDataGrid()
         {
+            if (Datas == null)
+                Datas = new List<DataType>();
+
             InitializeColumns();
 
             OnCellChanged += SmartDataGrid_OnCellChanged;
             OnGenerateMetasData += SmartDataGrid_OnGenerateMetasData;
 
             RevalidateEmptyRowCreation();
+        }
+
+        public override void RefreshDatas(bool skipMetaDatasGeneration = false)
+        {
+            RevalidateEmptyRowCreation();
+
+            base.RefreshDatas(skipMetaDatasGeneration);
         }
 
         public override void InitializeColumns(Type forceType = null)
@@ -88,15 +120,26 @@ namespace FSW.Controls.ServerSide.DataGrid
 
         private void SmartDataGrid_OnGenerateMetasData(int row, DataType item, out DataGridColumn.MetaData metaData)
         {
-            bool invalid = false;
+            if (OnSmartDataGridGenerateMetasData != null)
+                OnSmartDataGridGenerateMetasData.Invoke(row, item, out metaData);
+            else
+                metaData = null;
+
+            var invalid = false;
             if (item is DataInterfaces.IAutomaticInvalidOrIncompleteRow automaticInvalidOrIncompleteRow)
                 invalid = automaticInvalidOrIncompleteRow.IsRowInvalidOrIncomplete_Automatic();
             else if (item is DataInterfaces.IInvalidOrIncompleteRow invalidOrIncompleteRow)
                 invalid = invalidOrIncompleteRow.IsInvalidOrIncomplete;
 
+            if (invalid && item is DataInterfaces.IEmptyRow iEmptyRow)
+                invalid = !iEmptyRow.IsRowEmpty_Automatic();
+
             if (invalid)
             {
-                metaData = new DataGridColumn.MetaData("invalidRow");
+                if (metaData == null)
+                    metaData = new DataGridColumn.MetaData("invalidRow");
+
+                metaData.CssClasses += "invalidRow";
 
                 foreach (var col in RequiredCols)
                 {
@@ -105,13 +148,25 @@ namespace FSW.Controls.ServerSide.DataGrid
                         metaData.CssClasses += " " + col.Value.cssName + "_row";
                 }
             }
-            else
-                metaData = null;
         }
 
         private void SmartDataGrid_OnCellChanged(DataGridColumn col, int row, DataType item, object newValue)
         {
-            bool isInvalidOrIncomplete = false;
+            var isDeleted = (item as DataInterfaces.IDeleteRow)?.IsRowDeleted ?? false;
+
+            if (isDeleted)
+            {
+                var removeAndRefresh = false;
+                OnDeleteExistingRow?.Invoke(item, row, out removeAndRefresh);
+                if (removeAndRefresh)
+                {
+                    Datas.Remove(item);
+                    RefreshDatas();
+                }
+                return;
+            }
+
+            var isInvalidOrIncomplete = false;
             if (item is DataInterfaces.IAutomaticInvalidOrIncompleteRow automaticInvalidOrIncompleteRow)
                 isInvalidOrIncomplete = automaticInvalidOrIncompleteRow.IsRowInvalidOrIncomplete_Automatic();
             else if (item is DataInterfaces.IInvalidOrIncompleteRow invalidOrIncompleteRow)
@@ -120,28 +175,43 @@ namespace FSW.Controls.ServerSide.DataGrid
             if (isInvalidOrIncomplete)
             {
                 RefreshRow(row);
+                RevalidateEmptyRowCreation();
                 return;
             }
 
+            var isNewRow = (item as DataInterfaces.INewRow)?.IsNewRow ?? false;
+
+            if (isNewRow)
+            {
+                OnNewRowValidated?.Invoke(item, row);
+                if (((DataInterfaces.INewRow)item).IsNewRow)
+                    throw new Exception("'IsNewRow' is expected to yield 'false' after 'OnNewRowValidated' is invoked");
+
+                RefreshRow(row);
+                RevalidateEmptyRowCreation();
+                return;
+            }
+
+
             OnSmartCellChanged?.Invoke(col, row, item, newValue);
+
+            RevalidateEmptyRowCreation();
         }
 
 
         private void RevalidateEmptyRowCreation()
         {
-            if (!(this is GridInterfaces.INewRowDataGrid emptyDataGrid))
+            if (OnInitializeNewEmptyRow == null)
                 return;
 
-            bool refresh = false;
+            var refresh = false;
             while (true)
             {
-                var newRow = emptyDataGrid.CreateNewEmptyRow(out int? rowIndex);
+                OnInitializeNewEmptyRow(out var newRow, out var rowIndex);
+
                 if (newRow != null)
                 {
-                    if (!(newRow is DataType newRowCasted))
-                        throw new Exception("Invalid data type provided to SmartDataGrid. Expected '" + typeof(DataType).Name + "' but received '" + newRow.GetType().Name + "'");
-
-                    Datas.Insert(rowIndex ?? Datas.Count, newRowCasted);
+                    Datas.Insert(rowIndex ?? Datas.Count, newRow);
                     refresh = true;
                 }
                 else
