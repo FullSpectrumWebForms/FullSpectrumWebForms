@@ -167,7 +167,7 @@ namespace FSW.Core
         {
             RegisterHostedService(callbackInterval, (c) => callback());
         }
-        private System.Threading.ManualResetEvent BackgroundServiceReset = new System.Threading.ManualResetEvent(false);
+        public System.Threading.ManualResetEvent BackgroundServiceReset = new System.Threading.ManualResetEvent(false);
         internal System.Threading.ManualResetEvent FSWPage_InitializedEvent = new System.Threading.ManualResetEvent(false);
         public void RegisterHostedService(TimeSpan callbackInterval, Action<HostedServiceCancellation> callback)
         {
