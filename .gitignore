@@ -33,3 +33,7 @@
 /ProjectTemplate/.vs
 /tests/UnitTests/bin
 /tests/UnitTests/obj
+/src/FullSpectrumWebForms/wwwroot/fsw.min.js
+/src/FullSpectrumWebForms/wwwroot/fsw.min.css
+/src/FullSpectrumWebForms_Semantic/wwwroot/fsw.semantic.min.css
+/src/FullSpectrumWebForms_Semantic/wwwroot/fsw.semantic.min.js
