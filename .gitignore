@@ -37,3 +37,9 @@
 /src/FullSpectrumWebForms/wwwroot/fsw.min.css
 /src/FullSpectrumWebForms_Semantic/wwwroot/fsw.semantic.min.css
 /src/FullSpectrumWebForms_Semantic/wwwroot/fsw.semantic.min.js
+/src/FullSpectrumWebForms_UnitTests/obj
+/src/FullSpectrumWebForms_UnitTests/bin
+/src/FullSpectrumWebForms_UnitTests/wwwroot/fsw.unitTests.min.css
+/src/FullSpectrumWebForms_UnitTests/wwwroot/fsw.unitTests.min.js
+/src/FullSpectrumWebForms_UnitTests/wwwroot/js/unitTests/controls/**/*.map
+/src/FullSpectrumWebForms_UnitTests/wwwroot/js/unitTests/controls/**/*.js
