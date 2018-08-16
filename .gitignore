@@ -31,3 +31,5 @@
 /ProjectTemplate/ProjectTemplate/References/FullSpectrumWebForms.dll
 /ProjectTemplate/ProjectTemplate/References/FullSpectrumWebForms_ASPC.dll
 /ProjectTemplate/.vs
+/tests/UnitTests/bin
+/tests/UnitTests/obj
