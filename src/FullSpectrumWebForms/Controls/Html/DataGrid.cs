@@ -424,7 +424,7 @@ namespace FSW.Controls.Html
                 }).ToList()
             });
         }
-        public void RefreshDatas(bool skipMetaDatasGeneration = false)
+        public virtual void RefreshDatas(bool skipMetaDatasGeneration = false)
         {
             if (!skipMetaDatasGeneration)
             {
