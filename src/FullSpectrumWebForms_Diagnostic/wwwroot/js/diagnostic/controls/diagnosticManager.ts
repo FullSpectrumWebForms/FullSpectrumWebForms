@@ -4,7 +4,7 @@
 
 namespace controls {
 
-    export class UTManager extends core.controlBase {
+    export class diagnosticManager extends core.controlBase {
         
         initialize(type: string, index: number, id: string, properties: { property: string, value: any }[]) {
             super.initialize(type, index, id, properties);
@@ -49,4 +49,4 @@ namespace controls {
         }
     }
 }
-core.controlTypes['UTManager'] = () => new controls.UTManager();
+core.controlTypes['DiagnosticManager'] = () => new controls.diagnosticManager();

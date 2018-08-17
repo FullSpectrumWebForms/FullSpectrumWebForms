@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FSW.Diagnostic.Controls
 {
-    public class UTManager : ControlBase
+    public class DiagnosticManager : ControlBase
     {
         public override void InitializeProperties()
         {

@@ -14,10 +14,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NetFramework|AnyCPU'">
     <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="bundleconfig.json" />
-    <None Remove="tsconfig.json" />
-  </ItemGroup>
   
   <ItemGroup>
     <EmbeddedResource Include="wwwroot\fsw.diagnostic.min.css"></EmbeddedResource>
@@ -38,10 +34,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FullSpectrumWebForms\FullSpectrumWebForms.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Include="wwwroot\js\diagnostic\controls\UTManager.ts" />
   </ItemGroup>
 
   <PropertyGroup>
