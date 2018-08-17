@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 
-namespace FSW.UnitTests
+namespace FSW.Diagnostic
 {
     public static class Startup
     {

@@ -11,7 +11,6 @@ namespace TestApplication.Pages
 {
     public class IndexPage : FSW.Core.FSWPage
     {
-
         public TextBox TB_Test = new TextBox();
         public FSW.Controls.Html.Label LB_Test = new FSW.Controls.Html.Label();
 
