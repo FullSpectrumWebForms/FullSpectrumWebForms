@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <Configurations>Debug;Release;Azure; Debug_NetFramework</Configurations>
-    <AssemblyName>FullSpectrumWebForms_UnitTests</AssemblyName>
-    <RootNamespace>FSW.UnitTests</RootNamespace>
+    <AssemblyName>FullSpectrumWebForms_Diagnostic</AssemblyName>
+    <RootNamespace>FSW.Diagnostic</RootNamespace>
     <OutputType>Library</OutputType>
     <TypeScriptToolsVersion>2.5</TypeScriptToolsVersion>
   </PropertyGroup>
@@ -27,6 +27,7 @@
   
   <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.1.1" />
@@ -34,6 +35,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FullSpectrumWebForms\FullSpectrumWebForms.csproj" />
+    <ProjectReference Include="..\FullSpectrumWebForms_ASPC\FullSpectrumWebForms_ASPC.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
