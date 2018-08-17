@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -102,7 +103,7 @@ namespace FSW.Core
                 throw;
             }
         }
-        public Task CustomControlEvent(string controlId, Dictionary<string, object> parameters, string eventName)
+        public Task CustomControlEvent(string controlId, JToken parameters, string eventName)
         {
             try
             {

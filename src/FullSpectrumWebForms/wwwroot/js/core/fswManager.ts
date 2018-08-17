@@ -52,9 +52,6 @@ namespace core {
         }[]) {
             return properties[properties.findIndex(x => x.property == 'ControlType')].value;
         }
-        receiveSignalFromServer(message) {
-
-        }
         connection: {
             send: (name: string, p: any) => void;
             start: () => Promise<void>;
@@ -80,7 +77,6 @@ namespace core {
 
             let that = this;
 
-            this.connection.on("receiveSignalFromServer", this.receiveSignalFromServer.bind(this));
             this.connection.on("error", function (error: string) {
                 new Noty({
                     layout: 'topCenter',
@@ -233,6 +229,7 @@ namespace core {
                 [id: string]: {
                     Name: string,
                     Parameters: any
+                    ReturnId?: number
                 }[]
             },
             NewControls: {
@@ -256,7 +253,17 @@ namespace core {
                     var control = this.getControl(keys[i]);
                     for (let j = 0; j < customEvent.length; ++j) {
                         var method = control[customEvent[j].Name] as (parameters: any) => void;
-                        method.call(control, customEvent[j].Parameters);
+                        let res = method.call(control, customEvent[j].Parameters);
+                        if (customEvent[j].ReturnId && customEvent[j].ReturnId != 0) {
+                            $.when(res).then(function (id) {
+                                return function (value) {
+                                    control.customControlEvent('OnCustomClientEventAnswerReceivedFromClient', {
+                                        id: id,
+                                        answer: value
+                                    });
+                                }
+                            }(customEvent[j].ReturnId));
+                        }
                     }
                 }
             }
@@ -282,7 +289,8 @@ namespace core {
             CustomEvents: {
                 [id: string]: {
                     Name: string,
-                    Parameters: any
+                    Parameters: any,
+                    ReturnId?: number
                 }[]
             },
             NewControls: {
