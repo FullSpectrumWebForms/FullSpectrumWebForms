@@ -211,6 +211,14 @@ namespace FSW.Core
                 break;
             }
         }
+        protected System.Threading.Tasks.Task<T> CallCustomClientEvent<T>(string name, object parameters = null)
+        {
+            var src = new System.Threading.Tasks.TaskCompletionSource<T>();
+
+            CallCustomClientEvent<T>(name, (res) => src.TrySetResult(res), parameters);
+
+            return src.Task;
+        }
         [CoreEvent]
         protected void OnCustomClientEventAnswerReceivedFromClient(int id, Newtonsoft.Json.Linq.JProperty answer)
         {
