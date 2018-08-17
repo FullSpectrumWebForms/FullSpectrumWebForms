@@ -15,8 +15,6 @@ namespace TestApplication.Pages
         public TextBox TB_Test = new TextBox();
         public FSW.Controls.Html.Label LB_Test = new FSW.Controls.Html.Label();
 
-        public FSW.UnitTests.Controls.UTManager UTManager = new FSW.UnitTests.Controls.UTManager();
-
         public override void OnPageLoad()
         {
             base.OnPageLoad();

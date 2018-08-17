@@ -5,6 +5,7 @@
     <Version>1.0.0</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>

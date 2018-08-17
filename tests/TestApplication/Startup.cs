@@ -23,14 +23,11 @@ namespace TestApplication
         {
             FSW_ASPC.Startup.ConfigureServices(services);
             FSW.Semantic.Startup.ConfigureServices(services);
-            FSW.UnitTests.Startup.ConfigureServices(services);
 
 
             var mvc = services.AddMvc();
             FSW_ASPC.Startup.ConfigureMvc(mvc);
             FSW.Semantic.Startup.ConfigureMvc(mvc);
-            FSW.UnitTests.Startup.ConfigureMvc(mvc);
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,7 +35,6 @@ namespace TestApplication
         {
             FSW_ASPC.Startup.Configure(app, env);
             FSW.Semantic.Startup.Configure(app, env);
-            FSW.UnitTests.Startup.Configure(app, env);
 
             if (env.IsDevelopment())
             {

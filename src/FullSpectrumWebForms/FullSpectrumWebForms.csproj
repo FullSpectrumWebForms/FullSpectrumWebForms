@@ -5,6 +5,7 @@
     <Version>1.0.0</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
   
   
@@ -43,21 +44,13 @@
 
   <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
-    <PackageReference Include="jquery.TypeScript.DefinitelyTyped" Version="3.1.2" />
-    <PackageReference Include="jqueryui.TypeScript.DefinitelyTyped" Version="1.5.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.1.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.1.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
-    <PackageReference Include="moment-range.TypeScript.DefinitelyTyped" Version="0.0.3" />
-    <PackageReference Include="moment-timezone.TypeScript.DefinitelyTyped" Version="0.1.2" />
-    <PackageReference Include="moment.TypeScript.DefinitelyTyped" Version="1.8.3" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="pikaday.TypeScript.DefinitelyTyped" Version="0.1.1" />
-    <PackageReference Include="qtip2.TypeScript.DefinitelyTyped" Version="0.2.1" />
-    <PackageReference Include="select2.TypeScript.DefinitelyTyped" Version="0.3.9" />
     <PackageReference Include="System.Drawing.Common" Version="4.5.0" />
     <PackageReference Include="System.Linq" Version="4.3.0" />
     <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
