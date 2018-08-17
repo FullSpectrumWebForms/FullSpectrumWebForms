@@ -1,5 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-
+  
+  <PropertyGroup>
+    <PackageId>FSW_ASPC</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Pascal Arnold, Olivier Bastien</Authors>
+    <Company>N/A</Company>
+  </PropertyGroup>
+  
   <PropertyGroup>
     <Configurations>Debug;Release;Azure; Debug_NetFramework</Configurations>
     <RootNamespace>FSW_ASPC</RootNamespace>
