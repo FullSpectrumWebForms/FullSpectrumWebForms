@@ -10,6 +10,11 @@ namespace controls {
             super.initialize(type, index, id, properties);
         }
 
+        checkIfElementExists(id: string) {
+            let elem = $('#' + id);
+            return elem.length != 0;
+        }
+
         getElementTextFromId(id: string) {
             let elem = $('#' + id);
             if (elem.length == 0)

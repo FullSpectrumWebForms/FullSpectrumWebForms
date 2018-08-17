@@ -14,6 +14,11 @@ namespace FSW.UnitTests.Controls
 
         }
 
+        public Task<bool> CheckIfElementExists(string id)
+        {
+            return CallCustomClientEvent<bool>("checkIfElementExists", id);
+        }
+
         public Task<string> GetElementText(string id)
         {
             return CallCustomClientEvent<string>("getElementTextFromId", id);
