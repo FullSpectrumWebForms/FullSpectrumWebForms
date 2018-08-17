@@ -11,7 +11,7 @@
   {
     "outputFileName": "wwwroot/fsw.unitTests.min.js",
     "inputFiles": [
-      "wwwroot/js/unitTests/controls/html/checkbox.js"
+      "wwwroot/js/unitTests/controls/**.js"
     ],
     // Optionally specify minification options
     "minify": {

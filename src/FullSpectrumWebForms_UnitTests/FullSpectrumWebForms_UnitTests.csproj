@@ -1,9 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <Configurations>Debug;Release;Azure; Debug_NetFramework</Configurations>
     <AssemblyName>FullSpectrumWebForms_UnitTests</AssemblyName>
-    <RootNamespace>FSW_UnitTests</RootNamespace>
+    <RootNamespace>FSW.UnitTests</RootNamespace>
+    <OutputType>Library</OutputType>
     <TypeScriptToolsVersion>2.5</TypeScriptToolsVersion>
   </PropertyGroup>
 
@@ -20,27 +21,10 @@
     <None Remove="wwwroot\js\unitTests\controls\timer.js.map" />
     <None Remove="wwwroot\js\unitTests\controls\UTManager.ts" />
   </ItemGroup>
+  
   <ItemGroup>
-    <Content Include="bundleconfig.json">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="tsconfig.json">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="wwwroot\js\unitTests\controls\UTManager.js">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="wwwroot\js\unitTests\controls\UTManager.js.map">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="wwwroot\js\unitTests\controls\UTManager.ts">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="wwwroot\fsw.unitTests.min.js"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\fsw.unitTests.min.css"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\fsw.unitTests.min.js"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.gif"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.png"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.jpg"></EmbeddedResource>
@@ -49,14 +33,30 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.1.1" />
-    <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FullSpectrumWebForms\FullSpectrumWebForms.csproj" />
   </ItemGroup>
-  
+
+  <PropertyGroup>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptModuleKind />
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
+
 </Project>
