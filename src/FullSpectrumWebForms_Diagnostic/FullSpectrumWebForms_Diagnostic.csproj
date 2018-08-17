@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <Configurations>Debug;Release;Azure; Debug_NetFramework</Configurations>
+    <AssemblyName>FullSpectrumWebForms_UnitTests</AssemblyName>
+    <RootNamespace>FSW.UnitTests</RootNamespace>
+    <OutputType>Library</OutputType>
+    <TypeScriptToolsVersion>2.5</TypeScriptToolsVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NetFramework|AnyCPU'">
+    <TargetFramework>net461</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="bundleconfig.json" />
+    <None Remove="tsconfig.json" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="wwwroot\fsw.diagnostic.min.css"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\fsw.diagnostic.min.js"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.gif"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.png"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.jpg"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.jpeg"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.bmp"></EmbeddedResource>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FullSpectrumWebForms\FullSpectrumWebForms.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="wwwroot\js\diagnostic\controls\UTManager.ts" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptModuleKind />
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
+
+</Project>

@@ -25,7 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\FullSpectrumWebForms\FullSpectrumWebForms.csproj" />
     <ProjectReference Include="..\..\src\FullSpectrumWebForms_ASPC\FullSpectrumWebForms_ASPC.csproj" />
-    <ProjectReference Include="..\..\src\FullSpectrumWebForms_UnitTests\FullSpectrumWebForms_Diagnostic.csproj" />
+    <ProjectReference Include="..\..\src\FullSpectrumWebForms_Diagnostic\FullSpectrumWebForms_Diagnostic.csproj" />
   </ItemGroup>
 
 </Project>
