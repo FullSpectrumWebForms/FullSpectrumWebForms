@@ -77,7 +77,7 @@ namespace FSW.Core
         public T GetControl<T>(string controlId) where T : ControlBase
         {
             // try to get the control
-            if (Controls.TryGetValue(controlId, out ControlBase control))
+            if (Controls.TryGetValue(controlId, out var control))
                 return control as T ?? throw new ArgumentException("Control cannot be casted:" + controlId); // return the control and ensure it's the right type
             throw new KeyNotFoundException($"Control not found: {controlId}");
 
@@ -131,7 +131,7 @@ namespace FSW.Core
         /// <summary>
         /// Called from the client side to call custom method in a control, Ex. ticks event for the timer control
         /// </summary>
-        internal CustomControlEventResult CustomControlEvent(string controlId, string eventName, Dictionary<string, object> parameters)
+        internal CustomControlEventResult CustomControlEvent(string controlId, string eventName, Newtonsoft.Json.Linq.JToken parameters)
         {
             // get the control associated with the event in the required page
             var control = Page.Manager.GetControl(controlId);
@@ -158,18 +158,24 @@ namespace FSW.Core
                 parametersParsed = new object[methodParameters.Length];
                 // initialize them all to missing
                 // so if the client did not sent that parameter, it will be marked as missing
-                for (int i = 0; i < parametersParsed.Length; ++i)
+                for (var i = 0; i < parametersParsed.Length; ++i)
                     parametersParsed[i] = Type.Missing;
                 // for all the received parameters ( from the client ( duh ) )
                 foreach (var item in parameters)
                 {
-                    var paramName = item.Key;
+                    var prop = (Newtonsoft.Json.Linq.JProperty)item;
+                    var paramName = prop.Name;
                     // set the parameter in the parameters list to be sent to the method
                     var paramIndex = paramNames.IndexOf(paramName);
                     if (paramIndex == -1)
                         throw new Exception($"Invalid parameter name:{paramName} in {eventName} in control {controlId}");
 
-                    var value = Convert.ChangeType(item.Value, methodParameters[paramIndex].ParameterType);
+                    var paramType = methodParameters[paramIndex].ParameterType;
+                    object value;
+                    if (paramType == typeof(Newtonsoft.Json.Linq.JProperty))
+                        value = prop;
+                    else
+                        value = prop.Value.ToObject(paramType);
                     parametersParsed[paramIndex] = value;
                 }
             }
@@ -309,18 +315,18 @@ namespace FSW.Core
             if (control.Parent != null)
                 control.ParentElementId = control.Parent.Id;
 
-            int i = 0;
+            var i = 0;
             foreach (var subControl in control.Children)
                 AddNewDynamicControl(subControl, i++);
 
         }
         internal List<NewControlWithProperties> GetNewDynamicControls()
         {
-            List<NewControlWithProperties> newControls = new List<NewControlWithProperties>();
+            var newControls = new List<NewControlWithProperties>();
             foreach (var control_ in PendingNewControls)
             {
                 var control = control_.Value;
-                List<ControlProperty_NoId> properties = new List<ControlProperty_NoId>(control.Properties.Count);
+                var properties = new List<ControlProperty_NoId>(control.Properties.Count);
 
                 foreach (var property in control.Properties.Values)
                 {

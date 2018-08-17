@@ -39,8 +39,6 @@ var core;
         getControlTypeFromProperties(properties) {
             return properties[properties.findIndex(x => x.property == 'ControlType')].value;
         }
-        receiveSignalFromServer(message) {
-        }
         initialize() {
             return __awaiter(this, void 0, void 0, function* () {
                 let pageId_ = $('#pageId');
@@ -56,7 +54,6 @@ var core;
                     .withUrl("/Polinet/CommunicationHub")
                     .configureLogging(signalR.LogLevel.Warning).build();
                 let that = this;
-                this.connection.on("receiveSignalFromServer", this.receiveSignalFromServer.bind(this));
                 this.connection.on("error", function (error) {
                     new Noty({
                         layout: 'topCenter',
@@ -169,7 +166,17 @@ var core;
                     var control = this.getControl(keys[i]);
                     for (let j = 0; j < customEvent.length; ++j) {
                         var method = control[customEvent[j].Name];
-                        method.call(control, customEvent[j].Parameters);
+                        let res = method.call(control, customEvent[j].Parameters);
+                        if (customEvent[j].ReturnId && customEvent[j].ReturnId != 0) {
+                            $.when(res).then(function (id) {
+                                return function (value) {
+                                    control.customControlEvent('OnCustomClientEventAnswerReceivedFromClient', {
+                                        id: id,
+                                        answer: value
+                                    });
+                                };
+                            }(customEvent[j].ReturnId));
+                        }
                     }
                 }
             }

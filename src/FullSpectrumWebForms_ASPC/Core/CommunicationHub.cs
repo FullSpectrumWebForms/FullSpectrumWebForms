@@ -40,7 +40,7 @@ namespace FSW_ASPC.Core
         public Task CustomControlEvent(Newtonsoft.Json.Linq.JObject data)
         {
             var controlId = data["controlId"].ToObject<string>();
-            var parameters = data["parameters"].ToObject<Dictionary<string, object>>();
+            var parameters = data["parameters"];
             var eventName = data["eventName"].ToObject<string>();
 
             return PolinetHub.CustomControlEvent(controlId, parameters, eventName);

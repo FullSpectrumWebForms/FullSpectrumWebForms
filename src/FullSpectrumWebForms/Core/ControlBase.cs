@@ -147,7 +147,7 @@ namespace FSW.Core
         }
         public T GetProperty<T>(string name)
         {
-            if (TryGetProperty<T>(name, out T value))
+            if (TryGetProperty<T>(name, out var value))
                 return value;
             throw new Exception($"Property not found: {name} in control: {Id}");
         }
@@ -178,17 +178,46 @@ namespace FSW.Core
         {
             public string Name;
             public object Parameters;
+            [Newtonsoft.Json.JsonProperty(DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Ignore)]
+            public int? ReturnId;
 
-            public ServerToClientCustomEvent(string name, object parameters = null)
+            public ServerToClientCustomEvent(string name, object parameters = null, int? returnId = null)
             {
                 Name = name ?? throw new ArgumentNullException(nameof(name));
                 Parameters = parameters;
+                ReturnId = returnId;
             }
         }
         private List<ServerToClientCustomEvent> PendingCustomEvents = new List<ServerToClientCustomEvent>();
+        private Dictionary<int, Action<Newtonsoft.Json.Linq.JProperty>> AwaitingAnswerEvents = new Dictionary<int, Action<Newtonsoft.Json.Linq.JProperty>>();
         protected void CallCustomClientEvent(string name, object parameters = null)
         {
             PendingCustomEvents.Add(new ServerToClientCustomEvent(name, parameters));
+        }
+        protected void CallCustomClientEvent<T>(string name, Action<T> callback, object parameters = null)
+        {
+            while (true)
+            {
+                var id = Guid.NewGuid().GetHashCode();
+                if (AwaitingAnswerEvents.ContainsKey(id))
+                    continue;
+
+                PendingCustomEvents.Add(new ServerToClientCustomEvent(name, parameters, id));
+
+                AwaitingAnswerEvents[id] = (obj) =>
+                {
+                    callback(obj.ToObject<T>());
+                };
+                break;
+            }
+        }
+        [CoreEvent]
+        protected void OnCustomClientEventAnswerReceivedFromClient(int id, Newtonsoft.Json.Linq.JProperty answer)
+        {
+            if (AwaitingAnswerEvents.TryGetValue(id, out var callback))
+                callback(answer);
+            else
+                throw new Exception("Client answer id not found");
         }
         public List<ServerToClientCustomEvent> ExtractPendingCustomEvents()
         {
@@ -229,7 +258,7 @@ namespace FSW.Core
         public abstract void InitializeProperties();
         public void UpdatePropertyValueFromClient(string propertyName, object newValue)
         {
-            if (Properties.TryGetValue(propertyName, out Property value))
+            if (Properties.TryGetValue(propertyName, out var value))
                 value.UpdateValue(newValue);
             else
                 throw new ArgumentException($"Property not found:{propertyName} in control:{Id.ToString()}");
