@@ -20,7 +20,7 @@
   </ItemGroup>
   
   <PropertyGroup>
-    <Configurations>Debug;Release;Azure;Debug_Test</Configurations>
+    <Configurations>Debug;Release;Azure</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -42,10 +42,6 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>bin\Debug\</OutputPath>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Test|AnyCPU'">
     <OutputPath>bin\Debug\</OutputPath>
   </PropertyGroup>
 

@@ -9,7 +9,6 @@ namespace UnitTests
         public static void Main( string[] args )
         {
             var tests = new UnitTest1();
-            tests.TestButtonText2().Wait();
             tests.TestButtonText().Wait();
         }
     }
