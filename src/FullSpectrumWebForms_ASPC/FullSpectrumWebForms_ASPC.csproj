@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
   
   <PropertyGroup>
+    <IsPackable>true</IsPackable>
     <PackageId>FSW_ASPC</PackageId>
     <Version>1.0.0</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
