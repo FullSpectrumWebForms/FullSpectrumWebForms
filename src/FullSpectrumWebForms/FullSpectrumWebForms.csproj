@@ -5,13 +5,18 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>FSW</PackageId>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
+    <TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Update="wwwroot/**" Pack="false" />
+    <Content Update="tsconfig.json" Pack="false" />
+    <Content Update="package.json" Pack="false" />
+    <Content Update="package-lock.json" Pack="false" />
+    <Content Update="bundleconfig.json" Pack="false" />
   </ItemGroup>
   
   <PropertyGroup>

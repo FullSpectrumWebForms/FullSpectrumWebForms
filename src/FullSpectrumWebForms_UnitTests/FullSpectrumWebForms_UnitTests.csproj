@@ -11,7 +11,7 @@
     <AssemblyName>FullSpectrumWebForms_UnitTests</AssemblyName>
     <RootNamespace>FSW.UnitTests</RootNamespace>
     <OutputType>Library</OutputType>
-    <TypeScriptToolsVersion>2.5</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

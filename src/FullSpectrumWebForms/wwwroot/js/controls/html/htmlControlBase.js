@@ -124,7 +124,7 @@ var controls;
                 super.initialize(type, index, id, properties);
                 this.initialIndex = index;
                 let hasSelector = false;
-                if (this.parent) {
+                if (this.parent) { // if set, it means this is a dynamically added control
                     let selector = this.tryGetPropertyValue("CustomSelector");
                     if (selector) {
                         hasSelector = true;
@@ -135,7 +135,7 @@ var controls;
                     }
                     else
                         this.initializeHtmlElement();
-                    if (this.element)
+                    if (this.element) // should always be true
                         this.element[0].id = this.id; // the id must be set in order for the 'this.element.data' to work!
                 }
                 else
