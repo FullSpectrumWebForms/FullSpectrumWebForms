@@ -10,7 +10,7 @@ For the full documentation, head to the [the wiki](https://github.com/FullSpectr
 
 ## Using the template project
 
-To easily start a new project with FSW, use the pre-configured made [Template project](https://github.com/FullSpectrumWebForms/FullSpectrumWebForms/wiki/Starting-a-project-from-template) !
+To easily start a new project with FSW, use the pre-configured [Template project](https://github.com/FullSpectrumWebForms/FullSpectrumWebForms/wiki/Starting-a-project-from-template) !
 
 
 ## Building the source on Windows:
