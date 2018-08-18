@@ -21,7 +21,7 @@ namespace FSW.Diagnostic.UnitTests
         {
             using (Page.ServerSideLock)
                 Page.DiagnosticManager.CloseTab();
-            System.Threading.Thread.Sleep(TimeSpan.FromMilliseconds(50));
+            System.Threading.Thread.Sleep(TimeSpan.FromMilliseconds(10));
         }
     }
 }

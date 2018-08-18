@@ -41,11 +41,49 @@ namespace controls {
 
         getFSWControlVal(id: string) {
             let control = core.manager.getControl(id) as html.htmlControlBase;
-            if (control && control.element) {
+            if (control && control.element)
                 return control.element.val();
-            }
-            else
+            return null;
+        }
+
+        setElementValFromId(parameters: {
+            id: string,
+            val: any
+        }) {
+            let elem = $('#' + parameters.id);
+            if (elem.length != 0)
+                elem.val(parameters.val);
+            return null;
+        }
+
+        setFSWControlVal(parameters: {
+            id: string,
+            val: any
+        }) {
+            let control = core.manager.getControl(parameters.id) as html.htmlControlBase;
+            if (control && control.element)
+                control.element.val(parameters.val);
+            return null;
+        }
+
+        triggerElementValFromId(parameters: {
+            id: string,
+            ev: any
+        }) {
+            let elem = $('#' + parameters.id);
+            if (elem.length == 0)
                 return null;
+            elem.trigger(parameters.ev);
+        }
+
+        triggerFSWControl(parameters: {
+            id: string,
+            ev: any
+        }) {
+            let control = core.manager.getControl(parameters.id) as html.htmlControlBase;
+            if (control && control.element)
+                control.element.trigger(parameters.ev);
+            return null;
         }
 
         clickOnElementFromId(id: string) {

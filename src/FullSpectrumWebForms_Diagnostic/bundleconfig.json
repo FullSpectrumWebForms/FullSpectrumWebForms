@@ -11,6 +11,7 @@
   {
     "outputFileName": "wwwroot/fsw.diagnostic.min.js",
     "inputFiles": [
+      "wwwroot/js/sendKeys/jquery.sendkeys.js",
       "wwwroot/js/diagnostic/controls/**.js"
     ],
     // Optionally specify minification options

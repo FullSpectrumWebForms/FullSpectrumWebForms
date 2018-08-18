@@ -7,19 +7,12 @@ using Xunit;
 
 namespace UnitTests
 {
-    public class ButtonTests : IDisposable
+    public class ButtonTests
     {
-        private static FSW.Diagnostic.UnitTestsManager UnitTestsManager;
+        private FSW.Diagnostic.UnitTestsManager UnitTestsManager => FSW.Diagnostic.UnitTestsManager.GetUnitTestsManager();
 
         public ButtonTests()
         {
-            if (UnitTestsManager is null)
-                UnitTestsManager = new FSW.Diagnostic.UnitTestsManager();
-        }
-
-        public void Dispose()
-        {
-
         }
 
         [Fact]

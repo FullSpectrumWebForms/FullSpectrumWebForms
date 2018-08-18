@@ -15,10 +15,7 @@ namespace FSW.Controls.Html
         public string Placeholder
         {
             get => Attributes["placeholder"];
-            set
-            {
-                Attributes["placeholder"] = value;
-            }
+            set => Attributes["placeholder"] = value;
         }
         public string Text
         {
@@ -35,7 +32,7 @@ namespace FSW.Controls.Html
 
         public delegate void OnTextChangedHandler(TextBox sender, string previousText, string newText);
         public event OnTextChangedHandler OnTextChanged;
-        
+
         public delegate void OnEnterPressedHandler(TextBox sender);
         public event OnEnterPressedHandler OnEnterPressed;
 

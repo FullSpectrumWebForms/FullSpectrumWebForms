@@ -37,6 +37,49 @@ namespace FSW.Diagnostic.Controls
             return CallCustomClientEvent<T>("getFSWControlVal", control.Id, autoLock);
         }
 
+        public Task SetElementVal<T>(string id, T val, bool autoLock = true)
+        {
+            return CallCustomClientEvent<object>("setElementValFromId", new
+            {
+                id,
+                val
+            }, autoLock);
+        }
+        public Task SetElementVal<T>(HtmlControlBase control, T val, bool autoLock = true)
+        {
+            return CallCustomClientEvent<object>("setFSWControlVal", new
+            {
+                id = control.Id,
+                val
+            }, autoLock);
+        }
+
+        public Task TriggerElement(string id, string eventToTrigger, bool autoLock = true)
+        {
+            return CallCustomClientEvent<object>("triggerElementFromId", new
+            {
+                id,
+                ev = eventToTrigger
+            }, autoLock);
+        }
+        public Task TriggerElement(HtmlControlBase control, string eventToTrigger, bool autoLock = true)
+        {
+            return CallCustomClientEvent<object>("triggerFSWControl", new
+            {
+                id = control.Id,
+                ev = eventToTrigger
+            }, autoLock);
+        }
+
+        public Task TriggerChange(string id, bool autoLock = true)
+        {
+            return TriggerElement(id, "change", autoLock);
+        }
+        public Task TriggerChange(HtmlControlBase control, bool autoLock = true)
+        {
+            return TriggerElement(control, "change", autoLock);
+        }
+
         public Task ClickOnElement(string id, bool autoLock = true)
         {
             return CallCustomClientEvent<object>("clickOnElementFromId", id, autoLock);
@@ -46,13 +89,13 @@ namespace FSW.Diagnostic.Controls
             return CallCustomClientEvent<object>("clickOnElement", control.Id, autoLock);
         }
 
-        private Task<T> CallCustomClientEvent<T>(string name, string id, bool autoLock)
+        private Task<T> CallCustomClientEvent<T>(string name, object parameters, bool autoLock)
         {
 
             IDisposable lockObj = autoLock ? Page.ServerSideLock : null;
             try
             {
-                return CallCustomClientEvent<T>(name, id);
+                return CallCustomClientEvent<T>(name, parameters);
             }
             finally
             {
