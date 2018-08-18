@@ -44,12 +44,9 @@ namespace FSW.Core
             set
             {
                 Value_ = value;
-                // prevent the trig of a new value when set from the server
+                LastValue = Value_;
                 if (Control.IsInitializing)
-                {
-                    LastValue = Value_;
                     return;
-                }
                 OnInstantNewValue?.Invoke(this, LastValue, Value_, UpdateSource.Server);
                 HasValueChanged = true;
             }
@@ -99,7 +96,7 @@ namespace FSW.Core
                 return null;
             if (value is Dictionary<string, string>)
                 return value;
-            if( value is Dictionary<string,object> value_)
+            if (value is Dictionary<string, object> value_)
                 return value_.ToDictionary(x => x.Key, x => (string)x.Value);
             return value;
         }
