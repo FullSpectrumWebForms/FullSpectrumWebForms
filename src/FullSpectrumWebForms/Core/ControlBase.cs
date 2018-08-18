@@ -206,7 +206,10 @@ namespace FSW.Core
 
                 AwaitingAnswerEvents[id] = (obj) =>
                 {
-                    callback(obj.ToObject<T>());
+                    if (obj.HasValues)
+                        callback(obj.Value.ToObject<T>());
+                    else
+                        callback(obj.ToObject<T>());
                 };
                 break;
             }

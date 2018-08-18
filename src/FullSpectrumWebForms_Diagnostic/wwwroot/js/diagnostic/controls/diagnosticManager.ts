@@ -5,7 +5,7 @@
 namespace controls {
 
     export class diagnosticManager extends core.controlBase {
-        
+
         initialize(type: string, index: number, id: string, properties: { property: string, value: any }[]) {
             super.initialize(type, index, id, properties);
         }
@@ -46,6 +46,20 @@ namespace controls {
             }
             else
                 return null;
+        }
+
+        clickOnElementFromId(id: string) {
+            let elem = $('#' + id);
+            if (elem.length != 0)
+                elem.trigger('click');
+            return null;
+        }
+
+        clickOnElement(id: string) {
+            let control = core.manager.getControl(id) as html.htmlControlBase;
+            if (control && control.element)
+                control.element.trigger('click');
+            return null;
         }
         closeTab() {
             window.close();

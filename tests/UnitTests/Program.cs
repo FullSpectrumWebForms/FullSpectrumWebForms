@@ -8,7 +8,7 @@ namespace UnitTests
     {
         public static void Main( string[] args )
         {
-            var tests = new UnitTest1();
+            var tests = new ButtonTests();
             tests.TestButtonText().Wait();
         }
     }
