@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 
-namespace FSW.UnitTests
+namespace FSW.Diagnostic
 {
     public static class Startup
     {
@@ -22,7 +22,11 @@ namespace FSW.UnitTests
         {
             app.UseStaticFiles(new StaticFileOptions()
             {
-                FileProvider = new EmbeddedFileProvider(typeof(Startup).Assembly, "FSW.UnitTests.wwwroot")
+                FileProvider = new EmbeddedFileProvider(typeof(Startup).Assembly, "FSW.Diagnostic.wwwroot")
+            });
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new EmbeddedFileProvider(typeof(Startup).Assembly, "FSW.Diagnostic.Pages")
             });
         }
     }

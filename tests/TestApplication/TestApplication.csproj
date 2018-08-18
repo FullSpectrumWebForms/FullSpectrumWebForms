@@ -26,7 +26,6 @@
     <ProjectReference Include="..\..\src\FullSpectrumWebForms\FullSpectrumWebForms.csproj" />
     <ProjectReference Include="..\..\src\FullSpectrumWebForms_ASPC\FullSpectrumWebForms_ASPC.csproj" />
     <ProjectReference Include="..\..\src\FullSpectrumWebForms_Semantic\FullSpectrumWebForms_Semantic.csproj" />
-    <ProjectReference Include="..\..\src\FullSpectrumWebForms_UnitTests\FullSpectrumWebForms_UnitTests.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

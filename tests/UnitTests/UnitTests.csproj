@@ -1,15 +1,32 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TypeScriptToolsVersion>2.5</TypeScriptToolsVersion>
+    <Configurations>Debug;Release;Debug_NetFramework</Configurations>
+  </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NetFramework|AnyCPU'">
+    <TargetFramework>net461</TargetFramework>
+  </PropertyGroup>
+  
+  <PropertyGroup>
     <IsPackable>false</IsPackable>
+    <StartupObject>UnitTests.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FullSpectrumWebForms\FullSpectrumWebForms.csproj" />
+    <ProjectReference Include="..\..\src\FullSpectrumWebForms_ASPC\FullSpectrumWebForms_ASPC.csproj" />
+    <ProjectReference Include="..\..\src\FullSpectrumWebForms_Diagnostic\FullSpectrumWebForms_Diagnostic.csproj" />
   </ItemGroup>
 
 </Project>

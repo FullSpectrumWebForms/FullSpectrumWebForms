@@ -37,9 +37,9 @@
 /src/FullSpectrumWebForms/wwwroot/fsw.min.css
 /src/FullSpectrumWebForms_Semantic/wwwroot/fsw.semantic.min.css
 /src/FullSpectrumWebForms_Semantic/wwwroot/fsw.semantic.min.js
-/src/FullSpectrumWebForms_UnitTests/obj
-/src/FullSpectrumWebForms_UnitTests/bin
-/src/FullSpectrumWebForms_UnitTests/wwwroot/fsw.unitTests.min.css
-/src/FullSpectrumWebForms_UnitTests/wwwroot/fsw.unitTests.min.js
-/src/FullSpectrumWebForms_UnitTests/wwwroot/js/unitTests/controls/**/*.map
-/src/FullSpectrumWebForms_UnitTests/wwwroot/js/unitTests/controls/**/*.js
+/src/FullSpectrumWebForms_Diagnostic/obj
+/src/FullSpectrumWebForms_Diagnostic/bin
+/src/FullSpectrumWebForms_Diagnostic/wwwroot/fsw.diagnostic.min.css
+/src/FullSpectrumWebForms_Diagnostic/wwwroot/fsw.diagnostic.min.js
+/src/FullSpectrumWebForms_Diagnostic/wwwroot/js/diagnostic/controls/**/*.map
+/src/FullSpectrumWebForms_Diagnostic/wwwroot/js/diagnostic/controls/**/*.js

@@ -22,7 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "tests\UnitTests\UnitTests.csproj", "{D7817F50-35F8-49DE-9A62-AB58022550FD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FullSpectrumWebForms_UnitTests", "src\FullSpectrumWebForms_UnitTests\FullSpectrumWebForms_UnitTests.csproj", "{F33902CD-5E37-4A67-9661-5D7E605A15D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FullSpectrumWebForms_Diagnostic", "src\FullSpectrumWebForms_Diagnostic\FullSpectrumWebForms_Diagnostic.csproj", "{F33902CD-5E37-4A67-9661-5D7E605A15D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

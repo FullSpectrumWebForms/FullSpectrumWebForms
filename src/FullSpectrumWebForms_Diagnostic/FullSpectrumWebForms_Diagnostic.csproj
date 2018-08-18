@@ -8,8 +8,8 @@
   
   <PropertyGroup>
     <Configurations>Debug;Release;Azure; Debug_NetFramework</Configurations>
-    <AssemblyName>FullSpectrumWebForms_UnitTests</AssemblyName>
-    <RootNamespace>FSW.UnitTests</RootNamespace>
+    <AssemblyName>FullSpectrumWebForms_Diagnostic</AssemblyName>
+    <RootNamespace>FSW.Diagnostic</RootNamespace>
     <OutputType>Library</OutputType>
     <TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
   </PropertyGroup>
@@ -20,26 +20,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NetFramework|AnyCPU'">
     <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="bundleconfig.json" />
-    <None Remove="tsconfig.json" />
-    <None Remove="wwwroot\js\unitTests\controls\timer.js" />
-    <None Remove="wwwroot\js\unitTests\controls\timer.js.map" />
-    <None Remove="wwwroot\js\unitTests\controls\UTManager.ts" />
-  </ItemGroup>
   
   <ItemGroup>
-    <EmbeddedResource Include="wwwroot\fsw.unitTests.min.css"></EmbeddedResource>
-    <EmbeddedResource Include="wwwroot\fsw.unitTests.min.js"></EmbeddedResource>
+    <EmbeddedResource Include="Pages\**\*.cshtml"></EmbeddedResource>
+    <EmbeddedResource Include="Pages\**\*.html"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\fsw.diagnostic.min.css"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\fsw.diagnostic.min.js"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.gif"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.png"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.jpg"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.jpeg"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.bmp"></EmbeddedResource>
   </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.1.1" />
@@ -47,6 +43,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FullSpectrumWebForms\FullSpectrumWebForms.csproj" />
+    <ProjectReference Include="..\FullSpectrumWebForms_ASPC\FullSpectrumWebForms_ASPC.csproj" />
+    <ProjectReference Include="..\FullSpectrumWebForms_Semantic\FullSpectrumWebForms_Semantic.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Pages\_Layout.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
   </ItemGroup>
 
   <PropertyGroup>

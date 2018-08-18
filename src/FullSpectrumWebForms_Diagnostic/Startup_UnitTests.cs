@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace TestApplication
+namespace FSW.Diagnostic
 {
-    public class Startup
+    public class Startup_UnitTests
     {
-        public Startup(IConfiguration configuration)
+        public Startup_UnitTests(IConfiguration configuration)
         {
             Configuration = configuration;
         }
@@ -22,19 +22,21 @@ namespace TestApplication
         public void ConfigureServices(IServiceCollection services)
         {
             FSW_ASPC.Startup.ConfigureServices(services);
-            FSW.Semantic.Startup.ConfigureServices(services);
-
+            Semantic.Startup.ConfigureServices(services);
+            Startup.ConfigureServices(services);
 
             var mvc = services.AddMvc();
             FSW_ASPC.Startup.ConfigureMvc(mvc);
-            FSW.Semantic.Startup.ConfigureMvc(mvc);
+            Semantic.Startup.ConfigureMvc(mvc);
+            Startup.ConfigureMvc(mvc);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             FSW_ASPC.Startup.Configure(app, env);
-            FSW.Semantic.Startup.Configure(app, env);
+            Semantic.Startup.Configure(app, env);
+            Startup.Configure(app, env);
 
             if (env.IsDevelopment())
             {
