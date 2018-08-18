@@ -8,7 +8,12 @@ For the full documentation, head to the [the wiki](https://github.com/FullSpectr
 
 # Installing / Getting started
 
-## For Windows:
+## Using the template project
+
+To easily start a new project with FSW, use the already made [Template project](https://github.com/FullSpectrumWebForms/FullSpectrumWebForms/wiki/Starting-a-project-from-template) !
+
+
+## Building the source on Windows:
 ### Using Visual Studio
 
 1. Install Visual Studio from [Here](https://visualstudio.microsoft.com/downloads/). Make sure to install the TypeScript SDK 2.5, you can find it in the "Individual Components" section of the installer
@@ -35,7 +40,7 @@ git clone https://github.com/FullSpectrumWebForms/FullSpectrumWebForms.git
 8. You will be prompted to install OmniSharp plugin.
 9. Hit F5 To launch the test project!
 
-## For Linux:
+## Building the source on Linux:
 
 1. Install the last .net Core for your distribution [Here](https://www.microsoft.com/net/download/linux-package-manager/rhel/sdk-current)
 2. Install npm and git
