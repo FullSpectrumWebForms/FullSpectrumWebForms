@@ -20,14 +20,11 @@
   </ItemGroup>
   
   <PropertyGroup>
-    <Configurations>Debug;Release;Azure;Debug_Test; Debug_NetFramework</Configurations>
+    <Configurations>Debug;Release;Azure;Debug_Test</Configurations>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NetFramework|AnyCPU'">
-    <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
   
   <PropertyGroup>

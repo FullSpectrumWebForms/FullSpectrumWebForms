@@ -9,15 +9,12 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <Configurations>Debug;Release;Azure; Debug_NetFramework</Configurations>
+    <Configurations>Debug;Release;Azure</Configurations>
     <RootNamespace>FSW_ASPC</RootNamespace>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NetFramework|AnyCPU'">
-    <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
   
   <ItemGroup>

@@ -55,10 +55,10 @@ Global
 		{C1F729E0-599A-4676-B026-742666161D99}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C83F04C6-B972-4D53-B366-26A0C1AFE201}.Azure|Any CPU.ActiveCfg = Debug|Any CPU
 		{C83F04C6-B972-4D53-B366-26A0C1AFE201}.Azure|Any CPU.Build.0 = Debug|Any CPU
-		{C83F04C6-B972-4D53-B366-26A0C1AFE201}.Debug_NetFramework|Any CPU.ActiveCfg = Debug_NetFramework|Any CPU
-		{C83F04C6-B972-4D53-B366-26A0C1AFE201}.Debug_NetFramework|Any CPU.Build.0 = Debug_NetFramework|Any CPU
-		{C83F04C6-B972-4D53-B366-26A0C1AFE201}.Debug_Test|Any CPU.ActiveCfg = Debug_NetFramework|Any CPU
-		{C83F04C6-B972-4D53-B366-26A0C1AFE201}.Debug_Test|Any CPU.Build.0 = Debug_NetFramework|Any CPU
+		{C83F04C6-B972-4D53-B366-26A0C1AFE201}.Debug_NetFramework|Any CPU.ActiveCfg = Debug|Any CPU
+		{C83F04C6-B972-4D53-B366-26A0C1AFE201}.Debug_NetFramework|Any CPU.Build.0 = Debug|Any CPU
+		{C83F04C6-B972-4D53-B366-26A0C1AFE201}.Debug_Test|Any CPU.ActiveCfg = Debug|Any CPU
+		{C83F04C6-B972-4D53-B366-26A0C1AFE201}.Debug_Test|Any CPU.Build.0 = Debug|Any CPU
 		{C83F04C6-B972-4D53-B366-26A0C1AFE201}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C83F04C6-B972-4D53-B366-26A0C1AFE201}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C83F04C6-B972-4D53-B366-26A0C1AFE201}.Release|Any CPU.ActiveCfg = Release|Any CPU

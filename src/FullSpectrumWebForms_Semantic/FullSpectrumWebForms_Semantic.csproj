@@ -18,14 +18,11 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <Configurations>Debug;Release;Azure; Debug_NetFramework</Configurations>
+    <Configurations>Debug;Release;Azure</Configurations>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NetFramework|AnyCPU'">
-    <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -95,13 +92,5 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Azure|AnyCPU'">
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
-  <!--
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /Y &quot;$(TargetPath)&quot; &quot;$(TargetDir)win7-x86\$(TargetFileName)&quot;" />
-  </Target>
-
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="if not exist &quot;$(TargetDir)win7-x86&quot; mkdir &quot;$(TargetDir)win7-x86&quot;" />
-  </Target>
--->
+  
 </Project>
