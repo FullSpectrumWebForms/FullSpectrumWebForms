@@ -5,26 +5,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <Folder Include="wwwroot\js\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FSW" Version="1.0.3" />
+    <PackageReference Include="FSW_ASPC" Version="1.0.1" />
+    <PackageReference Include="FSW_Semantic" Version="1.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.2" />
   </ItemGroup>
-
- <ItemGroup>
-     <Reference Include="FSW.Semantic">
-       <HintPath>\References\FSW.Semantic.dll</HintPath>
-     </Reference>
-     <Reference Include="FullSpectrumWebForms">
-       <HintPath>\References\FullSpectrumWebForms.dll</HintPath>
-     </Reference>
-     <Reference Include="FullSpectrumWebForms_ASPC">
-       <HintPath>\References\FullSpectrumWebForms_ASPC.dll</HintPath>
-     </Reference>
-   </ItemGroup>
 
 </Project>

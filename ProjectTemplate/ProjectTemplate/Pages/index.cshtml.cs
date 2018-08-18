@@ -10,7 +10,7 @@ namespace ProjectTemplate.Pages
 {
     public class IndexPage : FSW.Core.FSWPage
     {
-        FSW.Controls.Html.Button BT_Test = new FSW.Controls.Html.Button();
+        Button BT_Test = new Button();
         public override void OnPageLoad()
         {
             base.OnPageLoad();
