@@ -56,7 +56,7 @@ var gen;
                     if (index > -1)
                         v = v.substr(index + '&nbsp;'.length);
                 }
-                if (colN == 0 && (item.parent != undefined || item.parent != null)) {
+                if (colN == 0 && (item.parent != undefined || item.parent != null)) { // first col
                     var cParent = item.parent;
                     v = this._getDisplayValue(cParent, 0, this.options.data[cParent], col) + '->' + v;
                 }
@@ -88,9 +88,9 @@ var gen;
                 cols.map(x => x.name)
             ];
             var datas = this.options.data;
-            for (var i = 0; i < datas.length; ++i) {
+            for (var i = 0; i < datas.length; ++i) { // for each row 
                 var row = [];
-                for (var j = 0; j < cols.length; ++j) {
+                for (var j = 0; j < cols.length; ++j) { // for each col in that row
                     row.push(this._getDisplayValue(i, j, datas[i], cols[j]));
                 }
                 datasForExcels.push(row);

@@ -65,7 +65,7 @@ var controls;
                     let newValues = gen_utility.select2.getSelectedIDs(this.element);
                     // select old values, ajax or not. If ajax, ensure there is a value because Object.keys will crash if not
                     let oldValues = this.SelectedIds;
-                    if (newValues == oldValues || (newValues == null && oldValues.length == 0))
+                    if (newValues == oldValues || (newValues == null && oldValues.length == 0)) // both null
                         return;
                     if ((newValues && !oldValues) || (!newValues && oldValues) || newValues.length != oldValues.length)
                         this.SelectedIds = newValues;
@@ -193,7 +193,7 @@ var controls;
                     let newValues = gen_utility.select2.getSelectedIDs(this.element);
                     // select old values, ajax or not. If ajax, ensure there is a value because Object.keys will crash if not
                     let oldValues = this.SelectedIdsAndValues ? Object.keys(this.SelectedIdsAndValues) : null;
-                    if (newValues == oldValues || (newValues == null && oldValues.length == 0))
+                    if (newValues == oldValues || (newValues == null && oldValues.length == 0)) // both null
                         return;
                     if ((newValues && !oldValues) || (!newValues && oldValues) || newValues.length != oldValues.length) {
                         var newIdsAndValues = gen_utility.select2.getSelectedValuesAndIds(this.element);

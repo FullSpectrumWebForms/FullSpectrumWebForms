@@ -70,7 +70,7 @@ var controls;
         onDragOverOtherDraggable(ev) {
             let overContainer = $(ev.overContainer).data('htmlControlBase');
             let sourceContainer = $(ev.sourceContainer).data('htmlControlBase');
-            if (!overContainer || !sourceContainer || overContainer.id == sourceContainer.id)
+            if (!overContainer || !sourceContainer || overContainer.id == sourceContainer.id) // ensure we don't trig the event we over the source container
                 return;
             this.currentOverControl = overContainer;
         }

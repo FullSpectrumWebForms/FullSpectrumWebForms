@@ -195,7 +195,7 @@ var gen_utility;
         // for setting selected value of a ajax select2, use setValue or setSelected
         function setSelectedById(select2_, id) {
             var select2 = _getSelect2(select2_);
-            if (isTags(select2) || isAjax(select2))
+            if (isTags(select2) || isAjax(select2)) // if tag, then setSelectedById won't work. just setValue instead
                 setValue(select2, id, id);
             select2.val(id);
             select2.trigger('change');

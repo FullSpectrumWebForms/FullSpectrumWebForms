@@ -508,7 +508,7 @@ var controls;
                     let colIds = Object.keys(cols);
                     for (let i = 0; i < colIds.length; ++i) {
                         let colMeta = cols[colIds[i]];
-                        if (!colMeta)
+                        if (!colMeta) // shouldn't happen, if it does, the programmer who's fault it is, is kinda stupid...
                             continue; // anyway, let's protect it juuuust in case
                         let meta = $.extend({}, colMeta.colInternal);
                         if (colMeta.Editor && colMeta.EditorInfo === undefined)
@@ -560,7 +560,7 @@ var controls;
                 getItemMetadata(row) {
                     row = this.treeTable.dataView.getIdxById(this.treeTable.grid.getDataItem(row).id);
                     var metaData = this.metaDatasInternal[row];
-                    if (metaData === undefined)
+                    if (metaData === undefined) // undefined, because null means, initialised but nothing specified
                         metaData = this.metaDatasInternal[row] = this.constructInteralMetaData(row);
                     return metaData;
                 }
@@ -615,7 +615,7 @@ var controls;
                 onKeyDown(e, data) {
                     if (!this.AutoEnterEdit)
                         return;
-                    if (this.treeTable.grid.getCellEditor())
+                    if (this.treeTable.grid.getCellEditor()) // already in edit
                         return;
                     let key = e.key;
                     let keyCode = e.keyCode;
@@ -623,7 +623,7 @@ var controls;
                     var regExp = /^[A-Za-z0-9]+$/;
                     let isAlphaNumeric = (!!key.match(regExp) && key.length == 1) ||
                         ['-', '+', '*', '/', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '=', '\\', 'é', 'è', 'à', 'É', 'È', 'À'].includes(key);
-                    if (isAlphaNumeric || isEnter) {
+                    if (isAlphaNumeric || isEnter) { // || enter
                         try {
                             this.treeTable.grid.editActiveCell(undefined);
                             // usually used for select2 editor that need to be told what key was just pressed!

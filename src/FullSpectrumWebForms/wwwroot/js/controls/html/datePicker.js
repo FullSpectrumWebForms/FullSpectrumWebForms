@@ -19,7 +19,7 @@ var controls;
                     field: this.element[0],
                     onSelect: function () {
                         var date = that.elementPikaday.getMoment().startOf('day');
-                        if (!moment(that.Date).startOf('day').isSame(date))
+                        if (!moment(that.Date).startOf('day').isSame(date)) // prevent raising useless event from client to server
                             that.Date = date.toISOString();
                     }
                 });

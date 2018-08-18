@@ -21,7 +21,7 @@ var controls;
                 let that = this;
                 this.element.change(function () {
                     var text = that.element.val();
-                    if (that.Text != text)
+                    if (that.Text != text) // prevent raising useless event from client to server
                         that.Text = text;
                 });
                 // prevent postback
