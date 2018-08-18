@@ -16,6 +16,8 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <EmbeddedResource Include="Pages\**\*.cshtml"></EmbeddedResource>
+    <EmbeddedResource Include="Pages\**\*.html"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\fsw.diagnostic.min.css"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\fsw.diagnostic.min.js"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.gif"></EmbeddedResource>
@@ -36,6 +38,13 @@
   <ItemGroup>
     <ProjectReference Include="..\FullSpectrumWebForms\FullSpectrumWebForms.csproj" />
     <ProjectReference Include="..\FullSpectrumWebForms_ASPC\FullSpectrumWebForms_ASPC.csproj" />
+    <ProjectReference Include="..\FullSpectrumWebForms_Semantic\FullSpectrumWebForms_Semantic.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Pages\_Layout.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
   </ItemGroup>
 
   <PropertyGroup>

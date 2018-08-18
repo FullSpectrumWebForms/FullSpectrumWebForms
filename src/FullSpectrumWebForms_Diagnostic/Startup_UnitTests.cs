@@ -22,16 +22,21 @@ namespace FSW.Diagnostic
         public void ConfigureServices(IServiceCollection services)
         {
             FSW_ASPC.Startup.ConfigureServices(services);
-
+            Semantic.Startup.ConfigureServices(services);
+            Startup.ConfigureServices(services);
 
             var mvc = services.AddMvc();
             FSW_ASPC.Startup.ConfigureMvc(mvc);
+            Semantic.Startup.ConfigureMvc(mvc);
+            Startup.ConfigureMvc(mvc);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             FSW_ASPC.Startup.Configure(app, env);
+            Semantic.Startup.Configure(app, env);
+            Startup.Configure(app, env);
 
             if (env.IsDevelopment())
             {

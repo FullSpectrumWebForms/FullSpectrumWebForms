@@ -22,7 +22,11 @@ namespace FSW.Diagnostic
         {
             app.UseStaticFiles(new StaticFileOptions()
             {
-                FileProvider = new EmbeddedFileProvider(typeof(Startup).Assembly, "FSW.UnitTests.wwwroot")
+                FileProvider = new EmbeddedFileProvider(typeof(Startup).Assembly, "FSW.Diagnostic.wwwroot")
+            });
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new EmbeddedFileProvider(typeof(Startup).Assembly, "FSW.Diagnostic.Pages")
             });
         }
     }

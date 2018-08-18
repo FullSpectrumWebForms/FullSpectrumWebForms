@@ -14,27 +14,72 @@ namespace FSW.Diagnostic.Controls
 
         }
 
-        public Task<bool> CheckIfElementExists(string id)
+        public Task<bool> CheckIfElementExists(string id, bool autoLock = true)
         {
-            return CallCustomClientEvent<bool>("checkIfElementExists", id);
+            IDisposable lockObj = autoLock ? Page.ServerSideLock : null;
+            try
+            {
+                return CallCustomClientEvent<bool>("checkIfElementExists", id);
+            }
+            finally
+            {
+                lockObj?.Dispose();
+            }
         }
 
-        public Task<string> GetElementText(string id)
+        public Task<string> GetElementText(string id, bool autoLock = true)
         {
-            return CallCustomClientEvent<string>("getElementTextFromId", id);
+            IDisposable lockObj = autoLock ? Page.ServerSideLock : null;
+            try
+            {
+                return CallCustomClientEvent<string>("getElementTextFromId", id);
+            }
+            finally
+            {
+                lockObj?.Dispose();
+            }
         }
-        public Task<string> GetElementText(HtmlControlBase control)
+        public Task<string> GetElementText(HtmlControlBase control, bool autoLock = true)
         {
-            return CallCustomClientEvent<string>("getFSWControlText", control.Id);
+            IDisposable lockObj = autoLock ? Page.ServerSideLock : null;
+            try
+            {
+                return CallCustomClientEvent<string>("getFSWControlText", control.Id);
+            }
+            finally
+            {
+                lockObj?.Dispose();
+            }
         }
 
-        public Task<T> GetElementVal<T>(string id)
+        public Task<T> GetElementVal<T>(string id, bool autoLock = true)
         {
-            return CallCustomClientEvent<T>("getElementValFromId", id);
+            IDisposable lockObj = autoLock ? Page.ServerSideLock : null;
+            try
+            {
+                return CallCustomClientEvent<T>("getElementValFromId", id);
+            }
+            finally
+            {
+                lockObj?.Dispose();
+            }
         }
-        public Task<T> GetElementVal<T>(HtmlControlBase control)
+        public Task<T> GetElementVal<T>(HtmlControlBase control, bool autoLock = true)
         {
-            return CallCustomClientEvent<T>("getFSWControlVal", control.Id);
+            IDisposable lockObj = autoLock ? Page.ServerSideLock : null;
+            try
+            {
+                return CallCustomClientEvent<T>("getFSWControlVal", control.Id);
+            }
+            finally
+            {
+                lockObj?.Dispose();
+            }
+        }
+
+        public void CloseTab()
+        {
+            CallCustomClientEvent("closeTab");
         }
 
     }

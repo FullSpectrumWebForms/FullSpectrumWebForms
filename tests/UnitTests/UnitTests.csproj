@@ -14,6 +14,7 @@
   
   <PropertyGroup>
     <IsPackable>false</IsPackable>
+    <StartupObject>UnitTests.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

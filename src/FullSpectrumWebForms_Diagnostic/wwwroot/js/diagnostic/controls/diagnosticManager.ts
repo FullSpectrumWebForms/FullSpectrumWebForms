@@ -25,7 +25,7 @@ namespace controls {
         getFSWControlText(id: string) {
             let control = core.manager.getControl(id) as html.htmlControlBase;
             if (control && control.element) {
-                return control.element.val();
+                return control.element.text();
             }
             else
                 return null;
@@ -36,7 +36,7 @@ namespace controls {
             let elem = $('#' + id);
             if (elem.length == 0)
                 return null;
-            return elem.text();
+            return elem.val();
         }
 
         getFSWControlVal(id: string) {
@@ -46,6 +46,9 @@ namespace controls {
             }
             else
                 return null;
+        }
+        closeTab() {
+            window.close();
         }
     }
 }
