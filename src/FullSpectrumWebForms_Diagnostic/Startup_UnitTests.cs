@@ -6,10 +6,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 
 namespace FSW.Diagnostic
 {
-    public class Startup_UnitTests
+    public class Startup_UnitTests<CallingType>
     {
         public Startup_UnitTests(IConfiguration configuration)
         {
@@ -36,7 +37,13 @@ namespace FSW.Diagnostic
         {
             FSW_ASPC.Startup.Configure(app, env);
             Semantic.Startup.Configure(app, env);
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new EmbeddedFileProvider(typeof(CallingType).Assembly, "UnitTests")
+            });
+
             Startup.Configure(app, env);
+
 
             if (env.IsDevelopment())
             {
@@ -51,6 +58,7 @@ namespace FSW.Diagnostic
             app.UseStaticFiles();
 
             app.UseMvc();
+
         }
     }
 }

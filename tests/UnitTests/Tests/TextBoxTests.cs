@@ -9,7 +9,7 @@ namespace UnitTests
 {
     public class TextBoxTests
     {
-        private FSW.Diagnostic.UnitTestsManager UnitTestsManager => FSW.Diagnostic.UnitTestsManager.GetUnitTestsManager();
+        private FSW.Diagnostic.UnitTestsManager UnitTestsManager => FSW.Diagnostic.UnitTestsManager.GetUnitTestsManager<TextBoxTests>();
 
 
         [Fact(DisplayName = "Setting text at initialization")]

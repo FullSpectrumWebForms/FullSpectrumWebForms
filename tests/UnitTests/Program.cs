@@ -8,8 +8,8 @@ namespace UnitTests
     {
         public static void Main( string[] args )
         {
-            var tests = new ButtonTests();
-            tests.TestButtonText().Wait();
+            var tests = new Tests.DataPO.DataPO();
+            tests.DataPOClasses().Wait();
         }
     }
 }
