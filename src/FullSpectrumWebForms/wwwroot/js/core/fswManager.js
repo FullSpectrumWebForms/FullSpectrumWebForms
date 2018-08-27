@@ -267,6 +267,7 @@ var core;
     core.polinetManager = polinetManager;
     core.manager = new polinetManager();
     core.controlTypes = {};
+    core.controlExtensionTypes = {};
 })(core || (core = {}));
 $(core.manager.initialize.bind(core.manager));
 //# sourceMappingURL=fswManager.js.map

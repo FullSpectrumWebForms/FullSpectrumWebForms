@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FSW.Controls.Html;
+using FSW.Semantic.Controls.Extensions;
 
 namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
 {
@@ -92,6 +93,7 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
                 Vertical = true,
                 Width = width ?? DefaultWidth,
             };
+            listView.Extensions.Add<Extensions.Transition>();
 
             if (options.GetText != null)
             {
@@ -198,7 +200,7 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
             });
             Children.Add(mainContainer);
 
-            mainContainer.Transition(AnimationTransition.SlideRight);
+            mainContainer.Transition(Transition.Animation.SlideRight);
 
             if (options.PopulateListView != null)
                 Page.RegisterHostedService(() => options.PopulateListView(listView), FSW.Core.FSWPage.HostedServicePriority.High);

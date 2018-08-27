@@ -1,4 +1,5 @@
-﻿/// <reference path="coreProperty.ts" />
+﻿/// <reference path="controlextension.ts" />
+/// <reference path="coreProperty.ts" />
 /// <reference path="fswManager.ts" />
 
 namespace core {

@@ -254,48 +254,5 @@ namespace FSW.Controls.Html
             PopupContent = null;
         }
 
-        public enum AnimationTransition
-        {
-            Scale, Zoom, Fade, FadeUp, FadeDown, FadeLeft, FadeRight, HorizontalFlip, VerticalFlip, Drop, FlyLeft, FlyRight, FlyUp, FlyDown, SwingLeft, SwingRight, SwingUp, SwingDown,
-            Browse, BrowseRight, SlideDown, SlideUp, SlideLeft, SlideRight, Jiggle, Flash, Shake, Pulse, Tada, Bounce, Glow
-        }
-        private readonly Dictionary<AnimationTransition, string> AnimationTransition_ = new Dictionary<AnimationTransition, string>
-        {
-            [AnimationTransition.Scale] = "scale",
-            [AnimationTransition.Zoom] = "zoom",
-            [AnimationTransition.Fade] = "fade",
-            [AnimationTransition.FadeUp] = "fade up",
-            [AnimationTransition.FadeDown] = "fade down",
-            [AnimationTransition.FadeLeft] = "fade left",
-            [AnimationTransition.FadeRight] = "fade right",
-            [AnimationTransition.HorizontalFlip] = "horizontal flip",
-            [AnimationTransition.VerticalFlip] = "vertical flip",
-            [AnimationTransition.Drop] = "drop",
-            [AnimationTransition.FlyLeft] = "fly left",
-            [AnimationTransition.FlyRight] = "fly right",
-            [AnimationTransition.FlyUp] = "fly up",
-            [AnimationTransition.FlyDown] = "fly down",
-            [AnimationTransition.SwingLeft] = "swing left",
-            [AnimationTransition.SwingRight] = "swing right",
-            [AnimationTransition.SwingUp] = "swing up",
-            [AnimationTransition.SwingDown] = "swing down",
-            [AnimationTransition.Browse] = "browse",
-            [AnimationTransition.BrowseRight] = "browse right",
-            [AnimationTransition.SlideDown] = "slide down",
-            [AnimationTransition.SlideUp] = "slide up",
-            [AnimationTransition.SlideLeft] = "slide left",
-            [AnimationTransition.SlideRight] = "slide right",
-            [AnimationTransition.Jiggle] = "jiggle",
-            [AnimationTransition.Flash] = "flash",
-            [AnimationTransition.Shake] = "shake",
-            [AnimationTransition.Pulse] = "pulse",
-            [AnimationTransition.Tada] = "tada",
-            [AnimationTransition.Bounce] = "bounche",
-            [AnimationTransition.Glow] = "glow"
-        };
-        public void Transition(AnimationTransition transition)
-        {
-            CallCustomClientEvent("transition", AnimationTransition_[transition]);
-        }
     }
 }

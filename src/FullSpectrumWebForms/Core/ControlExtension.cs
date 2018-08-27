@@ -20,22 +20,48 @@ namespace FSW.Core
 
         public bool IsReadOnly => false;
 
-        public void Add(ControlExtension item)
+        public void Add(ControlExtension controlExtension)
         {
-            item.Bind(Control);
+            if (controlExtension is null)
+                throw new ArgumentNullException("Cannot add an empty control extension to a control");
+            if (controlExtension.Control != null)
+                throw new Exception($"Control Extension '{controlExtension.Id}' already assigned to a control");
+
+            ControlExtensions.Add(controlExtension.Id, controlExtension);
+            controlExtension.Bind(Control);
 
 
             Control.CallCustomClientEvent("registerControlExtension", new
             {
-                item.ClientId
+                controlExtension.ClientId
             });
 
-            item.Initialize();
+            controlExtension.Initialize();
+        }
+        public T Add<T>() where T: ControlExtension
+        {
+            var controlExtension = Activator.CreateInstance<T>();
+            Add(controlExtension);
+            return controlExtension;
+        }
+
+        public T Get<T>() where T : ControlExtension
+        {
+            if (TryGet<T>(out var controlExtension))
+                return controlExtension;
+            throw new Exception($"Cannot find or parse control extension for type {typeof(T).FullName}");
+        }
+        public bool TryGet<T>(out T controlExtension) where T : ControlExtension
+        {
+            ControlExtensions.TryGetValue(typeof(T).FullName, out var ce);
+            controlExtension = ce as T;
+            return controlExtension != null;
         }
 
         public void Clear()
         {
-            throw new NotImplementedException();
+            foreach (var controlExtension in ControlExtensions.Values.ToList())
+                Remove(controlExtension);
         }
 
         public bool Contains(ControlExtension item)
@@ -53,9 +79,17 @@ namespace FSW.Core
             return ControlExtensions.Values.GetEnumerator();
         }
 
-        public bool Remove(ControlExtension item)
+        public bool Remove(ControlExtension controlExtension)
         {
-            throw new NotImplementedException();
+            var isRemoved = ControlExtensions.Remove(controlExtension.Id);
+            if (isRemoved)
+            {
+                Control.CallCustomClientEvent("unregisterControlExtension", new
+                {
+                    controlExtension.ClientId
+                });
+            }
+            return isRemoved;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -70,7 +104,7 @@ namespace FSW.Core
 
         public ControlBase Control { get; private set; }
 
-        internal void Bind(ControlBase control)
+        internal protected virtual void Bind(ControlBase control)
         {
             Control = control;
         }

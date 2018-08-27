@@ -195,9 +195,6 @@ var controls;
                     }
                 }
             }
-            transition(direction) {
-                this.element.transition(direction);
-            }
             initializeHtmlElement() {
                 var tag = this.tryGetPropertyValue("HtmlDefaultTag") || "div";
                 this.element = $('<' + tag + '></' + tag + '>');

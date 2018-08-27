@@ -15,7 +15,7 @@ namespace FSW.Core
         protected FSWPage Page;
         protected Session Session => Page.Session;
 
-        public readonly ControlExtensionsCollection ControlExtensions;
+        public readonly ControlExtensionsCollection Extensions;
 
         public ControlBase(FSWPage page = null)
         {
@@ -25,7 +25,7 @@ namespace FSW.Core
             IsInitializing = true;
             IsRemoved = false;
             Children.CollectionChanged += Children_CollectionChanged;
-            ControlExtensions = new ControlExtensionsCollection(this);
+            Extensions = new ControlExtensionsCollection(this);
 
             InternalInitialize(Page);
         }

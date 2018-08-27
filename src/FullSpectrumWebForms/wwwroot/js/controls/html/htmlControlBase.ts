@@ -229,9 +229,6 @@ namespace controls.html {
 
         }
 
-        transition(direction: string) {
-            (this.element as any).transition(direction);
-        }
 
         protected initializeHtmlElement() {
             var tag = this.tryGetPropertyValue<this, string>("HtmlDefaultTag") || "div";
