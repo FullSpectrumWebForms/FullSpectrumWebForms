@@ -15,6 +15,8 @@ namespace FSW.Core
         protected FSWPage Page;
         protected Session Session => Page.Session;
 
+        public readonly ControlExtensionsCollection Extensions;
+
         public ControlBase(FSWPage page = null)
         {
             if (page != null)
@@ -23,6 +25,7 @@ namespace FSW.Core
             IsInitializing = true;
             IsRemoved = false;
             Children.CollectionChanged += Children_CollectionChanged;
+            Extensions = new ControlExtensionsCollection(this);
 
             InternalInitialize(Page);
         }
@@ -190,11 +193,11 @@ namespace FSW.Core
         }
         private List<ServerToClientCustomEvent> PendingCustomEvents = new List<ServerToClientCustomEvent>();
         private Dictionary<int, Action<Newtonsoft.Json.Linq.JProperty>> AwaitingAnswerEvents = new Dictionary<int, Action<Newtonsoft.Json.Linq.JProperty>>();
-        protected void CallCustomClientEvent(string name, object parameters = null)
+        internal protected void CallCustomClientEvent(string name, object parameters = null)
         {
             PendingCustomEvents.Add(new ServerToClientCustomEvent(name, parameters));
         }
-        protected void CallCustomClientEvent<T>(string name, Action<T> callback, object parameters = null)
+        internal protected void CallCustomClientEvent<T>(string name, Action<T> callback, object parameters = null)
         {
             while (true)
             {
@@ -214,7 +217,7 @@ namespace FSW.Core
                 break;
             }
         }
-        protected System.Threading.Tasks.Task<T> CallCustomClientEvent<T>(string name, object parameters = null)
+        internal protected System.Threading.Tasks.Task<T> CallCustomClientEvent<T>(string name, object parameters = null)
         {
             var src = new System.Threading.Tasks.TaskCompletionSource<T>();
 
@@ -274,7 +277,6 @@ namespace FSW.Core
             else
                 throw new ArgumentException($"Property not found:{propertyName} in control:{Id.ToString()}");
         }
-
 
 
     }

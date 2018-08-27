@@ -69,9 +69,15 @@
     <EmbeddedResource Include="wwwroot\**\*.bmp"></EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="wwwroot\js\core\controlExtension.ts" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="wwwroot\css\jqueryContextMenu\" />
     <Folder Include="wwwroot\js\jqueryTimepicker\" />
     <Folder Include="wwwroot\js\moment\" />
     <Folder Include="wwwroot\js\jquery\" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="wwwroot\js\core\controlExtension.ts" />
   </ItemGroup>
 </Project>

@@ -1,3 +1,4 @@
+/// <reference path="controlextension.ts" />
 /// <reference path="coreProperty.ts" />
 /// <reference path="fswManager.ts" />
 var core;
@@ -7,6 +8,7 @@ var core;
             this.childs = [];
             this.properties = {};
             this.wasRemoved = false;
+            this.extensions = {};
         }
         // ------------------------------------------------------------------------   parentElementId
         // when set, it means the control was added dynamically from the server
@@ -103,6 +105,18 @@ var core;
         }
         customControlEvent(eventName, parameters, forceSync) {
             return core.manager.sendCustomControlEvent(this.id, eventName, parameters, forceSync);
+        }
+        registerControlExtension(data) {
+            var controlExtension = core.controlExtensionTypes[data.ClientId]();
+            this.extensions[data.ClientId] = controlExtension;
+            controlExtension.initialize(this);
+        }
+        unregisterControlExtension(data) {
+            this.extensions[data.ClientId].remove();
+            delete this.extensions[data.ClientId];
+        }
+        callControlExtensionMethod(data) {
+            return this.extensions[data.ClientId][data.MethodName](data.Parameters);
         }
     }
     core.controlBase = controlBase;

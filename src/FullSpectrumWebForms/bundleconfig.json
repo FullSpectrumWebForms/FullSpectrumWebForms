@@ -50,6 +50,7 @@
       "wwwroot/js/signalR/signalr.min.js",
       "wwwroot/js/core/coreProperty.js",
       "wwwroot/js/core/fswManager.js",
+      "wwwroot/js/core/controlExtension.js",
       "wwwroot/js/core/controlBase.js",
       "wwwroot/js/controls/html/htmlControlBase.js",
       "wwwroot/js/controls/html/div.js",

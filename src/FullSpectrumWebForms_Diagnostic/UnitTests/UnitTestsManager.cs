@@ -42,7 +42,6 @@ namespace FSW.Diagnostic
                 result.TaskCompletionSource.TrySetResult(result);
             });
         }
-
         public Task<UnitTests.EmptyPageResult> CreateEmptyPageTest(bool show = false)
         {
             var path = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe";

@@ -396,6 +396,7 @@ namespace core {
     export var manager = new polinetManager();
 
     export var controlTypes: { [type: string]: () => controlBase } = {};
+    export var controlExtensionTypes: { [clientId: string]: () => controlExtension } = {};
 
 }
 $(core.manager.initialize.bind(core.manager));

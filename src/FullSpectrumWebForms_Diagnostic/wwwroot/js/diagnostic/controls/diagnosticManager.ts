@@ -30,6 +30,21 @@ namespace controls {
             else
                 return null;
         }
+        getElementStyleFromId(parameters: { id: string, style: string }) {
+            let elem = $('#' + parameters.id);
+            if (elem.length == 0)
+                return null;
+            return elem.css(parameters.style);
+        }
+
+        getFSWControlStyle(parameters: { id: string, style: string }) {
+            let control = core.manager.getControl(parameters.id) as html.htmlControlBase;
+            if (control && control.element) {
+                return control.element.css(parameters.style);
+            }
+            else
+                return null;
+        }
 
 
         getElementValFromId(id: string) {
