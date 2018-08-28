@@ -1,9 +1,9 @@
 ﻿namespace controls.html.dataGrid {
-    interface onValidateValueCellChangeArgs<type> {
+    export interface onValidateValueCellChangeArgs<type> {
         column: Slick.Column<type>;
         item: type;
     }
-    namespace editors {
+    export namespace editors {
         export class baseEditor {
             AllowEdit: boolean;
             AllowNull: boolean;
