@@ -5,9 +5,11 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>FSW</PackageId>
-    <Version>1.0.4</Version>
+    <Version>1.0.6</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
+    <PackageTags>FSW</PackageTags>
+    <PackageProjectUrl>https://github.com/FullSpectrumWebForms/FullSpectrumWebForms</PackageProjectUrl>
     <TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
   </PropertyGroup>
 

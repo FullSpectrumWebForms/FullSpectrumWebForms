@@ -1,9 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <PackageId>FSW_UnitTest</PackageId>
-    <Version>1.0.0</Version>
+    <PackageId>FSW.Diagnostic</PackageId>
+    <Version>1.0.1</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
+    <IsPackable>true</IsPackable>
+    <PackageTags>FSW</PackageTags>
+    <PackageProjectUrl>https://github.com/FullSpectrumWebForms/FullSpectrumWebForms</PackageProjectUrl>
   </PropertyGroup>
   
   <PropertyGroup>

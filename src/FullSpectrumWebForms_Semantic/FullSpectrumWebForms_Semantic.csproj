@@ -2,11 +2,13 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <PackageId>FSW_Semantic</PackageId>
-    <Version>1.0.4</Version>
+    <PackageId>FSW.Semantic</PackageId>
+    <Version>1.0.6</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
     <IsPackable>true</IsPackable>
+    <PackageTags>FSW</PackageTags>
+    <PackageProjectUrl>https://github.com/FullSpectrumWebForms/FullSpectrumWebForms</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

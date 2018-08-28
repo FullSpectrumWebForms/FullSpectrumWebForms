@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
   
   <PropertyGroup>
-    <IsPackable>true</IsPackable>
-    <PackageId>FSW_ASPC</PackageId>
-    <Version>1.0.1</Version>
+    <PackageId>FSW.ASPC</PackageId>
+    <Version>1.0.3</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
     <IsPackable>true</IsPackable>
+    <PackageTags>FSW</PackageTags>
+    <PackageProjectUrl>https://github.com/FullSpectrumWebForms/FullSpectrumWebForms</PackageProjectUrl>
   </PropertyGroup>
   
   <PropertyGroup>
