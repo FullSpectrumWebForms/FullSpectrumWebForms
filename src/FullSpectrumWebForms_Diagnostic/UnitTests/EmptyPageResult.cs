@@ -17,6 +17,11 @@ namespace FSW.Diagnostic.UnitTests
         public Div Container => Page.Container;
         public TaskCompletionSource<EmptyPageResult> TaskCompletionSource;
 
+        public Task KeepAlive(TimeSpan delay)
+        {
+            return Task.Delay(delay);
+        }
+
         public void Dispose()
         {
             using (Page.ServerSideLock)

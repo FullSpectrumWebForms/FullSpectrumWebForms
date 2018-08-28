@@ -27,6 +27,22 @@ namespace FSW.Diagnostic.Controls
         {
             return CallCustomClientEvent<string>("getFSWControlText", control.Id, autoLock);
         }
+        public Task<string> GetElementStyle(string id, string style, bool autoLock = true)
+        {
+            return CallCustomClientEvent<string>("getElementStyleFromId", new
+            {
+                id,
+                style
+            }, autoLock);
+        }
+        public Task<string> GetElementStyle(HtmlControlBase control, string style, bool autoLock = true)
+        {
+            return CallCustomClientEvent<string>("getFSWControlStyle", new
+            {
+                id = control.Id,
+                style
+            }, autoLock);
+        }
 
         public Task<T> GetElementVal<T>(string id, bool autoLock = true)
         {

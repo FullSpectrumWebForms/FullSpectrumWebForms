@@ -16,6 +16,8 @@ namespace FSW.Core
         public string ID;
         public string PageAuth;
 
+        public Func<Exception, Task> OverrideErrorHandle { get; set; }
+
         public Session Session { get; internal set; }
 
         public FSWManager Manager;

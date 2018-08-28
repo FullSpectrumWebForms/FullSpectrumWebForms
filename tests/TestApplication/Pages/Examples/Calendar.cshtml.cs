@@ -18,11 +18,18 @@ namespace TestApplication.Pages
 
 
             C_Test.OnRefreshRequest += C_Test_OnRefreshRequest;
+            C_Test.OnEventClick += C_Test_OnEventClick;
             C_Test.CurrentView = Calendar.AvailableView.AgendaWeek;
 
             C_Test.Width = "1500px";
             C_Test.Height = "900px";
         }
+
+        private void C_Test_OnEventClick(CalendarEvent eventClicked)
+        {
+            MessageBox.Success("You clicked", eventClicked.Title);
+        }
+
         private List<CalendarEvent> C_Test_OnRefreshRequest(DateTime rangeStart, DateTime rangeEnd)
         {
             var sunday = rangeStart - TimeSpan.FromDays((int)rangeStart.DayOfWeek);

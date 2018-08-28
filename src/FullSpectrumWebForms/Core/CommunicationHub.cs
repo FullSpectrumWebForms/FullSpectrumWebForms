@@ -91,10 +91,20 @@ namespace FSW.Core
             var page = CurrentPage;
             try
             {
-                lock (page.Manager._lock)
+                try
                 {
-                    page.Manager.OnPropertiesChangedFromClient(changedProperties);
-                    return ProcessPropertyChange(page.Manager);
+                    lock (page.Manager._lock)
+                    {
+                        page.Manager.OnPropertiesChangedFromClient(changedProperties);
+                        return ProcessPropertyChange(page.Manager);
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (page.OverrideErrorHandle is null)
+                        throw;
+                    else
+                        return page.OverrideErrorHandle(e);
                 }
             }
             catch (Exception e)
@@ -109,11 +119,29 @@ namespace FSW.Core
             {
                 FSWManager.CustomControlEventResult res;
                 var page = CurrentPage;
-                lock (page.Manager._lock)
+                try
                 {
-                    res = page.Manager.CustomControlEvent(controlId, eventName, parameters);
+                    lock (page.Manager._lock)
+                    {
+                        res = page.Manager.CustomControlEvent(controlId, eventName, parameters);
 
-                    return BackgroundHub.SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
+                        return BackgroundHub.SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (page.OverrideErrorHandle is null)
+                        throw;
+                    else
+                    {
+                        return page.OverrideErrorHandle(e).ContinueWith( (r) =>
+                        {
+                            return BackgroundHub.SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(new FSWManager.CustomControlEventResult()
+                            {
+                                properties = new CoreServerAnswer()
+                            }));
+                        });
+                    }
                 }
             }
             catch (Exception e)
@@ -125,10 +153,20 @@ namespace FSW.Core
         // will run a checkup for modifications on the controls in the current page
         public static Task ProcessPropertyChange(FSWManager manager, bool skipIfEmpty = false)
         {
-            var res = manager.ProcessPropertyChange(false);
-            if (res.IsEmpty)
-                return Task.CompletedTask;
-            return Hub.BackgroundHub.SendAsync_ID(manager.Page.ID, "propertyUpdateFromServer", JsonConvert.SerializeObject(res));
+            try
+            {
+                var res = manager.ProcessPropertyChange(false);
+                if (res.IsEmpty)
+                    return Task.CompletedTask;
+                return Hub.BackgroundHub.SendAsync_ID(manager.Page.ID, "propertyUpdateFromServer", JsonConvert.SerializeObject(res));
+            }
+            catch (Exception e)
+            {
+                if (manager.Page.OverrideErrorHandle is null)
+                    throw;
+                else
+                    return manager.Page.OverrideErrorHandle(e);
+            }
         }
         // used to generate a polinet page on the fly when there are auth error or invalid connection ids
         internal (int PageId, FSWPage Page, string SessionId, string SessionAuth) GeneratePolinetPage(string typePath, string sessionId, string sessionAuth)
@@ -138,7 +176,7 @@ namespace FSW.Core
                 return (0, null, null, null);
 
             var page = (FSWPage)Activator.CreateInstance(type);
-            var pageId = ModelBase.RegisterFSWPage(page, sessionId, sessionAuth, out string newSessionId, out string newSessionAuth).id;
+            var pageId = ModelBase.RegisterFSWPage(page, sessionId, sessionAuth, out var newSessionId, out var newSessionAuth).id;
             return (pageId, page, newSessionId, newSessionAuth);
         }
         public Task InitializeCore(int pageId, string url, Dictionary<string, string> urlParameters, string sessionId, string sessionAuth, string auth, string typePath)

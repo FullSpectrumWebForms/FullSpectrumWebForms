@@ -5,7 +5,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>FSW</PackageId>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
     <TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
@@ -69,9 +69,15 @@
     <EmbeddedResource Include="wwwroot\**\*.bmp"></EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="wwwroot\js\core\controlExtension.ts" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="wwwroot\css\jqueryContextMenu\" />
     <Folder Include="wwwroot\js\jqueryTimepicker\" />
     <Folder Include="wwwroot\js\moment\" />
     <Folder Include="wwwroot\js\jquery\" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="wwwroot\js\core\controlExtension.ts" />
   </ItemGroup>
 </Project>

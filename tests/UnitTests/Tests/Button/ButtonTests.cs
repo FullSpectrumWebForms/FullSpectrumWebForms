@@ -9,7 +9,7 @@ namespace UnitTests
 {
     public class ButtonTests
     {
-        private FSW.Diagnostic.UnitTestsManager UnitTestsManager => FSW.Diagnostic.UnitTestsManager.GetUnitTestsManager();
+        private FSW.Diagnostic.UnitTestsManager UnitTestsManager => FSW.Diagnostic.UnitTestsManager.GetUnitTestsManager<ButtonTests>();
 
         public ButtonTests()
         {

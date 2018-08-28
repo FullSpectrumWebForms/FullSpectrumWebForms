@@ -1,4 +1,5 @@
-﻿/// <reference path="coreProperty.ts" />
+﻿/// <reference path="controlextension.ts" />
+/// <reference path="coreProperty.ts" />
 /// <reference path="fswManager.ts" />
 
 namespace core {
@@ -118,6 +119,29 @@ namespace core {
 
         customControlEvent(eventName: string, parameters: any, forceSync?: boolean) {
             return core.manager.sendCustomControlEvent(this.id, eventName, parameters, forceSync);
+        }
+
+        extensions: { [clientId: string]: controlExtension } = {};
+        registerControlExtension(data: {
+            ClientId: string
+        }) {
+            var controlExtension = controlExtensionTypes[data.ClientId]();
+            this.extensions[data.ClientId] = controlExtension;
+
+            controlExtension.initialize(this);
+        }
+        unregisterControlExtension(data: {
+            ClientId: string
+        }) {
+            this.extensions[data.ClientId].remove();
+            delete this.extensions[data.ClientId];
+        }
+        callControlExtensionMethod(data: {
+            ClientId: string,
+            MethodName: string,
+            Parameters: any
+        }) {
+            return this.extensions[data.ClientId][data.MethodName](data.Parameters);
         }
     }
 
