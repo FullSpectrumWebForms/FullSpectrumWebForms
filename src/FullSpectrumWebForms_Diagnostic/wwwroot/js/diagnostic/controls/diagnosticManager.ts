@@ -66,6 +66,27 @@ namespace controls {
             return null;
         }
 
+        sendKeysFromId(parameters: {
+            id: string,
+            key: any
+        }) {
+            let elem = $('#' + parameters.id);
+            if (elem.length == 0)
+                return null;
+
+            (elem as any).sendkeys(parameters.key);
+        }
+
+        sendKeysFSWControl(parameters: {
+            id: string,
+            key: any
+        }) {
+            let control = core.manager.getControl(parameters.id) as html.htmlControlBase;
+            if (control && control.element)
+                (control.element as any).sendkeys(parameters.key);
+            return null;
+        }
+
         triggerElementValFromId(parameters: {
             id: string,
             ev: any

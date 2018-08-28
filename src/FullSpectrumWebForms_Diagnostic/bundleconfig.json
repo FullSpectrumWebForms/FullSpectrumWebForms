@@ -11,6 +11,7 @@
   {
     "outputFileName": "wwwroot/fsw.diagnostic.min.js",
     "inputFiles": [
+      "wwwroot/js/sendKeys/bililiteRange.js",
       "wwwroot/js/sendKeys/jquery.sendkeys.js",
       "wwwroot/js/diagnostic/controls/**.js"
     ],
