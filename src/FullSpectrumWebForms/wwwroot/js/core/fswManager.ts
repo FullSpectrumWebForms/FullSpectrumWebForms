@@ -128,8 +128,8 @@ namespace core {
                     var sessionAuth = (datas as any).SessionAuth;
 
                     if (sessionId && sessionAuth) {
-                        (Cookies as any).set('polinetSessionId', sessionId);
-                        (Cookies as any).set('polinetSessionAuth', sessionAuth);
+                        (Cookies as any).set('FSWSessionId', sessionId);
+                        (Cookies as any).set('FSWSessionAuth', sessionAuth);
                     }
 
                     datas = (datas as any).Answer;
@@ -170,8 +170,8 @@ namespace core {
             this.connection.send('InitializeCore', {
                 pageId: that.pageId,
                 pageIdAuth: that.pageIdAuth,
-                sessionId: Cookies.get('polinetSessionId'),
-                sessionAuth: Cookies.get('polinetSessionAuth'),
+                sessionId: Cookies.get('FSWSessionId'),
+                sessionAuth: Cookies.get('FSWSessionAuth'),
                 typePath: that.typePath,
                 url: document.location.pathname,
                 urlParameters: URLToArray(document.location.search)

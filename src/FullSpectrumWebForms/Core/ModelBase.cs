@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FSW_ASPC
+namespace FSW.Core
 {
     public sealed class ModelBase<T> : Microsoft.AspNetCore.Mvc.RazorPages.PageModel where T : FSWPage, new()
     {
@@ -16,8 +16,8 @@ namespace FSW_ASPC
 
         public void OnGet()
         {
-            HttpContext.Request.Cookies.TryGetValue("polinetSessionId", out string fswSessionId);
-            HttpContext.Request.Cookies.TryGetValue("polinetSessionAuth", out string fswSessionAuth);
+            HttpContext.Request.Cookies.TryGetValue("FSWSessionId", out string fswSessionId);
+            HttpContext.Request.Cookies.TryGetValue("FSWSessionAuth", out string fswSessionAuth);
 
             var res = FSW.ModelBase.RegisterFSWPage(new T(), fswSessionId, fswSessionAuth, out string newFSWSessionId, out string newFSWSessionAuth);
 
@@ -27,8 +27,8 @@ namespace FSW_ASPC
 
             if (newFSWSessionId != null && newFSWSessionAuth != null)
             {
-                HttpContext.Response.Cookies.Append("polinetSessionId", newFSWSessionId);
-                HttpContext.Response.Cookies.Append("polinetSessionAuth", newFSWSessionAuth);
+                HttpContext.Response.Cookies.Append("FSWSessionId", newFSWSessionId);
+                HttpContext.Response.Cookies.Append("FSWSessionAuth", newFSWSessionAuth);
             }
         }
     }

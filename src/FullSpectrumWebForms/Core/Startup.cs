@@ -3,10 +3,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using FSW.Core;
-using FSW_ASPC.Core;
 
-namespace FSW_ASPC
+namespace FSW.Core
 {
     public static class Startup
     {
@@ -33,29 +31,18 @@ namespace FSW_ASPC
             app.UseStaticFiles();
             app.UseStaticFiles(new StaticFileOptions()
             {
-                FileProvider = new EmbeddedFileProvider(typeof(Startup).Assembly, nameof(FSW) + ".wwwroot")
-            });
-            app.UseStaticFiles(new StaticFileOptions()
-            {
                 FileProvider = new EmbeddedFileProvider(typeof(FSWManager).Assembly, nameof(FSW) + ".wwwroot")
             });
 
-#if AZURE
-            app.UseAzureSignalR(routes =>
-            {
-                routes.MapHub<Core.CommunicationHub>("/Polinet/CommunicationHub");
-            });
-#else
+
             app.UseSignalR(routes =>
             {
-                routes.MapHub<Core.CommunicationHub>("/Polinet/CommunicationHub", config =>
+                routes.MapHub<CommunicationHub>("/Polinet/CommunicationHub", config =>
                 {
                     config.ApplicationMaxBufferSize = 1024 * 1024 * 10;
                     config.TransportMaxBufferSize = 1024 * 1024 * 10;
                 });
             });
-#endif
-
 
         }
     }

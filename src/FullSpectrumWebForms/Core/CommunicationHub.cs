@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -7,23 +8,17 @@ using System.Threading.Tasks;
 
 namespace FSW.Core
 {
-    public interface ICommunicationHub
-    {
-        Task SendAsync_ID(string connectionId, string key, string message);
-        string ConnectionId { get; }
-    }
-    public class CommunicationHub
+    public class CommunicationHub: Hub
     {
         public static readonly int MaxJsonLength = 1024 * 1024 * 64;
-        public static CommunicationHub Hub;
+        public static IHubContext<CommunicationHub> Hub;
 
         public CommunicationHub()
         {
-            Hub = this;
         }
-        public ICommunicationHub BackgroundHub;
 
-        public string ConnectionId => BackgroundHub.ConnectionId;
+
+        public string ConnectionId => Context.ConnectionId;
 
         public static Dictionary<string, FSWPage> Connections = new Dictionary<string, FSWPage>();
         public static Dictionary<int, FSWPage> PageAwaitingConnections = new Dictionary<int, FSWPage>();
@@ -37,8 +32,6 @@ namespace FSW.Core
             lock (Connections)
                 return Connections[connectionId];
         }
-
-
 
         public static void RegisterStaticHostedService(Type pageType, StaticHostedServiceBase service)
         {
@@ -84,10 +77,12 @@ namespace FSW.Core
 
         public static void SendError(FSWPage page, Exception exception)
         {
-            Hub.BackgroundHub.SendAsync_ID(page.ID, "error", exception.ToString());
+            SendAsync_ID(page.ID, "error", exception.ToString());
         }
-        public Task PropertyUpdateFromClient(List<ExistingControlProperty> changedProperties)
+        public Task PropertyUpdateFromClient(JObject data)
         {
+            var changedProperties = data["changedProperties"].ToObject<List<ExistingControlProperty>>();
+
             var page = CurrentPage;
             try
             {
@@ -109,12 +104,16 @@ namespace FSW.Core
             }
             catch (Exception e)
             {
-                BackgroundHub.SendAsync_ID(CurrentPage.ID, "error", e.ToString());
+                SendAsync_ID(CurrentPage.ID, "error", e.ToString());
                 throw;
             }
         }
-        public Task CustomControlEvent(string controlId, JToken parameters, string eventName)
+        public Task CustomControlEvent(JObject data)
         {
+            var controlId = data["controlId"].ToObject<string>();
+            var parameters = data["parameters"];
+            var eventName = data["eventName"].ToObject<string>();
+
             try
             {
                 FSWManager.CustomControlEventResult res;
@@ -125,7 +124,7 @@ namespace FSW.Core
                     {
                         res = page.Manager.CustomControlEvent(controlId, eventName, parameters);
 
-                        return BackgroundHub.SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
+                        return SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
                     }
                 }
                 catch (Exception e)
@@ -136,7 +135,7 @@ namespace FSW.Core
                     {
                         return page.OverrideErrorHandle(e).ContinueWith( (r) =>
                         {
-                            return BackgroundHub.SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(new FSWManager.CustomControlEventResult()
+                            return SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(new FSWManager.CustomControlEventResult()
                             {
                                 properties = new CoreServerAnswer()
                             }));
@@ -146,7 +145,7 @@ namespace FSW.Core
             }
             catch (Exception e)
             {
-                BackgroundHub.SendAsync_ID(CurrentPage.ID, "error", e.ToString());
+                SendAsync_ID(CurrentPage.ID, "error", e.ToString());
                 throw;
             }
         }
@@ -158,7 +157,7 @@ namespace FSW.Core
                 var res = manager.ProcessPropertyChange(false);
                 if (res.IsEmpty)
                     return Task.CompletedTask;
-                return Hub.BackgroundHub.SendAsync_ID(manager.Page.ID, "propertyUpdateFromServer", JsonConvert.SerializeObject(res));
+                return SendAsync_ID(manager.Page.ID, "propertyUpdateFromServer", JsonConvert.SerializeObject(res));
             }
             catch (Exception e)
             {
@@ -179,8 +178,16 @@ namespace FSW.Core
             var pageId = ModelBase.RegisterFSWPage(page, sessionId, sessionAuth, out var newSessionId, out var newSessionAuth).id;
             return (pageId, page, newSessionId, newSessionAuth);
         }
-        public Task InitializeCore(int pageId, string url, Dictionary<string, string> urlParameters, string sessionId, string sessionAuth, string auth, string typePath)
+        public Task InitializeCore(JObject data)
         {
+            var pageId = data["pageId"].ToObject<int?>() ?? 0;
+            var pageIdAuth = data["pageIdAuth"].ToObject<string>();
+            var sessionId = data["sessionId"].ToObject<string>();
+            var sessionAuth = data["sessionAuth"].ToObject<string>();
+            var typePath = data["typePath"].ToObject<string>();
+            var url = data["url"].ToObject<string>();
+            var urlParameters = data["urlParameters"].ToObject<Dictionary<string, string>>();
+
             FSWPage page;
             lock (PageAwaitingConnections)
             {
@@ -189,10 +196,10 @@ namespace FSW.Core
                     var generatedPageInfos = GeneratePolinetPage(typePath, sessionId, sessionAuth);
                     page = generatedPageInfos.Page;
                     if (page == null)
-                        return BackgroundHub.SendAsync_ID(ConnectionId, "error", "typePath invalid");
+                        return SendAsync_ID(ConnectionId, "error", "typePath invalid");
                     sessionId = generatedPageInfos.SessionId;
                     sessionAuth = generatedPageInfos.SessionAuth;
-                    auth = page.PageAuth;
+                    pageIdAuth = page.PageAuth;
                     pageId = generatedPageInfos.PageId;
                 }
                 else
@@ -204,13 +211,13 @@ namespace FSW.Core
                 page = PageAwaitingConnections[pageId];
                 PageAwaitingConnections.Remove(pageId);
 
-                if (page.PageAuth != auth)
-                    return BackgroundHub.SendAsync_ID(ConnectionId, "error", "Invalid page auth");
+                if (page.PageAuth != pageIdAuth)
+                    return SendAsync_ID(ConnectionId, "error", "Invalid page auth");
             }
             lock (Connections)
             {
                 if (!Connections.ContainsKey(ConnectionId))
-                    return BackgroundHub.SendAsync_ID(ConnectionId, "error", "Id not found");
+                    return SendAsync_ID(ConnectionId, "error", "Id not found");
                 Connections[ConnectionId] = page;
             }
 
@@ -225,7 +232,7 @@ namespace FSW.Core
             res.ConnectionId = ConnectionId;
 
             // start writing the result right away
-            var task = BackgroundHub.SendAsync_ID(page.ID, "initialized", JsonConvert.SerializeObject(res));
+            var task = SendAsync_ID(page.ID, "initialized", JsonConvert.SerializeObject(res));
 
             // then process the StaticHostedServices
             var guid = page.GetType().GUID;
@@ -245,6 +252,30 @@ namespace FSW.Core
                     throw new Exception("Id already exist");
                 PageAwaitingConnections.Add(id, page);
             }
+        }
+
+
+
+        #region signal R methods
+        
+
+        #endregion
+
+
+        public override Task OnConnectedAsync()
+        {
+            var t = OnNewConnection();
+            return t ?? base.OnConnectedAsync();
+        }
+        public override Task OnDisconnectedAsync(Exception exception)
+        {
+            OnConnectionClosed(exception);
+            return base.OnDisconnectedAsync(exception);
+        }
+
+        public static Task SendAsync_ID(string connectionId, string key, string message)
+        {
+            return Hub.Clients.Client(connectionId).SendAsync(key, message);
         }
 
     }

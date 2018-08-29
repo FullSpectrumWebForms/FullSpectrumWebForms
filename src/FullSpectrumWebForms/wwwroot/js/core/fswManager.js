@@ -77,8 +77,8 @@ var core;
                         var sessionId = datas.SessionId;
                         var sessionAuth = datas.SessionAuth;
                         if (sessionId && sessionAuth) {
-                            Cookies.set('polinetSessionId', sessionId);
-                            Cookies.set('polinetSessionAuth', sessionAuth);
+                            Cookies.set('FSWSessionId', sessionId);
+                            Cookies.set('FSWSessionAuth', sessionAuth);
                         }
                         datas = datas.Answer;
                         that.processNewControls(datas.ChangedProperties);
@@ -112,8 +112,8 @@ var core;
                 this.connection.send('InitializeCore', {
                     pageId: that.pageId,
                     pageIdAuth: that.pageIdAuth,
-                    sessionId: Cookies.get('polinetSessionId'),
-                    sessionAuth: Cookies.get('polinetSessionAuth'),
+                    sessionId: Cookies.get('FSWSessionId'),
+                    sessionAuth: Cookies.get('FSWSessionAuth'),
                     typePath: that.typePath,
                     url: document.location.pathname,
                     urlParameters: URLToArray(document.location.search)
