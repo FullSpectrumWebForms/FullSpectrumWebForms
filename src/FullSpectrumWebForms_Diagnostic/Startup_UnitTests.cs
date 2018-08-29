@@ -23,12 +23,10 @@ namespace FSW.Diagnostic
         public void ConfigureServices(IServiceCollection services)
         {
             FSW.Core.Startup.ConfigureServices(services);
-            Semantic.Startup.ConfigureServices(services);
             Startup.ConfigureServices(services);
 
             var mvc = services.AddMvc();
             FSW.Core.Startup.ConfigureMvc(mvc);
-            Semantic.Startup.ConfigureMvc(mvc);
             Startup.ConfigureMvc(mvc);
         }
 
@@ -36,7 +34,6 @@ namespace FSW.Diagnostic
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             FSW.Core.Startup.Configure(app, env);
-            Semantic.Startup.Configure(app, env);
             app.UseStaticFiles(new StaticFileOptions()
             {
                 FileProvider = new EmbeddedFileProvider(typeof(CallingType).Assembly, "UnitTests")

@@ -6,19 +6,19 @@ using Microsoft.Extensions.FileProviders;
 
 namespace FSW.Semantic
 {
-    public static class Startup
+    public class Startup : Core.StartupBase
     {
-        public static void ConfigureMvc(IMvcBuilder mvc)
+        public override void ConfigureMvc(IMvcBuilder mvc)
         {
             mvc.AddApplicationPart(typeof(Startup).Assembly);
         }
         // This method gets called by the runtime. Use this method to add services to the container.
-        public static void ConfigureServices(IServiceCollection services)
+        public override void ConfigureServices(IServiceCollection services)
         { 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public static void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public override void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseStaticFiles(new StaticFileOptions()
             {
