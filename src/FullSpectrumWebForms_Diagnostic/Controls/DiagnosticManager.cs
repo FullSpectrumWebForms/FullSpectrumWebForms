@@ -87,6 +87,23 @@ namespace FSW.Diagnostic.Controls
             }, autoLock);
         }
 
+        public Task SendKeys(string id, string key, bool autoLock = true)
+        {
+            return CallCustomClientEvent<object>("sendKeysFromId", new
+            {
+                id,
+                key
+            }, autoLock);
+        }
+        public Task SendKeys(HtmlControlBase control, string key, bool autoLock = true)
+        {
+            return CallCustomClientEvent<object>("sendKeysFSWControl", new
+            {
+                id = control.Id,
+                key
+            }, autoLock);
+        }
+
         public Task TriggerChange(string id, bool autoLock = true)
         {
             return TriggerElement(id, "change", autoLock);
@@ -94,6 +111,15 @@ namespace FSW.Diagnostic.Controls
         public Task TriggerChange(HtmlControlBase control, bool autoLock = true)
         {
             return TriggerElement(control, "change", autoLock);
+        }
+
+        public Task TriggerEnter(string id, bool autoLock = true)
+        {
+            return SendKeys(id, "\n", autoLock);
+        }
+        public Task TriggerEnter(HtmlControlBase control, bool autoLock = true)
+        {
+            return SendKeys(control, "\n", autoLock);
         }
 
         public Task ClickOnElement(string id, bool autoLock = true)

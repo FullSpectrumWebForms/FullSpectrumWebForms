@@ -143,5 +143,37 @@ namespace UnitTests
                 Assert.True(waitingTask.Task.Wait(TimeSpan.FromSeconds(0.2)));
             }
         }
+        //[Fact(DisplayName = "Text set, instant feedback from client")]
+        //public async Task TextChangedFromClient2()
+        //{
+        //    using (var x = await UnitTestsManager.CreateEmptyPageTest(true))
+        //    {
+        //        TextBox tb;
+        //        var waitingTask = new TaskCompletionSource<object>();
+        //        using (x.ServerSideLock)
+        //        {
+        //            x.Container.Children.Add(tb = new TextBox(x.Page)
+        //            {
+        //                Text = "test",
+        //                InstantFeedback = TimeSpan.FromSeconds(1)
+        //            });
+        //
+        //            tb.OnTextChanged += (obj, oldValue, newValue) =>
+        //            {
+        //                Assert.Equal(tb, obj);
+        //                Assert.Equal(tb.Text, newValue);
+        //                Assert.Equal("test", oldValue);
+        //                Assert.Equal("testtest2", tb.Text);
+        //
+        //                waitingTask.TrySetResult(null);
+        //            };
+        //        }
+        //
+        //        await x.DiagnosticManager.SendKeys(tb, "test2");
+        //        Assert.False(waitingTask.Task.Wait(TimeSpan.FromSeconds(0.2)));
+        //
+        //        Assert.True(waitingTask.Task.Wait(TimeSpan.FromSeconds(1)));
+        //    }
+        //}
     }
 }

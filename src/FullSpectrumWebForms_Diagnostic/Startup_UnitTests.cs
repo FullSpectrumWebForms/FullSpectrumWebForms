@@ -22,12 +22,12 @@ namespace FSW.Diagnostic
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            FSW_ASPC.Startup.ConfigureServices(services);
+            FSW.Core.Startup.ConfigureServices(services);
             Semantic.Startup.ConfigureServices(services);
             Startup.ConfigureServices(services);
 
             var mvc = services.AddMvc();
-            FSW_ASPC.Startup.ConfigureMvc(mvc);
+            FSW.Core.Startup.ConfigureMvc(mvc);
             Semantic.Startup.ConfigureMvc(mvc);
             Startup.ConfigureMvc(mvc);
         }
@@ -35,7 +35,7 @@ namespace FSW.Diagnostic
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            FSW_ASPC.Startup.Configure(app, env);
+            FSW.Core.Startup.Configure(app, env);
             Semantic.Startup.Configure(app, env);
             app.UseStaticFiles(new StaticFileOptions()
             {

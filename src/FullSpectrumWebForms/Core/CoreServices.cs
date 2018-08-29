@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
 using FSW;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FSW.Core
 {
@@ -59,18 +60,29 @@ namespace FSW.Core
         public List<ControlProperty_NoId> properties;
     }
 
-    public static class CoreServices
+    [Route("Polinet/[controller]")]
+    public class CoreServices : Controller
     {
-
-        public static string OnComboBoxAjaxCall(string controlId, string searchString, string connectionId)
+        [HttpPost(nameof(OnComboBoxAjaxCall))]
+        public string OnComboBoxAjaxCall([FromBody] Newtonsoft.Json.Linq.JObject data)
         {
+            var controlId = data["controlId"].ToObject<string>();
+            var searchString = data["searchString"].ToObject<string>();
+            var connectionId = data["connectionId"].ToObject<string>();
+
             var control = CommunicationHub.GetPage(connectionId).Manager.GetControl(controlId);
             if (control is Controls.Html.ComboBox_Ajax combo)
                 return JsonConvert.SerializeObject(combo._OnAjaxRequestFromClient(searchString));
             return null;
         }
-        public static string OnDataGridComboBoxAjaxCall(string controlId, string searchString, string colId, string connectionId)
+        [HttpPost(nameof(OnDataGridComboBoxAjaxCall))]
+        public string OnDataGridComboBoxAjaxCall([FromBody]Newtonsoft.Json.Linq.JObject data)
         {
+            var controlId = data["controlId"].ToObject<string>();
+            var searchString = data["searchString"].ToObject<string>();
+            var colId = data["colId"].ToObject<string>();
+            var connectionId = data["connectionId"].ToObject<string>();
+
             var control = CommunicationHub.GetPage(connectionId).Manager.GetControl(controlId);
             if (control is Controls.Html.IDataGrid dataGrid)
             {
