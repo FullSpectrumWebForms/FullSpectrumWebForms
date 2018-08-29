@@ -400,7 +400,7 @@ var controls;
                     }
                 }
                 editors.ComboBoxAjaxEditor = ComboBoxAjaxEditor;
-            })(editors || (editors = {}));
+            })(editors = dataGrid_1.editors || (dataGrid_1.editors = {}));
             class dataGrid extends html.htmlControlBase {
                 constructor() {
                     super(...arguments);
