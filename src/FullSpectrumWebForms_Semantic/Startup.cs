@@ -20,6 +20,12 @@ namespace FSW.Semantic
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public override void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            RegisterFiles(new[]
+            {
+                "wwwroot.fsw.semantic.min.js",
+                "wwwroot.fsw.semantic.min.css",
+            });
+
             app.UseStaticFiles(new StaticFileOptions()
             {
                 FileProvider = new EmbeddedFileProvider(typeof(Startup).Assembly, "FSW.Semantic.wwwroot")

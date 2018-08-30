@@ -54,33 +54,52 @@ namespace FSW.Core
         }
         public async Task Invoke(HttpContext context)
         {
-            await _next(context);
-            return;
-            if (context.Request.Path == "/js/fsw.min.js" || context.Request.Path == "/css/fsw.min.css")
+            if (context.Request.Path == "/fsw.min.js" || context.Request.Path == "/fsw.min.css")
             {
-                if ((context.Request.Path == "/js/fsw.min.js" && JSFile is null) || (context.Request.Path == "/css/fsw.min.css" && CSSFile is null))
+                string content;
+                if ((context.Request.Path == "/fsw.min.js" && JSFile is null) || (context.Request.Path == "/fsw.min.css" && CSSFile is null))
                 {
-                    JSFile = "";
+                    content = "";
                     var filter = Path.GetExtension(context.Request.Path.Value);
 
-                    foreach (var startup in Startup.LoadedStartupBases)
+                    using (var memoryStream = new MemoryStream())
                     {
-                        var assembly = startup.GetType().Assembly;
-                        foreach (var file in startup.Files.Where(x => x.EndsWith(filter)))
+                        var writer = new StreamWriter(memoryStream);
+                        foreach (var startup in Startup.LoadedStartupBases)
                         {
-                            using (var stream = assembly.GetManifestResourceStream(file))
+                            var type = startup.GetType();
+                            var assembly = type.Assembly;
+                            var startupNamespace = type.Namespace;
+                            foreach (var file in startup.Files.Where(x => x.EndsWith(filter)))
                             {
-                                using (var streamReader = new StreamReader(stream))
+                                using (var stream = assembly.GetManifestResourceStream(startupNamespace + "." + file))
                                 {
-
+                                    using (var streamReader = new StreamReader(stream))
+                                        content += Environment.NewLine + await streamReader.ReadToEndAsync();
                                 }
-
                             }
                         }
+
+                        var currentAssembly = typeof(LibFilesMiddleware).Assembly;
+                        using (var stream = currentAssembly.GetManifestResourceStream("FSW.wwwroot." + context.Request.Path.Value.Substring(1)))
+                        {
+                            using (var streamReader = new StreamReader(stream))
+                                content = await streamReader.ReadToEndAsync() + content;
+                        }
+
+                        if (context.Request.Path == "/fsw.min.js")
+                            JSFile = content;
+                        else
+                            CSSFile = content;
+
                     }
                 }
+                else if (context.Request.Path == "/fsw.min.js")
+                    content = JSFile;
+                else
+                    content = CSSFile;
 
-                await context.Response.SendFileAsync(new FileTransfer(Path.GetFileName(context.Request.Path.Value), JSFile));
+                await context.Response.SendFileAsync(new FileTransfer(Path.GetFileName(context.Request.Path.Value), content));
             }
             else
                 await _next(context);
