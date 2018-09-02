@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FSW.Core;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using FSW.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -42,7 +42,7 @@ namespace FSW.Controls.Html
             }
             private Item FindItemById(int id, List<Item> items)
             {
-                foreach( var item in items)
+                foreach (var item in items)
                 {
                     if (item.Id == id)
                         return item;
@@ -86,10 +86,7 @@ namespace FSW.Controls.Html
         public Utility.ControlPropertyDictionary<string> CssProperties { get; private set; }
         public Dictionary<string, string> InitialCssProperties
         {
-            set
-            {
-                CssProperties.AddRange(value);
-            }
+            set => CssProperties.AddRange(value);
         }
         public Utility.ControlPropertyDictionary<string> Attributes { get; private set; }
         public Dictionary<string, string> InitialAttributes
@@ -101,10 +98,7 @@ namespace FSW.Controls.Html
         public Utility.ControlPropertyList<string> Classes { get; private set; }
         public List<string> InitialClasses
         {
-            set
-            {
-                Classes.AddRange(value);
-            }
+            set => Classes.AddRange(value);
         }
 
         /// <summary>
@@ -141,6 +135,7 @@ namespace FSW.Controls.Html
         /// Width of the control
         /// This is a string because you can enter "100%", or "75px", etc..
         /// </summary>
+        [PropertyWrapper(nameof(CssProperties))]
         public string Width
         {
             get => CssProperties["width"];
@@ -150,6 +145,7 @@ namespace FSW.Controls.Html
         {
             Left, Right
         }
+        [PropertyWrapper(nameof(CssProperties))]
         public FloatDirection Float
         {
             get => CssProperties["float"] == "left" ? FloatDirection.Left : FloatDirection.Right;
@@ -159,37 +155,44 @@ namespace FSW.Controls.Html
         /// Height of the control
         /// This is a string because you can enter "100%", or "75px", etc..
         /// </summary>
+        [PropertyWrapper(nameof(CssProperties))]
         public string Height
         {
             get => CssProperties["height"];
             set => CssProperties["height"] = value;
         }
+        [PropertyWrapper(nameof(CssProperties))]
         public string PaddingTop
         {
             get => CssProperties["padding-top"];
             set => CssProperties["padding-top"] = value;
         }
+        [PropertyWrapper(nameof(CssProperties))]
         public string PaddingBottom
         {
             get => CssProperties["padding-bottom"];
             set => CssProperties["padding-bottom"] = value;
         }
+        [PropertyWrapper(nameof(CssProperties))]
         public string PaddingRight
         {
             get => CssProperties["padding-right"];
             set => CssProperties["padding-right"] = value;
         }
+        [PropertyWrapper(nameof(CssProperties))]
         public string PaddingLeft
         {
             get => CssProperties["padding-left"];
             set => CssProperties["padding-left"] = value;
         }
 
+        [PropertyWrapper(nameof(CssProperties))]
         public System.Drawing.Color BackgroundColor
         {
             get => System.Drawing.ColorTranslator.FromHtml(CssProperties["background-color"]);
             set => CssProperties["background-color"] = System.Drawing.ColorTranslator.ToHtml(value);
         }
+        [PropertyWrapper(nameof(CssProperties))]
         public System.Drawing.Color Color
         {
             get => System.Drawing.ColorTranslator.FromHtml(CssProperties["color"]);
@@ -197,17 +200,29 @@ namespace FSW.Controls.Html
         }
         public enum VisibleState
         {
-            None, Block, Inline, Initial, Inherit, Flex
+            None, Block, Inline, Initial, Inherit, Flex, Unknowned
         }
         /// <summary>
         /// Visibility of the control
         /// Learn fucking css if you don't know what that is
         /// Or get the fuck out of here, or both. I don't care...
         /// </summary>
+        [PropertyWrapper(nameof(CssProperties))]
         public VisibleState Visible
         {
-            get => (VisibleState)Enum.Parse(typeof(VisibleState), CssProperties["display"], true);
-            set => CssProperties["display"] = value.ToString().ToLower();
+            get
+            {
+                return CssProperties.ContainsKey("display")
+                    ? (VisibleState)Enum.Parse(typeof(VisibleState), CssProperties["display"], true)
+                    : VisibleState.Unknowned;
+            }
+            set
+            {
+                if (value == VisibleState.Unknowned)
+                    CssProperties.Remove("display");
+                else
+                    CssProperties["display"] = value.ToString().ToLower();
+            }
         }
 
         public Utility.ControlPropertyDictionary<Dictionary<string, string>> InternalStyles { get; private set; }
@@ -231,7 +246,7 @@ namespace FSW.Controls.Html
             set
             {
                 SetProperty(PropertyName(), value);
-                if( value != null )
+                if (value != null)
                     value.GenerateRightClickMenuItem();
             }
         }
