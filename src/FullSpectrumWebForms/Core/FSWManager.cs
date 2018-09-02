@@ -121,7 +121,9 @@ namespace FSW.Core
                 RemoveControl_(child);
 
             control.IsRemoved = true;
+            control.InvokeControlRemoved();
         }
+
 
         internal class CustomControlEventResult
         {
