@@ -200,7 +200,7 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
             });
             Children.Add(mainContainer);
 
-            mainContainer.Transition(Transition.Animation.SlideRight);
+            //mainContainer.Transition(Transition.Animation.SlideRight);
 
             if (options.PopulateListView != null)
                 Page.RegisterHostedService(() => options.PopulateListView(listView), FSW.Core.FSWPage.HostedServicePriority.High);
