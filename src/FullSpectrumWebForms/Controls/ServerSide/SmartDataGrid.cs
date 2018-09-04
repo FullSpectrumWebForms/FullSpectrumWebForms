@@ -1,12 +1,17 @@
 ﻿using FSW.Controls.Html;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace FSW.Controls.ServerSide.DataGrid
 {
     namespace DataInterfaces
     {
+        public interface IColoredRow
+        {
+            System.Drawing.Color RowBackgroundColor { get; }
+        }
         public interface IEmptyRow
         {
             bool IsEmpty { get; }
@@ -42,7 +47,7 @@ namespace FSW.Controls.ServerSide.DataGrid
             bool SkipAutomaticValidation { get; }
         }
     }
-    [Obsolete("!!WIP!!")]
+
     public class SmartDataGrid<DataType> : DataGrid<DataType> where DataType : class
     {
 
@@ -117,6 +122,8 @@ namespace FSW.Controls.ServerSide.DataGrid
                 }
             }
         }
+        private readonly Dictionary<Color, string> KnownedBackgroundColors = new Dictionary<Color, string>();
+        private int NextColorId = 0;
 
         private void SmartDataGrid_OnGenerateMetasData(int row, DataType item, out DataGridColumn.MetaData metaData)
         {
@@ -146,6 +153,30 @@ namespace FSW.Controls.ServerSide.DataGrid
                     var value = item.GetType().GetField(Columns[col.Key].Field).GetValue(item);
                     if (col.Value.attribute.IsColInvalidOrIncomplete(value))
                         metaData.CssClasses += " " + col.Value.cssName + "_row";
+                }
+            }
+
+            if (item is DataInterfaces.IColoredRow coloredRow)
+            {
+                var color = coloredRow.RowBackgroundColor;
+                if (!color.IsEmpty)
+                {
+                    string css;
+                    if (KnownedBackgroundColors.ContainsKey(color))
+                        css = KnownedBackgroundColors[color];
+                    else
+                    {
+                        css = Id + "_" + (++NextColorId);
+                        KnownedBackgroundColors[color] = css;
+                        InternalStyles.Add("." + css, new Dictionary<string, string>
+                        {
+                            ["background-color"] = ColorTranslator.ToHtml(color)
+                        });
+                    }
+
+                    if (metaData == null)
+                        metaData = new DataGridColumn.MetaData("invalidRow");
+                    metaData.CssClasses += " " + css;
                 }
             }
         }
