@@ -37,6 +37,15 @@ namespace FSW.Controls.Html
         public Utility.ControlPropertyDictionary<string> AvailableChoices { get; private set; }
 
         /// <summary>
+        /// Allow the use to clear the selected value
+        /// </summary>
+        public bool AllowNull
+        {
+            get => GetProperty<bool>(PropertyName());
+            set => SetProperty(PropertyName(), value);
+        }
+
+        /// <summary>
         /// Cannot be used with IsMultiple ComboBox
         /// </summary>
         public string SelectedId
@@ -73,6 +82,7 @@ namespace FSW.Controls.Html
             SelectedIds = new Utility.ControlPropertyList<string>(this, nameof(SelectedIds));
             SelectedId = null;
             IsMultiple = false;
+            AllowNull = false;
             IsTags = false;
             Placeholder = "";
             Width = "100%";
@@ -144,6 +154,15 @@ namespace FSW.Controls.Html
 
 
         /// <summary>
+        /// Allow the use to clear the selected value
+        /// </summary>
+        public bool AllowNull
+        {
+            get => GetProperty<bool>(PropertyName());
+            set => SetProperty(PropertyName(), value);
+        }
+
+        /// <summary>
         /// This is used when IsMultiple
         /// </summary>
         public Utility.ControlPropertyDictionary<string> SelectedIdsAndValues { get; private set; }
@@ -172,6 +191,7 @@ namespace FSW.Controls.Html
             SelectedIdsAndValues = new Utility.ControlPropertyDictionary<string>(this, nameof(SelectedIdsAndValues));
             SelectedIdAndValue = null;
             IsMultiple = false;
+            AllowNull = false;
             Placeholder = "";
             Width = "100%";
             Classes.Add("input-control");

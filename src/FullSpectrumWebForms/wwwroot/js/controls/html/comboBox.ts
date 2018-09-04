@@ -2,6 +2,11 @@
 
     export class comboBox_standard extends htmlControlBase {
 
+        // ------------------------------------------------------------------------   AllowNull
+        get AllowNull(): boolean {
+            return this.getPropertyValue<this, boolean>("AllowNull");
+        }
+
         // ------------------------------------------------------------------------   IsMultiple
         get IsMultiple(): boolean {
             return this.getPropertyValue<this, boolean>("IsMultiple");
@@ -54,6 +59,7 @@
                 multiple: this.IsMultiple,
                 width: '100%',
                 placeholder: this.Placeholder,
+                allowClear: this.AllowNull,
                 tags: this.IsTags
             });
 
@@ -124,6 +130,11 @@
     }
     export class comboBox_ajax extends htmlControlBase {
 
+        // ------------------------------------------------------------------------   AllowNull
+        get AllowNull(): boolean {
+            return this.getPropertyValue<this, boolean>("AllowNull");
+        }
+
         // ------------------------------------------------------------------------   IsMultiple
         get IsMultiple(): boolean {
             return this.getPropertyValue<this, boolean>("IsMultiple");
@@ -164,6 +175,7 @@
                 minimumInputLength: 2,
                 width: '100%',
                 placeholder: this.Placeholder,
+                allowClear: this.AllowNull,
                 ajax: {
                     type: 'post',
                     contentType: "application/json; charset=utf-8",

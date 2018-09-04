@@ -7,6 +7,10 @@ var controls;
                 super(...arguments);
                 this.updatingChoices = false;
             }
+            // ------------------------------------------------------------------------   AllowNull
+            get AllowNull() {
+                return this.getPropertyValue("AllowNull");
+            }
             // ------------------------------------------------------------------------   IsMultiple
             get IsMultiple() {
                 return this.getPropertyValue("IsMultiple");
@@ -53,6 +57,7 @@ var controls;
                     multiple: this.IsMultiple,
                     width: '100%',
                     placeholder: this.Placeholder,
+                    allowClear: this.AllowNull,
                     tags: this.IsTags
                 });
                 this.onAvailableChoicesChangedFromServer();
@@ -120,6 +125,10 @@ var controls;
                 super(...arguments);
                 this.updatingChoices = false;
             }
+            // ------------------------------------------------------------------------   AllowNull
+            get AllowNull() {
+                return this.getPropertyValue("AllowNull");
+            }
             // ------------------------------------------------------------------------   IsMultiple
             get IsMultiple() {
                 return this.getPropertyValue("IsMultiple");
@@ -156,6 +165,7 @@ var controls;
                     minimumInputLength: 2,
                     width: '100%',
                     placeholder: this.Placeholder,
+                    allowClear: this.AllowNull,
                     ajax: {
                         type: 'post',
                         contentType: "application/json; charset=utf-8",
