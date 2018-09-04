@@ -6,6 +6,7 @@ using System.Web;
 using Newtonsoft.Json;
 using FSW.Core;
 using FSW.Utility;
+using Newtonsoft.Json.Linq;
 
 namespace FSW.Controls.Html
 {
@@ -212,10 +213,10 @@ namespace FSW.Controls.Html
                     return null;
                 }
                 if (IsMultiple)
-                    return (value as object[]).Select(x => x as Dictionary<string, object>).ToDictionary(x => (string)x["id"], x => (string)x["value"]);
+                    return ((JObject)value).ToObject<object[]>().Select(x => x as Dictionary<string, object>).ToDictionary(x => (string)x["id"], x => (string)x["value"]);
                 else
                 {
-                    var dic = value as Dictionary<string, object>;
+                    var dic = ((JObject)value);
                     return new KeyValuePair<string, string>((string)dic["id"], (string)dic["value"]);
                 }
             }
