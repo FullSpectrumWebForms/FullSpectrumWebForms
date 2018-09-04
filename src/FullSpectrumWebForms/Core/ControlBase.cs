@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace FSW.Core
 {
@@ -44,6 +46,14 @@ namespace FSW.Core
             get => GetProperty<string>(PropertyName());
             set => SetProperty(PropertyName(), value);
         }
+
+        public delegate void OnControlRemovedHandler(ControlBase control);
+        public event OnControlRemovedHandler OnControlRemoved;
+        internal void InvokeControlRemoved()
+        {
+            OnControlRemoved?.Invoke(this);
+        }
+
         public bool IsRemoved { get; internal set; }
         /// <summary>
         /// Remove the control from the page
@@ -278,6 +288,54 @@ namespace FSW.Core
                 throw new ArgumentException($"Property not found:{propertyName} in control:{Id.ToString()}");
         }
 
+
+        public void BindProperty(Action action, params Expression<Func<dynamic>>[] checkExpression)
+        {
+            var knownedProperties = new List<KeyValuePair<ControlBase, string>>();
+            foreach (var propertyExpression in checkExpression)
+            {
+                var possibleMemberExpression = propertyExpression.Body is UnaryExpression unaryExpression ? unaryExpression.Operand : (object)propertyExpression.Body;
+
+                if (possibleMemberExpression is MemberExpression memberExpression)
+                {
+                    var me = memberExpression.Expression as MemberExpression;
+                    var ce = (ConstantExpression)me.Expression;
+                    var fieldInfo = ce.Value.GetType().GetField(me.Member.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    var value = (ControlBase)fieldInfo.GetValue(ce.Value);
+                    var propertyName = memberExpression.Member.Name;
+
+                    if (!value.Properties.ContainsKey(propertyName))
+                    {
+                        var attribute = memberExpression.Member.GetCustomAttribute<PropertyWrapperAttribute>();
+                        if (attribute is null)
+                            throw new Exception($"Unable to find control property or property wrapper for property '{propertyName}'");
+                        propertyName = attribute.Property;
+                    }
+
+                    var property = value.GetPropertyInternal(propertyName);
+
+                    if (!knownedProperties.Contains(new KeyValuePair<ControlBase, string>(value, propertyName)))
+                        knownedProperties.Add(new KeyValuePair<ControlBase, string>(value, propertyName));
+                    else
+                        continue;
+
+                    void callback(Property prop, object lastValue, object newValue, Property.UpdateSource source)
+                    {
+                        action();
+                    }
+                    property.OnInstantNewValue += callback;
+
+                    // prevent the other control from triggering this control, if this one doesn't even exist anymore!
+                    OnControlRemoved += (control) =>
+                    {
+                        property.OnInstantNewValue -= callback;
+                    };
+
+                    continue;
+                }
+                throw new Exception($"Unable to parse {propertyExpression.Body.ToString()}");
+            }
+        }
 
     }
 }

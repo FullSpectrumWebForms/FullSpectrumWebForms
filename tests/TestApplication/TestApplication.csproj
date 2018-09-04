@@ -27,6 +27,14 @@
     <ProjectReference Include="..\..\src\FullSpectrumWebForms\FullSpectrumWebForms.csproj" />
     <ProjectReference Include="..\..\src\FullSpectrumWebForms_Semantic\FullSpectrumWebForms_Semantic.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Update="Pages\Examples\PropertyBinding.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Pages\TestT.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+  </ItemGroup>
   <PropertyGroup>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>

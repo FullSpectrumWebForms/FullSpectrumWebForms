@@ -1,0 +1,79 @@
+﻿@page
+@model FSW.Core.ModelBase<PropertyBindingPage>
+@{
+    ViewData["Title"] = "Property Binding";
+    Layout = "~/Pages/_Layout.cshtml";
+}
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<h2>Property Binding</h2>
+
+<label id="LabelA">A</label>
+<br />
+<label id="LabelB">B</label>
+<br /><br />
+
+<div class="ui styled accordion" style="width:100%">
+    <div class="title">
+        <i class="dropdown icon"></i>
+        Source
+    </div>
+    <div class="content">
+
+        <div class="ui raise segment">
+            <a class="ui orange ribbon label">HTML</a>
+            <pre>
+                <code>
+                    &lt;label id="LabelA"&gt;A&gt;/label&gt;
+                    &lt;br /&gt;
+                    &lt;label id="LabelB"&gt;B&gt;/label&gt;
+                </code>
+             </pre>
+        </div>
+
+        <div class="ui raise segment">
+            <a class="ui green ribbon label">C#</a>
+            <pre>
+                <code>
+                    private Label LabelA = new Label();
+                    private Label LabelB = new Label();
+
+                    public override void OnPageLoad()
+                    {
+                        base.OnPageLoad();
+
+                        LabelA.BindProperty(() =>
+                        {
+                            LabelA.Text = LabelB.Text + " clone!";
+                            LabelA.Visible = LabelB.Visible == HtmlControlBase.VisibleState.Block ? HtmlControlBase.VisibleState.None : HtmlControlBase.VisibleState.Block;
+                        }, () => LabelB.Text, () => LabelB.Visible);
+
+                        LabelB.Visible = HtmlControlBase.VisibleState.Block;
+
+                        var idx = 0;
+                        RegisterHostedService(TimeSpan.FromSeconds(0.5), () =>
+                        {
+                            using (ServerSideLock)
+                            {
+                                if (idx % 10 == 0)
+                                    LabelB.Visible = LabelB.Visible == HtmlControlBase.VisibleState.Block ? HtmlControlBase.VisibleState.None : HtmlControlBase.VisibleState.Block;
+
+                                LabelB.Text = idx++.ToString();
+                            }
+                        });
+                    }
+                </code>
+            </pre>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    $('.ui.accordion')
+        .accordion()
+        ;
+</script>
+
+

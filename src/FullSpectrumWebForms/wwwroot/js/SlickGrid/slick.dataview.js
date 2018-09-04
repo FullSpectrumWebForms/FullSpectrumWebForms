@@ -107,7 +107,7 @@
       for (var i = startingIndex, l = items.length; i < l; i++) {
         id = items[i][idProperty];
         if (id === undefined) {
-          throw "Each data element must implement a unique 'id' property";
+          throw new Error("Each data element must implement a unique 'id' property");
         }
         idxById[id] = i;
       }
@@ -118,7 +118,7 @@
       for (var i = 0, l = items.length; i < l; i++) {
         id = items[i][idProperty];
         if (id === undefined || idxById[id] !== i) {
-          throw "Each data element must implement a unique 'id' property";
+          throw new Error("Each data element must implement a unique 'id' property");
         }
       }
     }
@@ -210,6 +210,15 @@
       }
     }
 
+    function getFilteredItems(){
+      return filteredItems;
+    }
+
+
+    function getFilter(){
+      return filter;
+    }
+    
     function setFilter(filterFn) {
       filter = filterFn;
       if (options.inlineFilters) {
@@ -297,6 +306,11 @@
       }
     }
 
+    function getRowByItem(item) {
+      ensureRowsByIdCache();
+      return rowsById[item[idProperty]];
+    }
+
     function getRowById(id) {
       ensureRowsByIdCache();
       return rowsById[id];
@@ -304,6 +318,18 @@
 
     function getItemById(id) {
       return items[idxById[id]];
+    }
+
+    function mapItemsToRows(itemArray) {
+      var rows = [];
+      ensureRowsByIdCache();
+      for (var i = 0, l = itemArray.length; i < l; i++) {
+        var row = rowsById[itemArray[i][idProperty]];
+        if (row != null) {
+          rows[rows.length] = row;
+        }
+      }
+      return rows;
     }
 
     function mapIdsToRows(idArray) {
@@ -330,7 +356,7 @@
 
     function updateItem(id, item) {
       if (idxById[id] === undefined || id !== item[idProperty]) {
-        throw "Invalid or non-matching id";
+        throw new Error("Invalid or non-matching id");
       }
       items[idxById[id]] = item;
       if (!updated) {
@@ -355,7 +381,7 @@
     function deleteItem(id) {
       var idx = idxById[id];
       if (idx === undefined) {
-        throw "Invalid id";
+        throw new Error("Invalid id");
       }
       delete idxById[id];
       items.splice(idx, 1);
@@ -363,6 +389,46 @@
       refresh();
     }
 
+    function sortedAddItem(item) {
+      if(!sortComparer) {
+        throw new Error("sortedAddItem() requires a sort comparer, use sort()");
+      }
+      insertItem(sortedIndex(item), item);
+    }
+
+    function sortedUpdateItem(id, item) {
+      if (idxById[id] === undefined || id !== item[idProperty]) {
+        throw new Error("Invalid or non-matching id " + idxById[id]);
+      }
+      if(!sortComparer) {
+        throw new Error("sortedUpdateItem() requires a sort comparer, use sort()");
+      }
+      var oldItem = getItemById(id);
+      if(sortComparer(oldItem, item) !== 0) {
+        // item affects sorting -> must use sorted add
+        deleteItem(id);
+        sortedAddItem(item);
+      }
+      else { // update does not affect sorting -> regular update works fine
+        updateItem(id, item);
+      }
+    }
+
+    function sortedIndex(searchItem) {
+      var low = 0, high = items.length;
+
+      while (low < high) {
+        var mid = low + high >>> 1;
+        if (sortComparer(items[mid], searchItem) === -1) {
+          low = mid + 1;
+        }
+        else {
+          high = mid;
+        }
+      }
+      return low;
+    }
+      
     function getLength() {
       return rows.length;
     }
@@ -763,11 +829,11 @@
       var paged;
       if (pagesize) {
         if (filteredItems.length <= pagenum * pagesize) {
-		  if (filteredItems.length === 0) {
-			pagenum = 0;
-		  } else {
-			pagenum = Math.floor((filteredItems.length - 1) / pagesize);
-		  }
+          if (filteredItems.length === 0) {
+            pagenum = 0;
+          } else {
+            pagenum = Math.floor((filteredItems.length - 1) / pagesize);
+          }
         }
         paged = filteredItems.slice(pagesize * pagenum, pagesize * pagenum + pagesize);
       } else {
@@ -983,6 +1049,10 @@
         if (key != args.key) { return; }
         if (args.hash) {
           storeCellCssStyles(args.hash);
+        } else {
+          grid.onCellCssStylesChanged.unsubscribe(styleChanged);
+          self.onRowsChanged.unsubscribe(update);
+          self.onRowCountChanged.unsubscribe(update);          
         }
       });
 
@@ -1000,6 +1070,8 @@
       "getItems": getItems,
       "setItems": setItems,
       "setFilter": setFilter,
+      "getFilter": getFilter,
+      "getFilteredItems": getFilteredItems,
       "sort": sort,
       "fastSort": fastSort,
       "reSort": reSort,
@@ -1013,9 +1085,11 @@
       "expandGroup": expandGroup,
       "getGroups": getGroups,
       "getIdxById": getIdxById,
+      "getRowByItem": getRowByItem,
       "getRowById": getRowById,
       "getItemById": getItemById,
       "getItemByIdx": getItemByIdx,
+      "mapItemsToRows": mapItemsToRows,
       "mapRowsToIds": mapRowsToIds,
       "mapIdsToRows": mapIdsToRows,
       "setRefreshHints": setRefreshHints,
@@ -1025,6 +1099,8 @@
       "insertItem": insertItem,
       "addItem": addItem,
       "deleteItem": deleteItem,
+      "sortedAddItem": sortedAddItem,
+      "sortedUpdateItem": sortedUpdateItem,
       "syncGridSelection": syncGridSelection,
       "syncGridCellCssStyles": syncGridCellCssStyles,
 
