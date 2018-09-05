@@ -1,9 +1,9 @@
-﻿using System;
+﻿using FSW.Controls.Html;
+using FSW.Core;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using FSW.Controls.Html;
-using FSW.Core;
 
 namespace FSW.Semantic.Controls.ServerSide
 {
@@ -33,16 +33,55 @@ namespace FSW.Semantic.Controls.ServerSide
             public T this[int index] => Items[index].Data;
             public int Count => Items.Count;
             public bool IsReadOnly => false;
-            public IEnumerator<T> GetEnumerator() => Items.Select(x => x.Data).GetEnumerator();
-            IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Items.Select(x => x.Data)).GetEnumerator();
-            public void Add(T item) => ListView.AddItem(item);
-            public void AddRange(IEnumerable<T> items) => ListView.AddItems(items);
-            public void Set(IEnumerable<T> items) => ListView.SetItems(items);
-            public void Clear() => ListView.Clear();
-            public int IndexOf(T item) => Items.FindIndex(x => (object)x.Data == (object)item);
-            public bool Contains(T item) => Items.Any(x => (object)x.Data == (object)item);
-            public void CopyTo(T[] array, int arrayIndex) => Items.Select(x => x.Data).ToList().CopyTo(array, arrayIndex);
-            public void Insert(int index, T item) => ListView.AddSingleItem(item, index);
+            public IEnumerator<T> GetEnumerator()
+            {
+                return Items.Select(x => x.Data).GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return ((IEnumerable)Items.Select(x => x.Data)).GetEnumerator();
+            }
+
+            public void Add(T item)
+            {
+                ListView.AddItem(item);
+            }
+
+            public void AddRange(IEnumerable<T> items)
+            {
+                ListView.AddItems(items);
+            }
+
+            public void Set(IEnumerable<T> items, int? newSelectedIndex = null)
+            {
+                ListView.SetItems(items, newSelectedIndex);
+            }
+
+            public void Clear()
+            {
+                ListView.Clear();
+            }
+
+            public int IndexOf(T item)
+            {
+                return Items.FindIndex(x => (object)x.Data == (object)item);
+            }
+
+            public bool Contains(T item)
+            {
+                return Items.Any(x => (object)x.Data == (object)item);
+            }
+
+            public void CopyTo(T[] array, int arrayIndex)
+            {
+                Items.Select(x => x.Data).ToList().CopyTo(array, arrayIndex);
+            }
+
+            public void Insert(int index, T item)
+            {
+                ListView.AddSingleItem(item, index);
+            }
 
             public IEnumerable<ListViewItem> DataEnumerator => ListView.Items_;
 
@@ -51,8 +90,7 @@ namespace FSW.Semantic.Controls.ServerSide
                 var i = IndexOf(item);
                 if (i == -1)
                     return false;
-                Items.RemoveAt(i);
-                ListView.SetItems(Items.Select(x => x.Data).ToList());
+                ListView.RemoveItemFromIndex(i);
                 return true;
             }
         }
@@ -91,12 +129,19 @@ namespace FSW.Semantic.Controls.ServerSide
 
             OnGenerateItem?.Invoke(mainDiv, item);
 
+            if (index != null && SelectedIndex_ != null && SelectedIndex_ >= index)
+                ++SelectedIndex_;
+
             return listViewItem;
         }
 
+        public int FindItemIndex(ListViewItem item)
+        {
+            return Items_.IndexOf(item);
+        }
         public int FindItemIndex(HtmlControlBase control)
         {
-            for (int index = 0; index != Items_.Count; ++index)
+            for (var index = 0; index != Items_.Count; ++index)
             {
                 if (Items_[index].Container == control || Items_[index].Container == control)
                     return index;
@@ -105,7 +150,7 @@ namespace FSW.Semantic.Controls.ServerSide
         }
         public int FindItemIndex(T item)
         {
-            for (int index = 0; index != Items_.Count; ++index)
+            for (var index = 0; index != Items_.Count; ++index)
             {
                 if ((object)Items_[index].Data == (object)item)
                     return index;
@@ -122,6 +167,10 @@ namespace FSW.Semantic.Controls.ServerSide
             item.Container.Remove();
 
             Items_.Remove(item);
+            if (index == SelectedIndex)
+                SelectedIndex = null;
+            else if (index < SelectedIndex)
+                --SelectedIndex_;
         }
         public int ItemCount => Items_.Count;
 
@@ -139,9 +188,7 @@ namespace FSW.Semantic.Controls.ServerSide
             get
             {
                 var index = SelectedIndex;
-                if (index != null)
-                    return GetItem(index.Value);
-                return null;
+                return index is null ? null : GetItem(index.Value);
             }
             set
             {
@@ -149,32 +196,24 @@ namespace FSW.Semantic.Controls.ServerSide
                     SelectedIndex = null;
                 else
                 {
-                    var index = FindItemIndex(value.Data);
-                    if (index == -1)
-                        SelectedIndex = null;
-                    else
-                        SelectedIndex = index;
+                    var index = FindItemIndex(value);
+                    SelectedIndex = index == -1 ? null : (int?)index;
                 }
             }
         }
 
+        private int? SelectedIndex_;
         public int? SelectedIndex
         {
-            get
-            {
-                var index = Items_.FindIndex(x => x.Container.Classes.Contains("active"));
-                if (index == -1)
-                    return null;
-                return index;
-            }
+            get => SelectedIndex_;
             set
             {
-                var currentIndex = SelectedIndex;
-                if (currentIndex == value)
+                if (SelectedIndex_ == value)
                     return;
-                if (currentIndex.HasValue)
-                    Items_[currentIndex.Value].Container.Classes.Remove("active");
+                if (SelectedIndex_.HasValue)
+                    Items_[SelectedIndex_.Value].Container.Classes.Remove("active");
 
+                SelectedIndex_ = value;
                 if (value.HasValue)
                 {
                     if (value.Value > Items_.Count || value.Value < 0)
@@ -196,9 +235,13 @@ namespace FSW.Semantic.Controls.ServerSide
         /// </summary>
         public void Clear()
         {
+            ClearAndSkipItemSelectedEvent();
+            SelectedItem = null;
+        }
+        private void ClearAndSkipItemSelectedEvent()
+        {
             Items_.Clear();
             Children.Clear();
-            SelectedIndex = null;
         }
         public void UpdateItem(T item)
         {
@@ -218,10 +261,15 @@ namespace FSW.Semantic.Controls.ServerSide
         /// <summary>
         /// Clear the list view and add the provided items
         /// </summary>
-        public void SetItems(IEnumerable<T> items)
+        public void SetItems(IEnumerable<T> items, int? newSelectedIndex)
         {
-            Clear();
+            var previousIndex = SelectedIndex;
+            SelectedIndex_ = null;
+
+            ClearAndSkipItemSelectedEvent();
             AddItems(items);
+
+            SelectedIndex = newSelectedIndex;
         }
         public ListViewItem AddItem(T item)
         {
