@@ -116,7 +116,7 @@
                 if (this.Format == true)
                     return duration.hours() + ':' + duration.minutes();
                 else
-                    return moment.duration(value).asHours().toPrecision(2);
+                    return Math.round(moment.duration(value).asHours()*100)/100;
             }
             validateValueCellChange(value: string, args: onValidateValueCellChangeArgs<gen.treeTableData>) {
                 try {
