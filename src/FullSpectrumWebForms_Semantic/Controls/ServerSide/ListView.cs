@@ -211,7 +211,10 @@ namespace FSW.Semantic.Controls.ServerSide
                 if (SelectedIndex_ == value)
                     return;
                 if (SelectedIndex_.HasValue)
-                    Items_[SelectedIndex_.Value].Container.Classes.Remove("active");
+                {
+                    foreach (var item in Items_)
+                        item.Container.Classes.Remove("active");
+                }
 
                 SelectedIndex_ = value;
                 if (value.HasValue)
@@ -270,6 +273,8 @@ namespace FSW.Semantic.Controls.ServerSide
             AddItems(items);
 
             SelectedIndex = newSelectedIndex;
+            if (newSelectedIndex == null && previousIndex != null)
+                OnItemSelected?.Invoke(null);
         }
         public ListViewItem AddItem(T item)
         {

@@ -65,7 +65,7 @@ namespace UnitTests
                 {
 
                     x.Container.Children.Add(listView = new ListView<TestDataItem>());
-                    int nbTrigger = 0;
+                    var nbTrigger = 0;
                     listView.OnItemSelected += (item) =>
                     {
                         ++nbTrigger;
@@ -111,11 +111,11 @@ namespace UnitTests
             {
                 ListView<TestDataItem> listView;
                 TestDataItem item2 = null;
+                var nbTrigger = 0;
                 using (x.ServerSideLock)
                 {
 
                     x.Container.Children.Add(listView = new ListView<TestDataItem>());
-                    int nbTrigger = 0;
                     listView.OnItemSelected += (item) =>
                     {
                         ++nbTrigger;
@@ -142,6 +142,7 @@ namespace UnitTests
                     Assert.Equal(1, listView.SelectedIndex);
                     Assert.Same(listView.SelectedItem.Data, item2);
                 }
+                Assert.Equal(1, nbTrigger);
             }
         }
         [Fact]
@@ -169,10 +170,10 @@ namespace UnitTests
                 {
                     listView.SelectedIndex = 1;
 
-                    int nbTrigger = 0;
+                    var nbTrigger = 0;
                     listView.OnItemSelected += (item) =>
                     {
-                        Assert.False(true);
+                        ++nbTrigger;
                     };
 
                     Assert.Same(listView.SelectedItem.Data, item2);
@@ -181,6 +182,7 @@ namespace UnitTests
 
                     Assert.Equal(0, listView.SelectedIndex);
                     Assert.Same(listView.SelectedItem.Data, item2);
+                    Assert.Equal(0, nbTrigger);
                 }
             }
         }
@@ -209,7 +211,7 @@ namespace UnitTests
                 {
                     listView.SelectedIndex = 1;
 
-                    int nbTrigger = 0;
+                    var nbTrigger = 0;
                     listView.OnItemSelected += (item) =>
                     {
                         Assert.Null(item);
@@ -222,6 +224,96 @@ namespace UnitTests
 
                     Assert.Null(listView.SelectedIndex);
                     Assert.Null(listView.SelectedItem);
+                    Assert.Equal(1, nbTrigger);
+                }
+            }
+        }
+        [Fact]
+        public async Task Clear()
+        {
+            using (var x = await UnitTestsManager.CreateEmptyPageTest())
+            {
+                ListView<TestDataItem> listView;
+                TestDataItem item2 = null;
+                using (x.ServerSideLock)
+                {
+
+                    x.Container.Children.Add(listView = new ListView<TestDataItem>());
+
+
+                    listView.Items.Set(new[]
+                    {
+                        new TestDataItem("test1"),
+                        item2 = new TestDataItem("test2"),
+                        new TestDataItem("test3"),
+                    });
+                }
+
+                using (x.ServerSideLock)
+                {
+                    listView.SelectedIndex = 1;
+
+                    var nbTrigger = 0;
+                    listView.OnItemSelected += (item) =>
+                    {
+                        Assert.Null(item);
+                        Assert.Equal(1, ++nbTrigger);
+                    };
+
+                    Assert.Same(listView.SelectedItem.Data, item2);
+
+                    listView.Items.Clear();
+
+                    Assert.Null(listView.SelectedIndex);
+                    Assert.Null(listView.SelectedItem);
+                    Assert.Equal(1, nbTrigger);
+                }
+            }
+        }
+        [Fact]
+        public async Task SetItemsWithoutNewIndex()
+        {
+            using (var x = await UnitTestsManager.CreateEmptyPageTest())
+            {
+                ListView<TestDataItem> listView;
+                TestDataItem item2 = null;
+                using (x.ServerSideLock)
+                {
+
+                    x.Container.Children.Add(listView = new ListView<TestDataItem>());
+
+                    listView.Items.Set(new[]
+                    {
+                        new TestDataItem("test1"),
+                        item2 = new TestDataItem("test2"),
+                        new TestDataItem("test3"),
+                    });
+                }
+
+                using (x.ServerSideLock)
+                {
+                    listView.SelectedIndex = 1;
+
+                    var nbTrigger = 0;
+                    listView.OnItemSelected += (item) =>
+                    {
+                        Assert.Null(item);
+                        Assert.Equal(1, ++nbTrigger);
+                    };
+
+                    Assert.Same(listView.SelectedItem.Data, item2);
+
+                    listView.Items.Set(new[]
+                    {
+                        new TestDataItem("test4"),
+                        item2 = new TestDataItem("test5"),
+                        new TestDataItem("test6"),
+                    });
+
+
+                    Assert.Null(listView.SelectedIndex);
+                    Assert.Null(listView.SelectedItem);
+                    Assert.Equal(1, nbTrigger);
                 }
             }
         }
