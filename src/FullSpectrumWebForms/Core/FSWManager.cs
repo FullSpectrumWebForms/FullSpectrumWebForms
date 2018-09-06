@@ -193,6 +193,10 @@ namespace FSW.Core
                 properties = changes
             };
         }
+
+        public delegate void OnBeforeServerUnlockedHandler (FSWPage page);
+        public event OnBeforeServerUnlockedHandler OnBeforeServerUnlocked;
+
         /// <summary>
         /// Process the changed values of all the properties for the controls in the specified page
         /// </summary>
@@ -200,6 +204,8 @@ namespace FSW.Core
         /// <returns></returns>
         internal CoreServerAnswer ProcessPropertyChange(bool forceAllProperties)
         {
+            OnBeforeServerUnlocked?.Invoke(Page);
+
             var answer = new CoreServerAnswer();
 
             // for each controls
