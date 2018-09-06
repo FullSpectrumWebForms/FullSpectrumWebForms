@@ -22,6 +22,12 @@ namespace FSW.Core
 
         public FSWManager Manager;
 
+        public event FSWManager.OnBeforeServerUnlockedHandler OnBeforeServerUnlocked
+        {
+            add => Manager.OnBeforeServerUnlocked += value;
+            remove => Manager.OnBeforeServerUnlocked -= value;
+        }
+
         internal void InitializeFSWControls(string connectionId, string url, Dictionary<string, string> urlParameters)
         {
             ID = connectionId;
@@ -96,7 +102,7 @@ namespace FSW.Core
             }
 
             private readonly Dictionary<HostedServicePriority, Queue<Action>> ServicesToRun = new Dictionary<HostedServicePriority, Queue<Action>>();
-            Action CurrentAction;
+            private Action CurrentAction;
             private void PeekNextService(out Action action, out Queue<Action> queue)
             {
                 lock (ServicesToRun)
@@ -109,7 +115,7 @@ namespace FSW.Core
             {
                 while (true)
                 {
-                    PeekNextService(out Action action, out Queue<Action> queue);
+                    PeekNextService(out var action, out var queue);
 
                     if (queue == null || Page.BackgroundServiceReset.WaitOne(0))
                         return; // nothing left to do
@@ -149,7 +155,7 @@ namespace FSW.Core
                     ServicesToRun[priority].Enqueue(callback);
                     if (CurrentAction == null) // nothing is running
                     {
-                        PeekNextService(out Action action, out Queue<Action> queue); // ensure we peek the next service so we tell other threads that we're processing
+                        PeekNextService(out var action, out var queue); // ensure we peek the next service so we tell other threads that we're processing
                         AddHostedService(RunningThread, HostedServicePriority.NewThread);
                     }
                 }
