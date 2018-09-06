@@ -51,6 +51,10 @@ namespace FSW.Core
         public event OnControlRemovedHandler OnControlRemoved;
         internal void InvokeControlRemoved()
         {
+            foreach (var ev in OnBeforeServerUnlockedHandlers_)
+                Page.OnBeforeServerUnlocked -= ev;
+            OnBeforeServerUnlockedHandlers_.Clear();
+
             OnControlRemoved?.Invoke(this);
         }
 
@@ -67,6 +71,22 @@ namespace FSW.Core
         {
             Page.Manager.RemoveControl(this);
         }
+
+        private List<FSWManager.OnBeforeServerUnlockedHandler> OnBeforeServerUnlockedHandlers_ = new List<FSWManager.OnBeforeServerUnlockedHandler>();
+        public event FSWManager.OnBeforeServerUnlockedHandler OnBeforeServerUnlocked
+        {
+            add
+            {
+                Page.OnBeforeServerUnlocked += value;
+                OnBeforeServerUnlockedHandlers_.Add(value);
+            }
+            remove
+            {
+                Page.OnBeforeServerUnlocked -= value;
+                OnBeforeServerUnlockedHandlers_.Remove(value);
+            }
+        }
+
 
         /// <summary>
         /// faut refaire une class custom pour stosti de cochonnerie la
@@ -289,7 +309,75 @@ namespace FSW.Core
         }
 
 
-        public void BindProperty(Action action, params Expression<Func<dynamic>>[] checkExpression)
+        public enum VariableWatchType
+        {
+            WatchVariableValue, WatchEveryFields
+        }
+        public void RegisterVariableWatch(Func<object> variableToWatch, Action callback, bool autoInvoke = false)
+        {
+            var valueType = variableToWatch().GetType();
+            if (valueType.IsPrimitive || valueType == typeof(string))
+                RegisterVariableWatch(variableToWatch, VariableWatchType.WatchVariableValue, callback, autoInvoke);
+            else
+                RegisterVariableWatch(variableToWatch, VariableWatchType.WatchEveryFields, callback, autoInvoke);
+
+        }
+        public void RegisterVariableWatch(Func<object> variableToWatch, VariableWatchType variableWatchType, Action callback, bool autoInvoke = false)
+        {
+            var lastValue = variableToWatch();
+
+            Func<object, object, bool> validator;
+            if (variableWatchType == VariableWatchType.WatchVariableValue)
+                validator = (before, after) => before == after;
+            else
+            {
+                var previousFieldValues = new Dictionary<string, object>();
+                validator = (before, after) =>
+                {
+                    var fields = after.GetType().GetFields();
+
+                    var newFieldValues = fields.Select(x => new { x, Value = x.GetValue(after) }).ToDictionary(x => x.x.Name, x => x.Value);
+
+                    try
+                    {
+                        if (before != after)
+                            return false;
+
+                        if (previousFieldValues.Count != newFieldValues.Count)
+                            return false;
+
+                        foreach (var keyValue in newFieldValues)
+                        {
+                            if (!previousFieldValues[keyValue.Key]?.Equals(keyValue.Value) ?? keyValue.Value != null)
+                                return false;
+                        }
+
+                        return true;
+                    }
+                    finally
+                    {
+                        previousFieldValues = newFieldValues;
+                    }
+                };
+            }
+
+            void onBeforeServerUnlocked(FSWPage a)
+            {
+                var newValue = variableToWatch();
+                var isSame = validator(lastValue, newValue);
+                lastValue = newValue;
+
+                if (!isSame)
+                    callback();
+            }
+
+            OnBeforeServerUnlocked += onBeforeServerUnlocked;
+
+            if (autoInvoke)
+                callback();
+        }
+
+        public void BindProperty(Action action, params Expression<Func<object>>[] checkExpression)
         {
             var knownedProperties = new List<KeyValuePair<ControlBase, string>>();
             foreach (var propertyExpression in checkExpression)
