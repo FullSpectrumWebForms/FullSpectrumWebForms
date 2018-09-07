@@ -37,6 +37,10 @@ namespace FSW.Controls.ServerSide.DataGrid
             /// </summary>
             public bool AllowDefaultOnValueType = true;
         }
+        public interface IDynamicRequiredCols
+        {
+            string[] RequiredCols { get; }
+        }
         public interface IInvalidOrIncompleteRow
         {
             bool IsInvalidOrIncomplete { get; }
@@ -106,20 +110,24 @@ namespace FSW.Controls.ServerSide.DataGrid
         {
             base.InitializeColumns(forceType);
 
+            var dynamicRequiredCol = typeof(DataType).GetInterface(nameof(DataInterfaces.IDynamicRequiredCols)) != null;
             foreach (var field in typeof(DataType).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance))
             {
                 var attributes = field.GetCustomAttributes(typeof(DataInterfaces.RequiredColAttribute), true);
-                if (attributes?.Length > 0)
+                if (attributes?.Length > 0 || dynamicRequiredCol)
                 {
                     var cssName = Id + "_requiredCol_" + field.Name;
-                    Columns[field.Name].Classes += " " + cssName;
-                    RequiredCols.Add(field.Name, (cssName, (DataInterfaces.RequiredColAttribute)attributes[0]));
-
                     InternalStyles.Add("." + cssName + "_row ." + cssName, new Dictionary<string, string>
                     {
-                        ["background-color"] = "red"
+                        ["background-color"] = "red !important"
                     });
+
+                    if (Columns.ContainsKey(field.Name))
+                        Columns[field.Name].Classes += " " + cssName;
+                    if (attributes?.Length > 0)
+                        RequiredCols.Add(field.Name, (cssName, (DataInterfaces.RequiredColAttribute)attributes[0]));
                 }
+
             }
         }
         private readonly Dictionary<Color, string> KnownedBackgroundColors = new Dictionary<Color, string>();
@@ -144,15 +152,24 @@ namespace FSW.Controls.ServerSide.DataGrid
             if (invalid)
             {
                 if (metaData == null)
-                    metaData = new DataGridColumn.MetaData("invalidRow");
+                    metaData = new DataGridColumn.MetaData("");
 
-                metaData.CssClasses += "invalidRow";
+                metaData.CssClasses += " invalidRow";
 
                 foreach (var col in RequiredCols)
                 {
                     var value = item.GetType().GetField(Columns[col.Key].Field).GetValue(item);
                     if (col.Value.attribute.IsColInvalidOrIncomplete(value))
                         metaData.CssClasses += " " + col.Value.cssName + "_row";
+                }
+                if (item is DataInterfaces.IDynamicRequiredCols iDynamicRequiredCol)
+                {
+                    var requiredCols = iDynamicRequiredCol.RequiredCols;
+                    if (requiredCols != null)
+                    {
+                        foreach (var requiredCol in requiredCols)
+                            metaData.CssClasses += " " + (Id + "_requiredCol_" + requiredCol) + "_row";
+                    }
                 }
             }
 
@@ -170,12 +187,12 @@ namespace FSW.Controls.ServerSide.DataGrid
                         KnownedBackgroundColors[color] = css;
                         InternalStyles.Add("." + css, new Dictionary<string, string>
                         {
-                            ["background-color"] = ColorTranslator.ToHtml(color)
+                            ["background-color"] = ColorTranslator.ToHtml(color) + " !important"
                         });
                     }
 
                     if (metaData == null)
-                        metaData = new DataGridColumn.MetaData("invalidRow");
+                        metaData = new DataGridColumn.MetaData("");
                     metaData.CssClasses += " " + css;
                 }
             }
@@ -302,10 +319,26 @@ namespace FSW.Controls.ServerSide.DataGrid
                             return true;
                     }
                 }
+                if (row is DataInterfaces.IDynamicRequiredCols dynamicRequiredCol)
+                {
+                    var requiredCols = dynamicRequiredCol.RequiredCols;
+                    if (requiredCols != null)
+                    {
+                        foreach (var col in requiredCols)
+                        {
+                            var value = fields.First(x => x.Name == col).GetValue(row);
+                            if (value == null)
+                                return true;
+
+                            if (value is string valueStr && valueStr == "")
+                                return true;
+                        }
+                    }
+
+                }
             }
-            if (row is DataInterfaces.IInvalidOrIncompleteRow invalidOrIncompleteRow)
-                return invalidOrIncompleteRow.IsInvalidOrIncomplete;
-            return false;
+
+            return (row as DataInterfaces.IInvalidOrIncompleteRow)?.IsInvalidOrIncomplete ?? false;
         }
     }
 }
