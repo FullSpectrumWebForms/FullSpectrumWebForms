@@ -209,7 +209,7 @@ namespace FSW.Core
         public class PageLock : IDisposable
         {
             private readonly FSWPage Page;
-            private readonly bool IsReadOnly;
+            public bool IsReadOnly;
 
             internal PageLock(FSWPage page, bool isReadOnly = false)
             {
