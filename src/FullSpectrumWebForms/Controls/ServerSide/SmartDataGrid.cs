@@ -221,14 +221,14 @@ namespace FSW.Controls.ServerSide.DataGrid
                 var color = coloredRow.RowBackgroundColor;
                 if (!color.IsEmpty)
                 {
-                    string css = GetBackgroundColorCss(color);
+                    var css = GetBackgroundColorCss(color);
 
                     if (metaData == null)
                         metaData = new DataGridColumn.MetaData("");
                     metaData.CssClasses += " " + css;
                 }
             }
-            if( (item is DataInterfaces.ITotalRow totalRow) && totalRow?.IsTotalRow == true )
+            if ((item is DataInterfaces.ITotalRow totalRow) && totalRow?.IsTotalRow == true)
             {
                 if (metaData == null)
                     metaData = new DataGridColumn.MetaData();
@@ -236,7 +236,7 @@ namespace FSW.Controls.ServerSide.DataGrid
                 var backgroundcolor = totalRow.BackgroundColor;
                 if (!backgroundcolor.IsEmpty)
                 {
-                    string css = GetBackgroundColorCss(backgroundcolor);
+                    var css = GetBackgroundColorCss(backgroundcolor);
                     metaData.CssClasses += " " + css;
                 }
             }
@@ -336,7 +336,7 @@ namespace FSW.Controls.ServerSide.DataGrid
                     field.SetValue(totalRow, total);
                 }
             }
-            if(!skipRefreshRow)
+            if (!skipRefreshRow)
                 base.RefreshRows(new List<int> { Datas.Count - 1 });
         }
 
@@ -352,6 +352,9 @@ namespace FSW.Controls.ServerSide.DataGrid
 
                 if (newRow != null)
                 {
+                    if (rowIndex == null && (Datas.LastOrDefault() as DataInterfaces.ITotalRow)?.IsTotalRow == true)
+                        rowIndex = Datas.Count - 1;
+
                     Datas.Insert(rowIndex ?? Datas.Count, newRow);
                     refresh = true;
                 }
