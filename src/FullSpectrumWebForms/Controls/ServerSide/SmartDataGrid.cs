@@ -280,7 +280,9 @@ namespace FSW.Controls.ServerSide.DataGrid
                     throw new Exception("'IsNewRow' is expected to yield 'false' after 'OnNewRowValidated' is invoked");
 
                 RefreshRow(row);
+
                 RevalidateEmptyRowCreation();
+                RevalidateTotalRowCreation();
                 return;
             }
 
