@@ -299,7 +299,7 @@ namespace FSW.Controls.ServerSide.DataGrid
             var totalRow = Datas.OfType<DataInterfaces.ITotalRow>().FirstOrDefault(x => x.IsTotalRow);
             if (totalRow is null)
             {
-                totalRow = OnInitializeNewEmptyRow != null ? OnInitializeNewTotalRow() : (DataInterfaces.ITotalRow)Activator.CreateInstance(typeof(DataType));
+                totalRow = OnInitializeNewTotalRow != null ? OnInitializeNewTotalRow() : (DataInterfaces.ITotalRow)Activator.CreateInstance(typeof(DataType));
 
                 totalRow.IsTotalRow = true;
 
