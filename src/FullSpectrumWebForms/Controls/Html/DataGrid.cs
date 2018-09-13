@@ -366,7 +366,7 @@ namespace FSW.Controls.Html
         public delegate void OnGenerateMetasDataHandler(int row, DataType item, out DataGridColumn.MetaData metaData);
         public event OnGenerateMetasDataHandler OnGenerateMetasData;
 
-        public void RefreshRow(int row, bool skipMetaDatasGeneration = false)
+        public virtual void RefreshRow(int row, bool skipMetaDatasGeneration = false)
         {
             if (row == -1)
                 return;
@@ -390,7 +390,7 @@ namespace FSW.Controls.Html
             }
             return false;
         }
-        public void RefreshRows(List<int> rows, bool skipMetaDatasGeneration = false)
+        public virtual void RefreshRows(List<int> rows, bool skipMetaDatasGeneration = false)
         {
             rows = rows.Where(x => x != -1).ToList();
             if (rows.Count == 0)

@@ -12,14 +12,17 @@ namespace FSW.Controls.ServerSide.DataGrid
         {
             System.Drawing.Color RowBackgroundColor { get; }
         }
+
         public interface IEmptyRow
         {
             bool IsEmpty { get; }
         }
+
         public interface INewRow : IEmptyRow
         {
             bool IsNewRow { get; }
         }
+
         public interface IDeleteRow
         {
             bool IsRowDeleted { get; }
@@ -37,24 +40,37 @@ namespace FSW.Controls.ServerSide.DataGrid
             /// </summary>
             public bool AllowDefaultOnValueType = true;
         }
+
         public interface IDynamicRequiredCols
         {
             string[] RequiredCols { get; }
         }
+
         public interface IInvalidOrIncompleteRow
         {
             bool IsInvalidOrIncomplete { get; }
 
         }
+
         public interface IAutomaticInvalidOrIncompleteRow
         {
             bool SkipAutomaticValidation { get; }
         }
+
+        public class TotalColAttribute : Attribute
+        {
+        }
+
+        public interface ITotalRow
+        {
+            bool IsTotalRow { get; set; }
+            Color BackgroundColor { get; }
+        }
+
     }
 
     public class SmartDataGrid<DataType> : DataGrid<DataType> where DataType : class
     {
-
         public delegate void OnSmartCellChangedHandler(DataGridColumn col, int row, DataType item, object newValue);
         public event OnSmartCellChangedHandler OnSmartCellChanged;
 
@@ -68,6 +84,9 @@ namespace FSW.Controls.ServerSide.DataGrid
 
         public delegate void OnDeleteExistingRowHandler(DataType item, int row, out bool removeAndRefresh);
         public event OnDeleteExistingRowHandler OnDeleteExistingRow;
+
+        public delegate DataInterfaces.ITotalRow OnInitializeNewTotalRowHandler();
+        public event OnInitializeNewTotalRowHandler OnInitializeNewTotalRow;
 
         public event OnGenerateMetasDataHandler OnSmartDataGridGenerateMetasData;
 
@@ -99,9 +118,16 @@ namespace FSW.Controls.ServerSide.DataGrid
             RevalidateEmptyRowCreation();
         }
 
+        public override void RefreshRows(List<int> rows, bool skipMetaDatasGeneration = false)
+        {
+            RevalidateTotalRowCreation();
+            base.RefreshRows(rows, skipMetaDatasGeneration);
+        }
         public override void RefreshDatas(bool skipMetaDatasGeneration = false)
         {
             RevalidateEmptyRowCreation();
+
+            RevalidateTotalRowCreation(true);
 
             base.RefreshDatas(skipMetaDatasGeneration);
         }
@@ -130,8 +156,25 @@ namespace FSW.Controls.ServerSide.DataGrid
 
             }
         }
+
         private readonly Dictionary<Color, string> KnownedBackgroundColors = new Dictionary<Color, string>();
         private int NextColorId = 0;
+
+        private string GetBackgroundColorCss(Color color)
+        {
+            if (KnownedBackgroundColors.ContainsKey(color))
+                return KnownedBackgroundColors[color];
+            else
+            {
+                var css = Id + "_" + (++NextColorId);
+                KnownedBackgroundColors[color] = css;
+                InternalStyles.Add("." + css, new Dictionary<string, string>
+                {
+                    ["background-color"] = ColorTranslator.ToHtml(color) + " !important"
+                });
+                return css;
+            }
+        }
 
         private void SmartDataGrid_OnGenerateMetasData(int row, DataType item, out DataGridColumn.MetaData metaData)
         {
@@ -178,21 +221,22 @@ namespace FSW.Controls.ServerSide.DataGrid
                 var color = coloredRow.RowBackgroundColor;
                 if (!color.IsEmpty)
                 {
-                    string css;
-                    if (KnownedBackgroundColors.ContainsKey(color))
-                        css = KnownedBackgroundColors[color];
-                    else
-                    {
-                        css = Id + "_" + (++NextColorId);
-                        KnownedBackgroundColors[color] = css;
-                        InternalStyles.Add("." + css, new Dictionary<string, string>
-                        {
-                            ["background-color"] = ColorTranslator.ToHtml(color) + " !important"
-                        });
-                    }
+                    string css = GetBackgroundColorCss(color);
 
                     if (metaData == null)
                         metaData = new DataGridColumn.MetaData("");
+                    metaData.CssClasses += " " + css;
+                }
+            }
+            if( (item is DataInterfaces.ITotalRow totalRow) && totalRow?.IsTotalRow == true )
+            {
+                if (metaData == null)
+                    metaData = new DataGridColumn.MetaData();
+                metaData.ReadOnly = true;
+                var backgroundcolor = totalRow.BackgroundColor;
+                if (!backgroundcolor.IsEmpty)
+                {
+                    string css = GetBackgroundColorCss(backgroundcolor);
                     metaData.CssClasses += " " + css;
                 }
             }
@@ -244,8 +288,54 @@ namespace FSW.Controls.ServerSide.DataGrid
             OnSmartCellChanged?.Invoke(col, row, item, newValue);
 
             RevalidateEmptyRowCreation();
+            RevalidateTotalRowCreation();
         }
 
+        private void RevalidateTotalRowCreation(bool skipRefreshRow = false)
+        {
+            if (typeof(DataType).GetInterface(nameof(DataInterfaces.ITotalRow)) != typeof(DataInterfaces.ITotalRow))
+                return;
+
+            var totalRow = Datas.OfType<DataInterfaces.ITotalRow>().FirstOrDefault(x => x.IsTotalRow);
+            if (totalRow is null)
+            {
+                totalRow = OnInitializeNewEmptyRow != null ? OnInitializeNewTotalRow() : (DataInterfaces.ITotalRow)Activator.CreateInstance(typeof(DataType));
+
+                totalRow.IsTotalRow = true;
+
+                Datas.Add((DataType)totalRow);
+                if (!skipRefreshRow)
+                {
+                    RefreshDatas(); // this will cause the RevalidateTotalRowCreation() to be called again,
+                    return; // so just return right away
+                }
+            }
+
+            var fields = typeof(DataType).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            foreach (var field in fields)
+            {
+                var attribute = field.GetCustomAttributes(typeof(DataInterfaces.TotalColAttribute), true);
+
+                if (attribute?.Length == 1)
+                {
+                    dynamic total = null;
+                    for (var i = 0; i < Datas.Count - 1; ++i)
+                    {
+                        dynamic value = field.GetValue(Datas[i]);
+
+                        if (total != null)
+                            total += value;
+                        else
+                            total = value;
+                    }
+
+                    field.SetValue(totalRow, total);
+                }
+            }
+            if(!skipRefreshRow)
+                base.RefreshRows(new List<int> { Datas.Count - 1 });
+        }
 
         private void RevalidateEmptyRowCreation()
         {
