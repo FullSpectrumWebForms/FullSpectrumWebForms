@@ -324,10 +324,13 @@ namespace FSW.Controls.ServerSide.DataGrid
                     {
                         dynamic value = field.GetValue(Datas[i]);
 
-                        if (total != null)
-                            total += value;
-                        else
-                            total = value;
+                        if (value != null)
+                        {
+                            if (total != null)
+                                total += value;
+                            else
+                                total = value;
+                        }
                     }
 
                     field.SetValue(totalRow, total);
