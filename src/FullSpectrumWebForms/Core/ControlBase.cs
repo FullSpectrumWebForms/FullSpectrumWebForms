@@ -311,7 +311,7 @@ namespace FSW.Core
 
         public enum VariableWatchType
         {
-            WatchVariableValue, WatchEveryFields
+            WatchVariableValue, WatchEveryFields, WatchEveryFieldsAndObjectValue
         }
         public void RegisterVariableWatch(Func<object> variableToWatch, Action callback, bool autoInvoke = false)
         {
@@ -319,7 +319,7 @@ namespace FSW.Core
             if (valueType.IsPrimitive || valueType == typeof(string))
                 RegisterVariableWatch(variableToWatch, VariableWatchType.WatchVariableValue, callback, autoInvoke);
             else
-                RegisterVariableWatch(variableToWatch, VariableWatchType.WatchEveryFields, callback, autoInvoke);
+                RegisterVariableWatch(variableToWatch, VariableWatchType.WatchEveryFieldsAndObjectValue, callback, autoInvoke);
 
         }
         public void RegisterVariableWatch(Func<object> variableToWatch, VariableWatchType variableWatchType, Action callback, bool autoInvoke = false)
@@ -340,7 +340,7 @@ namespace FSW.Core
 
                     try
                     {
-                        if (before != after)
+                        if ( variableWatchType == VariableWatchType.WatchEveryFieldsAndObjectValue && before != after)
                             return false;
 
                         if (previousFieldValues.Count != newFieldValues.Count)
