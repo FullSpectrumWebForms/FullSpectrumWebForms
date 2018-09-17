@@ -1,12 +1,12 @@
-﻿using System;
+﻿using FSW.Core;
+using FSW.Utility;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
-using Newtonsoft.Json;
-using FSW.Core;
-using FSW.Utility;
-using Newtonsoft.Json.Linq;
 
 namespace FSW.Controls.Html
 {
@@ -23,7 +23,7 @@ namespace FSW.Controls.Html
             public bool ReadOnly;
             public int DisplayIndex;
             public string Classes;
-            
+
             public string Prepend;
             public string Append;
 
@@ -224,12 +224,13 @@ namespace FSW.Controls.Html
         public class MetaDataColumn
         {
             public MetaDataColumn()
-            {
-            }
+            { }
+
             public MetaDataColumn(int? Colspan)
             {
                 this.Colspan = Colspan;
             }
+
             public MetaDataColumn(EditorBase Editor, int? Colspan = null)
             {
                 this.Editor = Editor;
@@ -238,6 +239,7 @@ namespace FSW.Controls.Html
 
             [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
             public string Prepend;
+
             [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
             public string Append;
 
@@ -246,18 +248,22 @@ namespace FSW.Controls.Html
 
             [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
             public EditorBase Editor;
+
             public int? Colspan;
         }
         public class MetaData
         {
             public MetaData() { }
+
             public MetaData(string cssClasses, bool? readOnly = null)
             {
                 CssClasses = cssClasses;
                 ReadOnly = readOnly;
             }
+
             public string CssClasses;
             public bool? ReadOnly;
+
             public Dictionary<string, MetaDataColumn> Columns = new Dictionary<string, MetaDataColumn>();
         }
 
@@ -347,7 +353,10 @@ namespace FSW.Controls.Html
             {
             }
 
-            public void Set(IEnumerable<DataGridColumn.MetaData> metaDatas) => Set(metaDatas.Select((x, i) => new { x, i }).ToDictionary(x => x.i.ToString(), x => x.x));
+            public void Set(IEnumerable<DataGridColumn.MetaData> metaDatas)
+            {
+                Set(metaDatas.Select((x, i) => new { x, i }).ToDictionary(x => x.i.ToString(), x => x.x));
+            }
         }
 
         public MetaDatasCollection MetaDatas { get; private set; }
@@ -410,7 +419,7 @@ namespace FSW.Controls.Html
                         // since we were asked to generate the meta data, we will force the metas of this row to ensure
                         // we clear any existing metas data
                         // duh, only if this return null, which means "force no meta"
-                        if (!GenerateSingleMetaData_BypassUpdate(row, out DataGridColumn.MetaData metaData))
+                        if (!GenerateSingleMetaData_BypassUpdate(row, out var metaData))
                         {
                             var row_ = row.ToString();
                             if (MetaDatas.ContainsKey(row_))
@@ -434,9 +443,9 @@ namespace FSW.Controls.Html
                 else
                 {
                     var dct = new Dictionary<string, DataGridColumn.MetaData>();
-                    for (int i = 0; i < Datas.Count; ++i)
+                    for (var i = 0; i < Datas.Count; ++i)
                     {
-                        OnGenerateMetasData.Invoke(i, Datas[i], out DataGridColumn.MetaData metaData);
+                        OnGenerateMetasData.Invoke(i, Datas[i], out var metaData);
                         if (metaData != null)
                             dct[i.ToString()] = metaData;
                     }
@@ -699,5 +708,5 @@ namespace FSW.Controls.Html
             return Columns;
         }
     }
-    
+
 }

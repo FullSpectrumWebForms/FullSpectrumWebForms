@@ -33,6 +33,7 @@
       "wwwroot/js/jquery/jquery.event.drag-2.3.0.js",
       "wwwroot/js/js.cookie/js.cookie.js",
       "wwwroot/js/jquery/jquery.event.drop-2.3.0.js",
+      "wwwroot/js/SlickGrid/slick.checkboxselectcolumn.js",
       "wwwroot/js/SlickGrid/slick.core.js",
       "wwwroot/js/SlickGrid/slick.formatters.js",
       "wwwroot/js/SlickGrid/slick.editors.js",

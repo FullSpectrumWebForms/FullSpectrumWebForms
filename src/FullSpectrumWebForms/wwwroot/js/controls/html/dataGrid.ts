@@ -116,7 +116,7 @@
                 if (this.Format == true)
                     return duration.hours() + ':' + duration.minutes();
                 else
-                    return Math.round(moment.duration(value).asHours()*100)/100;
+                    return Math.round(moment.duration(value).asHours() * 100) / 100;
             }
             validateValueCellChange(value: string, args: onValidateValueCellChangeArgs<gen.treeTableData>) {
                 try {
@@ -185,15 +185,26 @@
             onCellClicked(e: DOMEvent, data: Slick.OnClickEventArgs<gen.treeTableData>) {
                 if (this.tree.grid.getColumns()[data.cell].id == this.col.id && (e.target as any).type == 'checkbox') {
                     this.tree.grid.gotoCell(data.row, data.cell, true);
-                    (this.tree.grid.getCellEditor() as any).setValue(!this.tree.grid.getCellEditor().serializeValue());
-                    this.tree.grid.getEditController().commitCurrentEdit();
+                    var editor = (this.tree.grid.getCellEditor() as any);
+                    if (editor) {
+                        editor.setValue(!this.tree.grid.getCellEditor().serializeValue());
+                        this.tree.grid.getEditController().commitCurrentEdit();
+                    }
                 }
             }
             formatter(row: number, cell: number, value: any, columnDef: Slick.Column<any>, dataContext: Slick.SlickData) {
+                var allowEdit = this.AllowEdit;
+                if (allowEdit) {
+                    let realRow = this.tree.dataView.getIdxById(this.tree.grid.getDataItem(row).id);
+                    var meta = this.control.MetaDatas[realRow];
+                    if (meta && meta.ReadOnly == true)
+                        allowEdit = false;
+                }
+
                 if (value)
-                    return '<input type="checkbox" name="" value="' + value + '" checked />';
+                    return '<input ' + (allowEdit  ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" checked />';
                 else
-                    return '<input type="checkbox" name="" value="' + value + '" />';
+                    return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" />';
             }
         }
         export class FloatEditor extends baseEditor {

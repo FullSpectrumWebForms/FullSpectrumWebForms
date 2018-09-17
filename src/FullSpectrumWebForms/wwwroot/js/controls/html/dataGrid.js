@@ -161,15 +161,25 @@ var controls;
                     onCellClicked(e, data) {
                         if (this.tree.grid.getColumns()[data.cell].id == this.col.id && e.target.type == 'checkbox') {
                             this.tree.grid.gotoCell(data.row, data.cell, true);
-                            this.tree.grid.getCellEditor().setValue(!this.tree.grid.getCellEditor().serializeValue());
-                            this.tree.grid.getEditController().commitCurrentEdit();
+                            var editor = this.tree.grid.getCellEditor();
+                            if (editor) {
+                                editor.setValue(!this.tree.grid.getCellEditor().serializeValue());
+                                this.tree.grid.getEditController().commitCurrentEdit();
+                            }
                         }
                     }
                     formatter(row, cell, value, columnDef, dataContext) {
+                        var allowEdit = this.AllowEdit;
+                        if (allowEdit) {
+                            let realRow = this.tree.dataView.getIdxById(this.tree.grid.getDataItem(row).id);
+                            var meta = this.control.MetaDatas[realRow];
+                            if (meta && meta.ReadOnly == true)
+                                allowEdit = false;
+                        }
                         if (value)
-                            return '<input type="checkbox" name="" value="' + value + '" checked />';
+                            return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" checked />';
                         else
-                            return '<input type="checkbox" name="" value="' + value + '" />';
+                            return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" />';
                     }
                 }
                 editors.BoolEditor = BoolEditor;
