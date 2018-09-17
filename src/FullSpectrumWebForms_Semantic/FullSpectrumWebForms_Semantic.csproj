@@ -3,7 +3,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>FSW.Semantic</PackageId>
-    <Version>1.0.12</Version>
+    <Version>1.0.13</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
     <IsPackable>true</IsPackable>
@@ -40,6 +40,11 @@
   <ItemGroup>
     <EmbeddedResource Include="wwwroot\fsw.semantic.min.js"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\fsw.semantic.min.css"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.eot"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.svg"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.ttf"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.woff"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\**\*.woff2"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.gif"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.png"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.jpg"></EmbeddedResource>
