@@ -334,7 +334,7 @@ namespace FSW.Core
                 var previousFieldValues = new Dictionary<string, object>();
                 validator = (before, after) =>
                 {
-                    var fields = after.GetType().GetFields();
+                    var fields = after.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
                     var newFieldValues = fields.Select(x => new { x, Value = x.GetValue(after) }).ToDictionary(x => x.x.Name, x => x.Value);
 
