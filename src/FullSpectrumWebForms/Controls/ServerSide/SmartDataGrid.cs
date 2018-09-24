@@ -82,6 +82,9 @@ namespace FSW.Controls.ServerSide.DataGrid
         public delegate void OnNewRowValidatedHandler(DataType item, int row);
         public event OnNewRowValidatedHandler OnNewRowValidated;
 
+        public delegate void OnValidatedInvalidOrIncompleteRowHandler(DataType item, out bool isInvalidOrIncomplete);
+        public event OnValidatedInvalidOrIncompleteRowHandler OnValidatedInvalidOrIncompleteRow;
+
         public delegate void OnDeleteExistingRowHandler(DataType item, int row, out bool removeAndRefresh);
         public event OnDeleteExistingRowHandler OnDeleteExistingRow;
 
@@ -99,7 +102,7 @@ namespace FSW.Controls.ServerSide.DataGrid
 
         public void CreateNewEmptyRow_DefaultImplementation(out DataType item, out int? rowIndex)
         {
-            if ((Datas?.LastOrDefault() as DataInterfaces.INewRow)?.IsNewRow != true)
+            if (Datas.Any(x => (x as DataInterfaces.INewRow)?.IsNewRow ?? false) != true)
             {
                 rowIndex = Datas?.Count ?? 0;
                 item = Activator.CreateInstance<DataType>();
@@ -109,6 +112,14 @@ namespace FSW.Controls.ServerSide.DataGrid
                 rowIndex = null;
                 item = null;
             }
+        }
+
+        public void InvokeOnValidatedInvalidOrIncompleteRow(DataType item, out bool isInvalidOrIncomplete)
+        {
+            if (OnValidatedInvalidOrIncompleteRow == null)
+                isInvalidOrIncomplete = false;
+            else
+                OnValidatedInvalidOrIncompleteRow(item, out isInvalidOrIncomplete);
         }
 
         public void InitializeSmartDataGrid()
@@ -191,7 +202,7 @@ namespace FSW.Controls.ServerSide.DataGrid
 
             var invalid = false;
             if (item is DataInterfaces.IAutomaticInvalidOrIncompleteRow automaticInvalidOrIncompleteRow)
-                invalid = automaticInvalidOrIncompleteRow.IsRowInvalidOrIncomplete_Automatic();
+                invalid = automaticInvalidOrIncompleteRow.IsRowInvalidOrIncomplete_Automatic(this);
             else if (item is DataInterfaces.IInvalidOrIncompleteRow invalidOrIncompleteRow)
                 invalid = invalidOrIncompleteRow.IsInvalidOrIncomplete;
 
@@ -266,7 +277,7 @@ namespace FSW.Controls.ServerSide.DataGrid
 
             var isInvalidOrIncomplete = false;
             if (item is DataInterfaces.IAutomaticInvalidOrIncompleteRow automaticInvalidOrIncompleteRow)
-                isInvalidOrIncomplete = automaticInvalidOrIncompleteRow.IsRowInvalidOrIncomplete_Automatic();
+                isInvalidOrIncomplete = automaticInvalidOrIncompleteRow.IsRowInvalidOrIncomplete_Automatic(this);
             else if (item is DataInterfaces.IInvalidOrIncompleteRow invalidOrIncompleteRow)
                 isInvalidOrIncomplete = invalidOrIncompleteRow.IsInvalidOrIncomplete;
 
@@ -407,7 +418,7 @@ namespace FSW.Controls.ServerSide.DataGrid
             }
             return row.IsEmpty;
         }
-        public static bool IsRowInvalidOrIncomplete_Automatic(this DataInterfaces.IAutomaticInvalidOrIncompleteRow row)
+        public static bool IsRowInvalidOrIncomplete_Automatic<DataType>(this DataInterfaces.IAutomaticInvalidOrIncompleteRow row, SmartDataGrid<DataType> smartDataGrid) where DataType : class
         {
             if (!row.SkipAutomaticValidation)
             {
@@ -439,10 +450,13 @@ namespace FSW.Controls.ServerSide.DataGrid
                         }
                     }
 
-                }
-            }
 
-            return (row as DataInterfaces.IInvalidOrIncompleteRow)?.IsInvalidOrIncomplete ?? false;
+                }
+
+            }
+            smartDataGrid.InvokeOnValidatedInvalidOrIncompleteRow((DataType)row, out var isInvalidOrIncomplete);
+            
+            return isInvalidOrIncomplete || ((row as DataInterfaces.IInvalidOrIncompleteRow)?.IsInvalidOrIncomplete ?? false);
         }
     }
 }
