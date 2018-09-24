@@ -181,9 +181,9 @@ namespace FSW.Core
         public Task InitializeCore(JObject data)
         {
             var pageId = data["pageId"].ToObject<int?>() ?? 0;
-            var pageIdAuth = data["pageIdAuth"].ToObject<string>();
-            var sessionId = data["sessionId"].ToObject<string>();
-            var sessionAuth = data["sessionAuth"].ToObject<string>();
+            var pageIdAuth = data["pageIdAuth"]?.ToObject<string>();
+            var sessionId = data["sessionId"]?.ToObject<string>();
+            var sessionAuth = data["sessionAuth"]?.ToObject<string>();
             var typePath = data["typePath"].ToObject<string>();
             var url = data["url"].ToObject<string>();
             var urlParameters = data["urlParameters"].ToObject<Dictionary<string, string>>();

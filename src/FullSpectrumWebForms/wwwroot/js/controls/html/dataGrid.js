@@ -358,7 +358,7 @@ var controls;
                                 type: 'post',
                                 contentType: "application/json; charset=utf-8",
                                 dataType: 'json',
-                                delay: 500,
+                                delay: 100,
                                 url: '/Polinet/CoreServices/OnDataGridComboBoxAjaxCall',
                                 data: function (searchString) {
                                     return JSON.stringify({
