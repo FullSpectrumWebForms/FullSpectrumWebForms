@@ -90,6 +90,12 @@ namespace FSW.Controls.ServerSide.DataGrid
 
         public event OnGenerateMetasDataHandler OnSmartDataGridGenerateMetasData;
 
+        public SmartDataGrid()
+        {
+        }
+        public SmartDataGrid(Core.FSWPage page) : base(page)
+        {
+        }
 
         public void CreateNewEmptyRow_DefaultImplementation(out DataType item, out int? rowIndex)
         {
