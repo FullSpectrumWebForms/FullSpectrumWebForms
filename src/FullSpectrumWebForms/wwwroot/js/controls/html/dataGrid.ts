@@ -202,7 +202,7 @@
                 }
 
                 if (value)
-                    return '<input ' + (allowEdit  ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" checked />';
+                    return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" checked />';
                 else
                     return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" />';
             }
@@ -535,12 +535,19 @@
         set ForceAutoFit(value: boolean) {
             this.setPropertyValue<this>("ForceAutoFit", value);
         }
+        // ------------------------------------------------------------------------   EnableTreeTableView
+        get EnableTreeTableView(): boolean {
+            return this.getPropertyValue<this, boolean>("EnableTreeTableView");
+        }
+        set EnableTreeTableView(value: boolean) {
+            this.setPropertyValue<this>("EnableTreeTableView", value);
+        }
 
         // ------------------------------------------------------------------------   Columns
         get Columns(): { [name: string]: dataGridColumn } {
             return this.getPropertyValue<this, { [name: string]: dataGridColumn }>("Columns");
         }
-        // ------------------------------------------------------------------------   Columns
+        // ------------------------------------------------------------------------   MetaDatas
         get MetaDatas(): { [row: string]: MetaData } {
             return this.getPropertyValue<this, { [row: string]: MetaData }>("MetaDatas");
         }
@@ -617,7 +624,7 @@
 
             let cols = rowMetasDatas.Columns;
             let colIds = Object.keys(cols);
-
+            var enableTreeTableView = this.EnableTreeTableView;
             for (let i = 0; i < colIds.length; ++i) {
                 let colMeta = cols[colIds[i]];
                 if (!colMeta) // shouldn't happen, if it does, the programmer who's fault it is, is kinda stupid...
@@ -638,7 +645,7 @@
                     formatter = meta.formatter;
                 }
 
-                meta.formatter = this.getFormatter(colMeta.Append, colMeta.Prepend, colMeta.Popup == undefined ? this.Columns[colIds[i]].Popup : colMeta.Popup, formatter);
+                meta.formatter = this.getFormatter(enableTreeTableView, colMeta.Append, colMeta.Prepend, colMeta.Popup == undefined ? this.Columns[colIds[i]].Popup : colMeta.Popup, formatter);
 
                 if (colMeta.Colspan)
                     meta.colspan = colMeta.Colspan;
@@ -650,7 +657,7 @@
                 return null;
             return metas;
         }
-        getFormatter(append: string, prepend: string, popup: string, oldFormatter: (row: number, cell: number, value: string, columnDef: Slick.Column<any>, dataContext: Slick.SlickData) => string) {
+        getFormatter(enableTreeTableView: boolean, append: string, prepend: string, popup: string, oldFormatter: (row: number, cell: number, value: string, columnDef: Slick.Column<any>, dataContext: Slick.SlickData) => string) {
             let that = this;
             return function (row: number, cell: number, value: string, columnDef: Slick.Column<any>, dataContext: Slick.SlickData) {
                 let res = '';
@@ -675,6 +682,8 @@
                         });
                     }, 25);
                 }
+                if (cell == 0 && enableTreeTableView)
+                    res = that.treeTable.ToggleFormatter(res, that.treeTable.GroupSpacerFormatter(dataContext as gen.treeTableData), dataContext as gen.treeTableData);
 
                 return res;
             };
@@ -719,6 +728,7 @@
 
             this.getProperty<this, any>("Columns").onChangedFromServer.register(this.parseColumnsFromServer.bind(this), true);
             this.getProperty<this, any>("MetaDatas").onChangedFromServer.register(this.parseMetaDatasFromServer.bind(this), true);
+
 
             this.treeTable = new gen.treeTable();
             this.internalElement.data('gen-treeTable', this.treeTable);
@@ -773,6 +783,12 @@
                 }
             }
         }
+        getIndentationFromItem(data: gen.treeTableData, datas: gen.treeTableData[]) {
+            if (!data.parent && data.parent != 0)
+                return 0;
+            var parent = datas[data.parent];
+            return parent.indent + 1;
+        }
         _newRowId = 0;
         RefreshRowsFromServer(parameters: { Rows: { Row: number, Meta: any, Data: { [name: string]: any } }[] }) {
             let datas = this.treeTable.options.data;
@@ -781,11 +797,16 @@
 
             for (let i = 0; i < parameters.Rows.length; ++i) {
                 let rowInfo = parameters.Rows[i];
+                let parent = null;
+                if (rowInfo.Data.parent || rowInfo.Data.parent == 0)
+                    parent = datas[rowInfo.Data.parent].id;
                 if (rowInfo.Row == datas.length) {
-                    datas.push({
+                    var item = {
                         id: "_new_" + (++this._newRowId),
-                        parent: null
-                    } as any);
+                        parent: parent
+                    } as any;
+                    datas.push(item);
+                    item.indent = this.getIndentationFromItem(item, datas);
                 }
                 (datas[rowInfo.Row] as any).datas = rowInfo.Data;
 
@@ -801,20 +822,27 @@
         RefreshDatasFromServer(parameters: { Datas: { [name: string]: any }[] }) {
             let datas: gen.treeTableData[] = [];
             for (let i = 0; i < parameters.Datas.length; ++i) {
+                let parent = null;
+                if (parameters.Datas[i].parent || parameters.Datas[i].parent == 0)
+                    parent = datas[parameters.Datas[i].parent].id;
                 var d: any = {
                     id: i.toString(),
-                    parent: null
+                    parent: parent
                 };
                 d.datas = parameters.Datas[i];
                 datas.push(d);
+
+                d.indent = this.getIndentationFromItem(d, datas);
             }
             this.metaDatasInternal = {};
+
             this.treeTable.setDatas(datas);
             var cell = this.treeTable.grid.getActiveCell();
             if (cell) {
                 this.treeTable.grid.resetActiveCell();
                 this.treeTable.grid.setActiveCell(cell.row, cell.cell);
             }
+
         }
         private buildEditorInfo(name: string, editor: any, colInternal: Slick.Column<gen.treeTableData>) {
             if (!name)
@@ -843,6 +871,7 @@
 
             this.columnsInternal = [];
             this.metaDatasInternal = {};
+            var enableTreeTableView = this.EnableTreeTableView;
             for (let i = 0; i < cols.length; ++i) {
                 let col = cols[i];
 
@@ -863,8 +892,8 @@
                     col.EditorInfo = this.buildEditorInfo(col.Editor.EditorName, col.Editor, colInternal);
                     formatter = colInternal.formatter;
                 }
-
-                colInternal.formatter = this.getFormatter(col.Append, col.Prepend, col.Popup, formatter);
+                
+                colInternal.formatter = this.getFormatter(enableTreeTableView, col.Append, col.Prepend, col.Popup, formatter);
 
                 this.columnsInternal.push(colInternal);
             }

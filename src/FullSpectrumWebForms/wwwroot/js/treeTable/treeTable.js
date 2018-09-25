@@ -213,20 +213,22 @@ var gen;
                 return { valid: true, msg: null };
             }
         }
-        TaskNameFormatter(row, cell, value, columnDef, dataContext) {
+        ToggleFormatter(value, spacer, data) {
             if (!value)
                 value = '';
             value = value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            var spacer = "<span style='display:inline-block;height:1px;width:" + (15 * dataContext["indent"]) + "px'></span>";
-            var idx = this.dataView.getIdxById(dataContext.id);
+            var idx = this.dataView.getIdxById(data.id);
             if (this.options.data[idx + 1] && this.options.data[idx + 1].indent > this.options.data[idx].indent) {
-                if (dataContext._collapsed)
+                if (data._collapsed)
                     return spacer + " <span class='toggle expand' style='width:10px'></span>&nbsp;" + value;
                 else
                     return spacer + " <span class='toggle collapse'style='width:10px'></span>&nbsp;" + value;
             }
             else
                 return spacer + " <span class='toggle'></span>&nbsp;" + value;
+        }
+        GroupSpacerFormatter(data) {
+            return "<span style='display:inline-block;height:1px;width:" + (15 * data.indent) + "px'></span>";
         }
         filterResults(item, args) {
             if (item.parent != null) {

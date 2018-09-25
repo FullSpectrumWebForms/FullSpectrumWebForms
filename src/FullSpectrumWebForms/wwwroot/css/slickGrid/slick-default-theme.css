@@ -66,13 +66,13 @@ classes should alter those!
     margin-right: 5px;
 }
 
-.slick-group-toggle.expanded {
-    background: url(images/collapse.gif) no-repeat center center;
-}
+    .slick-group-toggle.expanded {
+        background: url(~/css/slickGrid/images/collapse.gif) no-repeat center center;
+    }
 
-.slick-group-toggle.collapsed {
-    background: url(images/expand.gif) no-repeat center center;
-}
+    .slick-group-toggle.collapsed {
+        background: url(~/css/slickGrid/images/expand.gif) no-repeat center center;
+    }
 
 .slick-group-totals {
     color: gray;
@@ -146,6 +146,7 @@ classes should alter those!
 .slick-cell .select2-container {
     width: 100% !important;
 }
+
 .editor-text {
     outline: none;
     border: none;

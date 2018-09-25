@@ -13,11 +13,11 @@
 }
 
     .toggle.expand {
-        background: url(/resources/css/slickGrid/images/expand.gif) no-repeat center center;
+        background: url(/css/slickGrid/images/expand.gif) no-repeat center center;
     }
 
     .toggle.collapse {
-        background: url(/resources/css/slickGrid/images/collapse.gif) no-repeat center center;
+        background: url(/css/slickGrid/images/collapse.gif) no-repeat center center;
     }
 
 .hidden-columns {

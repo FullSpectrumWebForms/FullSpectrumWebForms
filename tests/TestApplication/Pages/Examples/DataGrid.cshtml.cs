@@ -22,7 +22,7 @@ namespace TestApplication.Pages.Examples
         }
         #region UpdateSingleRow
 
-        public class Item5
+        public class Item5: DataGridBase
         {
             public string Col1;
             public int Col2;
@@ -77,7 +77,7 @@ namespace TestApplication.Pages.Examples
         #endregion
 
         #region Basic
-        public class Item
+        public class Item : DataGridBase
         {
             public string Col1;
             public string Col2;
@@ -104,7 +104,7 @@ namespace TestApplication.Pages.Examples
         #endregion
 
         #region Formatting
-        public class Item4
+        public class Item4 : DataGridBase
         {
             public string Name;
             public string Col2;
@@ -167,7 +167,7 @@ namespace TestApplication.Pages.Examples
 
         #region Editing_Basic
 
-        public class Item2
+        public class Item2 : DataGridBase
         {
             public string Col1;
             public string Col2;
@@ -221,7 +221,7 @@ namespace TestApplication.Pages.Examples
 
         #region Editing_Advanced
 
-        public class Item3
+        public class Item3 : DataGridBase
         {
             public KeyValuePair<string, string> Col1;
             public string Col2;

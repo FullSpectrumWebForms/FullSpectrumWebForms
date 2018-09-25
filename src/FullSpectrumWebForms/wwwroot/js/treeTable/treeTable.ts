@@ -230,7 +230,7 @@ namespace gen {
                         if (that.columnFilters[columnId].length == 0)
                             delete that.columnFilters[columnId];
 
-                            that.dataView.refresh();
+                        that.dataView.refresh();
                     }
                 });
                 this.grid.onHeaderRowCellRendered.subscribe(function (e, args) {
@@ -271,20 +271,23 @@ namespace gen {
                 return { valid: true, msg: null };
             }
         }
-        TaskNameFormatter(row, cell, value, columnDef, dataContext) {
+
+        ToggleFormatter(value, spacer: string, data: DataType) {
             if (!value)
                 value = '';
             value = value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            var spacer = "<span style='display:inline-block;height:1px;width:" + (15 * dataContext["indent"]) + "px'></span>";
-            var idx = this.dataView.getIdxById(dataContext.id);
+            var idx = this.dataView.getIdxById(data.id);
             if (this.options.data[idx + 1] && this.options.data[idx + 1].indent > this.options.data[idx].indent) {
-                if (dataContext._collapsed)
+                if (data._collapsed)
                     return spacer + " <span class='toggle expand' style='width:10px'></span>&nbsp;" + value;
                 else
                     return spacer + " <span class='toggle collapse'style='width:10px'></span>&nbsp;" + value;
             }
             else
                 return spacer + " <span class='toggle'></span>&nbsp;" + value;
+        }
+        GroupSpacerFormatter(data: DataType) {
+            return "<span style='display:inline-block;height:1px;width:" + (15 * data.indent) + "px'></span>";
         }
 
         filterResults(item: DataType, args: any) {

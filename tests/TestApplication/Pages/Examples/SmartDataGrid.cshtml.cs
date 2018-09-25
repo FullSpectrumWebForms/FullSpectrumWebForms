@@ -1,4 +1,5 @@
-﻿using FSW.Controls.ServerSide.DataGrid;
+﻿using FSW.Controls.Html;
+using FSW.Controls.ServerSide.DataGrid;
 using FSW.Controls.ServerSide.DataGrid.DataInterfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,7 +13,7 @@ namespace TestApplication.Pages.Examples
 {
     public class SmartDataGridPage : FSW.Core.FSWPage
     {
-        public class RowData : IColoredRow, ITotalRow
+        public class RowData : DataGridBase, IColoredRow, ITotalRow
         {
             [TotalCol]
             public int Col1;
@@ -32,19 +33,22 @@ namespace TestApplication.Pages.Examples
             base.OnPageLoad();
 
             DG_Test.AllowEdit = true;
+            DG_Test.EnableTreeTableView = true;
             DG_Test.InitializeSmartDataGrid();
 
+            var parent = new RowData
+            {
+                Col1 = 1,
+                Col2 = "Test"
+            };
             DG_Test.Datas = new List<RowData>
             {
-                new RowData
-                {
-                    Col1 = 1,
-                    Col2 = "Test"
-                },
+                parent,
                 new RowData
                 {
                     Col1 = 2,
-                    Col2 = "Test 2"
+                    Col2 = "Test 2",
+                    Parent = parent
                 },
                 new RowData
                 {

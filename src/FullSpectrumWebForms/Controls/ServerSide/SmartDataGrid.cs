@@ -69,7 +69,7 @@ namespace FSW.Controls.ServerSide.DataGrid
 
     }
 
-    public class SmartDataGrid<DataType> : DataGrid<DataType> where DataType : class
+    public class SmartDataGrid<DataType> : DataGrid<DataType> where DataType : DataGridBase
     {
         public delegate void OnSmartCellChangedHandler(DataGridColumn col, int row, DataType item, object newValue);
         public event OnSmartCellChangedHandler OnSmartCellChanged;
@@ -82,8 +82,8 @@ namespace FSW.Controls.ServerSide.DataGrid
         public delegate void OnNewRowValidatedHandler(DataType item, int row);
         public event OnNewRowValidatedHandler OnNewRowValidated;
 
-        public delegate void OnValidatedInvalidOrIncompleteRowHandler(DataType item, out bool isInvalidOrIncomplete);
-        public event OnValidatedInvalidOrIncompleteRowHandler OnValidatedInvalidOrIncompleteRow;
+        public delegate void OnValidateInvalidOrIncompleteRowHandler(DataType item, out bool isInvalidOrIncomplete);
+        public event OnValidateInvalidOrIncompleteRowHandler OnValidateInvalidOrIncompleteRow;
 
         public delegate void OnDeleteExistingRowHandler(DataType item, int row, out bool removeAndRefresh);
         public event OnDeleteExistingRowHandler OnDeleteExistingRow;
@@ -114,12 +114,12 @@ namespace FSW.Controls.ServerSide.DataGrid
             }
         }
 
-        public void InvokeOnValidatedInvalidOrIncompleteRow(DataType item, out bool isInvalidOrIncomplete)
+        public void InvokeOnValidateInvalidOrIncompleteRow(DataType item, out bool isInvalidOrIncomplete)
         {
-            if (OnValidatedInvalidOrIncompleteRow == null)
+            if (OnValidateInvalidOrIncompleteRow == null)
                 isInvalidOrIncomplete = false;
             else
-                OnValidatedInvalidOrIncompleteRow(item, out isInvalidOrIncomplete);
+                OnValidateInvalidOrIncompleteRow(item, out isInvalidOrIncomplete);
         }
 
         public void InitializeSmartDataGrid()
@@ -418,7 +418,7 @@ namespace FSW.Controls.ServerSide.DataGrid
             }
             return row.IsEmpty;
         }
-        public static bool IsRowInvalidOrIncomplete_Automatic<DataType>(this DataInterfaces.IAutomaticInvalidOrIncompleteRow row, SmartDataGrid<DataType> smartDataGrid) where DataType : class
+        public static bool IsRowInvalidOrIncomplete_Automatic<DataType>(this DataInterfaces.IAutomaticInvalidOrIncompleteRow row, SmartDataGrid<DataType> smartDataGrid) where DataType : DataGridBase
         {
             if (!row.SkipAutomaticValidation)
             {
@@ -454,7 +454,7 @@ namespace FSW.Controls.ServerSide.DataGrid
                 }
 
             }
-            smartDataGrid.InvokeOnValidatedInvalidOrIncompleteRow((DataType)row, out var isInvalidOrIncomplete);
+            smartDataGrid.InvokeOnValidateInvalidOrIncompleteRow((DataType)row, out var isInvalidOrIncomplete);
             
             return isInvalidOrIncomplete || ((row as DataInterfaces.IInvalidOrIncompleteRow)?.IsInvalidOrIncomplete ?? false);
         }

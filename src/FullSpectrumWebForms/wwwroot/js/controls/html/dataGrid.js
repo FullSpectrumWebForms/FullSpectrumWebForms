@@ -450,11 +450,18 @@ var controls;
                 set ForceAutoFit(value) {
                     this.setPropertyValue("ForceAutoFit", value);
                 }
+                // ------------------------------------------------------------------------   EnableTreeTableView
+                get EnableTreeTableView() {
+                    return this.getPropertyValue("EnableTreeTableView");
+                }
+                set EnableTreeTableView(value) {
+                    this.setPropertyValue("EnableTreeTableView", value);
+                }
                 // ------------------------------------------------------------------------   Columns
                 get Columns() {
                     return this.getPropertyValue("Columns");
                 }
-                // ------------------------------------------------------------------------   Columns
+                // ------------------------------------------------------------------------   MetaDatas
                 get MetaDatas() {
                     return this.getPropertyValue("MetaDatas");
                 }
@@ -516,6 +523,7 @@ var controls;
                         metas.cssClasses = rowMetasDatas.CssClasses;
                     let cols = rowMetasDatas.Columns;
                     let colIds = Object.keys(cols);
+                    var enableTreeTableView = this.EnableTreeTableView;
                     for (let i = 0; i < colIds.length; ++i) {
                         let colMeta = cols[colIds[i]];
                         if (!colMeta) // shouldn't happen, if it does, the programmer who's fault it is, is kinda stupid...
@@ -531,7 +539,7 @@ var controls;
                             colMeta.EditorInfo.setup(meta, this.treeTable);
                             formatter = meta.formatter;
                         }
-                        meta.formatter = this.getFormatter(colMeta.Append, colMeta.Prepend, colMeta.Popup == undefined ? this.Columns[colIds[i]].Popup : colMeta.Popup, formatter);
+                        meta.formatter = this.getFormatter(enableTreeTableView, colMeta.Append, colMeta.Prepend, colMeta.Popup == undefined ? this.Columns[colIds[i]].Popup : colMeta.Popup, formatter);
                         if (colMeta.Colspan)
                             meta.colspan = colMeta.Colspan;
                         if (Object.keys(meta).length != 0)
@@ -541,7 +549,7 @@ var controls;
                         return null;
                     return metas;
                 }
-                getFormatter(append, prepend, popup, oldFormatter) {
+                getFormatter(enableTreeTableView, append, prepend, popup, oldFormatter) {
                     let that = this;
                     return function (row, cell, value, columnDef, dataContext) {
                         let res = '';
@@ -564,6 +572,8 @@ var controls;
                                 });
                             }, 25);
                         }
+                        if (cell == 0 && enableTreeTableView)
+                            res = that.treeTable.ToggleFormatter(res, that.treeTable.GroupSpacerFormatter(dataContext), dataContext);
                         return res;
                     };
                 }
@@ -647,16 +657,27 @@ var controls;
                         }
                     }
                 }
+                getIndentationFromItem(data, datas) {
+                    if (!data.parent && data.parent != 0)
+                        return 0;
+                    var parent = datas[data.parent];
+                    return parent.indent + 1;
+                }
                 RefreshRowsFromServer(parameters) {
                     let datas = this.treeTable.options.data;
                     let rows = [];
                     for (let i = 0; i < parameters.Rows.length; ++i) {
                         let rowInfo = parameters.Rows[i];
+                        let parent = null;
+                        if (rowInfo.Data.parent || rowInfo.Data.parent == 0)
+                            parent = datas[rowInfo.Data.parent].id;
                         if (rowInfo.Row == datas.length) {
-                            datas.push({
+                            var item = {
                                 id: "_new_" + (++this._newRowId),
-                                parent: null
-                            });
+                                parent: parent
+                            };
+                            datas.push(item);
+                            item.indent = this.getIndentationFromItem(item, datas);
                         }
                         datas[rowInfo.Row].datas = rowInfo.Data;
                         if (rowInfo.Meta) {
@@ -670,12 +691,16 @@ var controls;
                 RefreshDatasFromServer(parameters) {
                     let datas = [];
                     for (let i = 0; i < parameters.Datas.length; ++i) {
+                        let parent = null;
+                        if (parameters.Datas[i].parent || parameters.Datas[i].parent == 0)
+                            parent = datas[parameters.Datas[i].parent].id;
                         var d = {
                             id: i.toString(),
-                            parent: null
+                            parent: parent
                         };
                         d.datas = parameters.Datas[i];
                         datas.push(d);
+                        d.indent = this.getIndentationFromItem(d, datas);
                     }
                     this.metaDatasInternal = {};
                     this.treeTable.setDatas(datas);
@@ -708,6 +733,7 @@ var controls;
                     });
                     this.columnsInternal = [];
                     this.metaDatasInternal = {};
+                    var enableTreeTableView = this.EnableTreeTableView;
                     for (let i = 0; i < cols.length; ++i) {
                         let col = cols[i];
                         let colInternal = {
@@ -725,7 +751,7 @@ var controls;
                             col.EditorInfo = this.buildEditorInfo(col.Editor.EditorName, col.Editor, colInternal);
                             formatter = colInternal.formatter;
                         }
-                        colInternal.formatter = this.getFormatter(col.Append, col.Prepend, col.Popup, formatter);
+                        colInternal.formatter = this.getFormatter(enableTreeTableView, col.Append, col.Prepend, col.Popup, formatter);
                         this.columnsInternal.push(colInternal);
                     }
                     this.treeTable.grid.setColumns(this.treeTable.options.columns = this.columnsInternal);

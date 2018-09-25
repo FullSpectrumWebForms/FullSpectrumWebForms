@@ -10,6 +10,13 @@ using System.Web;
 
 namespace FSW.Controls.Html
 {
+    public class DataGridBase
+    {
+        [JsonProperty(PropertyName = "parent", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        internal int? _Parent;
+        [JsonIgnore]
+        public DataGridBase Parent { get; set; }
+    }
     [Serializable]
     public class DataGridColumn
     {
@@ -292,7 +299,7 @@ namespace FSW.Controls.Html
     {
         ControlPropertyDictionary<DataGridColumn> GetColumns();
     }
-    public class DataGrid<DataType> : HtmlControlBase, IDataGrid where DataType : class
+    public class DataGrid<DataType> : HtmlControlBase, IDataGrid where DataType : DataGridBase
     {
         public DataGrid(FSWPage page = null) : base(page)
         {
@@ -324,6 +331,13 @@ namespace FSW.Controls.Html
             get => GetProperty<bool>(PropertyName());
             set => SetProperty(PropertyName(), value);
         }
+
+        public bool EnableTreeTableView
+        {
+            get => GetProperty<bool>(PropertyName());
+            set => SetProperty(PropertyName(), value);
+        }
+        
 
         public ControlPropertyDictionary<DataGridColumn> Columns { get; private set; }
         private Type RawDataType;
@@ -456,6 +470,16 @@ namespace FSW.Controls.Html
         }
         private void SendNewDatasToClient()
         {
+            if (EnableTreeTableView)
+            {
+                for (var i = 0; i < Datas.Count; ++i)
+                {
+                    var data = Datas[i];
+                    if (data.Parent != null)
+                        data._Parent = Datas.IndexOf((DataType)data.Parent, 0, i);
+                }
+            }
+
             CallCustomClientEvent("RefreshDatasFromServer", new Dictionary<string, object>
             {
                 ["Datas"] = Datas
@@ -701,6 +725,7 @@ namespace FSW.Controls.Html
             ForceAutoFit = false;
             AutoEnterEdit = true;
             ShowSearchHeader = false;
+            EnableTreeTableView = false;
         }
 
         public ControlPropertyDictionary<DataGridColumn> GetColumns()
