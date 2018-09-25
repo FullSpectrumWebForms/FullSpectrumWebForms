@@ -337,7 +337,7 @@ namespace FSW.Controls.Html
             get => GetProperty<bool>(PropertyName());
             set => SetProperty(PropertyName(), value);
         }
-        
+
 
         public ControlPropertyDictionary<DataGridColumn> Columns { get; private set; }
         private Type RawDataType;
@@ -552,9 +552,18 @@ namespace FSW.Controls.Html
                 RefreshDatas();
             }
         }
+
+        public static List<DataType> SortByParents(List<DataType> datas)
+        {
+            List<DataType> pairWithChildrens(DataType data)
+            {
+                return new[] { data }.Concat(datas.Where(x => x.Parent == data).SelectMany(pairWithChildrens)).ToList();
+            }
+            return datas.Where(x => x.Parent is null).SelectMany(pairWithChildrens).ToList();
+        }
+
         public DataGridColumn GenerateSingleColumn(string id, string name, Type realType, string field = null, System.Reflection.FieldInfo fieldInfo = null)
         {
-
             var underlaying = Nullable.GetUnderlyingType(realType);
             var type = underlaying ?? realType;
 
