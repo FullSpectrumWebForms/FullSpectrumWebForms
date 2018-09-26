@@ -13,6 +13,7 @@
     "inputFiles": [
       "wwwroot/semantic/semantic.min.js",
       "wwwroot/js/semantic/controls/html/checkbox.js",
+      "wwwroot/js/semantic/controls/html/prompt.js",
       "wwwroot/js/semantic/controls/html/iconTextButton.js",
       "wwwroot/js/semantic/controls/extensions/transition.js"
     ],
