@@ -293,8 +293,6 @@ namespace FSW.Controls.ServerSide.DataGrid
             if (isNewRow)
             {
                 OnNewRowValidated?.Invoke(item, row);
-                if (((DataInterfaces.INewRow)item).IsNewRow)
-                    throw new Exception("'IsNewRow' is expected to yield 'false' after 'OnNewRowValidated' is invoked");
 
                 RefreshRow(row);
 
@@ -454,6 +452,7 @@ namespace FSW.Controls.ServerSide.DataGrid
                 }
 
             }
+
             smartDataGrid.InvokeOnValidateInvalidOrIncompleteRow((DataType)row, out var isInvalidOrIncomplete);
             
             return isInvalidOrIncomplete || ((row as DataInterfaces.IInvalidOrIncompleteRow)?.IsInvalidOrIncomplete ?? false);

@@ -255,14 +255,14 @@ namespace core {
                         var method = control[customEvent[j].Name] as (parameters: any) => void;
                         let res = method.call(control, customEvent[j].Parameters);
                         if (customEvent[j].ReturnId && customEvent[j].ReturnId != 0) {
-                            $.when(res).then(function (id) {
+                            $.when(res).then(function (control, id) {
                                 return function (value) {
                                     control.customControlEvent('OnCustomClientEventAnswerReceivedFromClient', {
                                         id: id,
                                         answer: value
                                     });
                                 }
-                            }(customEvent[j].ReturnId));
+                            }(control, customEvent[j].ReturnId));
                         }
                     }
                 }
