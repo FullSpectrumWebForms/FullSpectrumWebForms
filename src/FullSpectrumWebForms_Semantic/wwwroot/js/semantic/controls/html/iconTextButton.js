@@ -62,8 +62,9 @@ var controls;
                 }
             }
             onTextChangedFromServer(property, args) {
-                if (this.span == null && this.Text != null) {
-                    this.span = $('<span></span>').appendTo(this.element);
+                if (this.Text != null) {
+                    if (this.span == null)
+                        this.span = $('<span></span>').appendTo(this.element);
                     this.span.text(this.Text);
                 }
                 else if (this.span != null && this.Text == null) {
