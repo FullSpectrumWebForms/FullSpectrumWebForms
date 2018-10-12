@@ -322,13 +322,21 @@ namespace FSW.Core
                 RegisterVariableWatch(variableToWatch, VariableWatchType.WatchEveryFieldsAndObjectValue, callback, autoInvoke);
 
         }
+        public void RegisterVariableWatchValue(Func<object> variableToWatch, Action callback, bool autoInvoke = false)
+        {
+            RegisterVariableWatch(variableToWatch, VariableWatchType.WatchVariableValue, callback, autoInvoke);
+        }
+        public void RegisterVariableWatchFields(Func<object> variableToWatch, Action callback, bool autoInvoke = false)
+        {
+            RegisterVariableWatch(variableToWatch, VariableWatchType.WatchEveryFields, callback, autoInvoke);
+        }
         public void RegisterVariableWatch(Func<object> variableToWatch, VariableWatchType variableWatchType, Action callback, bool autoInvoke = false)
         {
             var lastValue = variableToWatch();
 
             Func<object, object, bool> validator;
             if (variableWatchType == VariableWatchType.WatchVariableValue)
-                validator = (before, after) => before == after;
+                validator = (before, after) => before is null ? after is null : before.Equals(after);
             else
             {
                 var previousFieldValues = new Dictionary<string, object>();
@@ -340,7 +348,7 @@ namespace FSW.Core
 
                     try
                     {
-                        if ( variableWatchType == VariableWatchType.WatchEveryFieldsAndObjectValue && before != after)
+                        if (variableWatchType == VariableWatchType.WatchEveryFieldsAndObjectValue && before != after)
                             return false;
 
                         if (previousFieldValues.Count != newFieldValues.Count)
