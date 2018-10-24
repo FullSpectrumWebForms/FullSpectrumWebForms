@@ -36,6 +36,12 @@ namespace FSW.Controls.Html
         public delegate void OnEnterPressedHandler(TextBox sender);
         public event OnEnterPressedHandler OnEnterPressed;
 
+        public bool Disabled
+        {
+            get => Attributes.ContainsKey("disabled");
+            set => Attributes["disabled"] = "disabled";
+        }
+
         public override void InitializeProperties()
         {
             base.InitializeProperties();
