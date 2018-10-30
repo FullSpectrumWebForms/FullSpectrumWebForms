@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
@@ -55,7 +56,7 @@ namespace FSW.Controls.Html
                 var type = colDef.RawType;
                 var underlaying = Nullable.GetUnderlyingType(type);
                 type = underlaying ?? type;
-                return value != null ? Convert.ChangeType(value, type) : null;
+                return value != null ? Convert.ChangeType(value, type, CultureInfo.InvariantCulture) : null;
             }
 
             public static void ApplyDictionaryValue(DataGridColumn colDef, object item, object newValue)
