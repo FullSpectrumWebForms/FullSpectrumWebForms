@@ -3,7 +3,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>FSW</PackageId>
-    <Version>1.7.1.2</Version>
+    <Version>1.7.2.1</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
     <PackageTags>FSW</PackageTags>
@@ -65,12 +65,15 @@
     <EmbeddedResource Include="wwwroot\**\*.bmp"></EmbeddedResource>
   </ItemGroup>
   
+  
   <ItemGroup>
     <Folder Include="wwwroot\css\jqueryContextMenu\" />
     <Folder Include="wwwroot\js\jqueryTimepicker\" />
     <Folder Include="wwwroot\js\moment\" />
     <Folder Include="wwwroot\js\jquery\" />
+    <Folder Include="wwwroot\js\mobileDetect\" />
   </ItemGroup>
+  
 
   <ItemGroup>
     <Content Update="**/*" Pack="false" />

@@ -12,6 +12,7 @@ namespace FSW.Core
         public Controls.MessageBox MessageBox;
         public Controls.LoadingScreen LoadingScreen;
         public Controls.UrlManager UrlManager;
+        public Controls.CommonInformations Common;
 
         public string ID;
         public string PageAuth;
@@ -33,6 +34,7 @@ namespace FSW.Core
             ID = connectionId;
             MessageBox = new Controls.MessageBox();
             LoadingScreen = new Controls.LoadingScreen();
+            Common = new Controls.CommonInformations();
             UrlManager = new Controls.UrlManager(url, urlParameters);
 
 
