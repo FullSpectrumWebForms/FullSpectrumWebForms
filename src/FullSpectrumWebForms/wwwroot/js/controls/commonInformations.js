@@ -16,5 +16,5 @@ var controls;
     }
     controls.commonInformations = commonInformations;
 })(controls || (controls = {}));
-core.controlTypes['Timer'] = () => new controls.Timer();
+core.controlTypes['CommonInformations'] = () => new controls.commonInformations();
 //# sourceMappingURL=commonInformations.js.map

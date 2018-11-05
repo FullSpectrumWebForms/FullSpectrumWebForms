@@ -13,9 +13,21 @@ namespace FSW.Controls.Html
             private set => SetProperty(PropertyName(), value);
         }
 
+        public string TemplatePathAlternative
+        {
+            get => GetProperty<string>(PropertyName());
+            private set => SetProperty(PropertyName(), value);
+        }
+
         public TemplateContainer(Core.FSWPage page, string templatePath) : base(page)
         {
             TemplatePath = templatePath;
+            TemplatePathAlternative = null;
+        }
+        public TemplateContainer(Core.FSWPage page, string templatePath, string templatePathAlternate) : base(page)
+        {
+            TemplatePath = templatePath;
+            TemplatePathAlternative = templatePathAlternate;
         }
 
         public T GetTemplateControl<T>(string selector) where T : HtmlControlBase

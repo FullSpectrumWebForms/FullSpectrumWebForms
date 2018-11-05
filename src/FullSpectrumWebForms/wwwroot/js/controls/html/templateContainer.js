@@ -9,20 +9,39 @@ var controls;
             set TemplatePath(value) {
                 this.setPropertyValue("TemplatePath", value);
             }
+            get TemplatePathAlternative() {
+                return this.getPropertyValue("TemplatePathAlternative");
+            }
+            set TemplatePathAlternative(value) {
+                this.setPropertyValue("TemplatePathAlternative", value);
+            }
+            tryGet(url, catchError) {
+                let str = sessionStorage.getItem('templateContainer.' + url);
+                if (str)
+                    return str;
+                let config = {
+                    async: false,
+                    url: url + "?" + moment().dayOfYear() + '_' + moment().hours() + '_' + moment().minutes() + '_' + moment().seconds(),
+                    method: 'GET',
+                    success: function (data) {
+                        str = data;
+                    }
+                };
+                if (catchError) {
+                    config.error = function () {
+                    };
+                }
+                $.ajax(config);
+                if (str)
+                    sessionStorage.setItem('templateContainer.' + url, str);
+                return str;
+            }
             initialize(type, index, id, properties) {
                 super.initialize(type, index, id, properties);
-                let str = sessionStorage.getItem('templateContainer.' + this.TemplatePath);
-                if (!str) {
-                    $.ajax({
-                        async: false,
-                        url: this.TemplatePath + "?" + moment().dayOfYear() + '_' + moment().hours() + '_' + moment().minutes() + '_' + moment().seconds(),
-                        method: 'GET',
-                        success: function (data) {
-                            str = data;
-                        }
-                    });
-                    sessionStorage.setItem('templateContainer.' + this.TemplatePath, str);
-                }
+                let that = this;
+                let str = this.tryGet(this.TemplatePath, this.TemplatePathAlternative != null);
+                if (!str && this.TemplatePathAlternative != null)
+                    str = this.tryGet(this.TemplatePath, false);
                 this.element.html(str);
             }
         }

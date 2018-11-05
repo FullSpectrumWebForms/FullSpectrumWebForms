@@ -20,4 +20,4 @@ namespace controls {
         }
     }
 }
-core.controlTypes['Timer'] = () => new controls.Timer();
+core.controlTypes['CommonInformations'] = () => new controls.commonInformations();
