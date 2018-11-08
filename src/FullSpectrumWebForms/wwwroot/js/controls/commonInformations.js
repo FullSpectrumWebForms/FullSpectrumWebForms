@@ -11,7 +11,7 @@ var controls;
         initialize(type, index, id, properties) {
             super.initialize(type, index, id, properties);
             var detector = new MobileDetect(window.navigator.userAgent);
-            this.IsMobile = detector.mobile();
+            this.IsMobile = detector.mobile() != null;
         }
     }
     controls.commonInformations = commonInformations;

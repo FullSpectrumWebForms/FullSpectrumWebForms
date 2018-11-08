@@ -16,7 +16,7 @@ namespace controls {
 
             var detector = new MobileDetect(window.navigator.userAgent);
 
-            this.IsMobile = detector.mobile();
+            this.IsMobile = detector.mobile() != null;
         }
     }
 }
