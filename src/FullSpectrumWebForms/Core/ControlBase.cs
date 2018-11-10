@@ -172,7 +172,18 @@ namespace FSW.Core
                 if (property.Value is Newtonsoft.Json.Linq.JToken jObject)
                     value = jObject.ToObject<T>();
                 else
-                    value = (T)Convert.ChangeType(property.Value, typeof(T));
+                {
+                    var underlaying = Nullable.GetUnderlyingType(typeof(T));
+                    var pValue = property.Value;
+                    if (underlaying != null && pValue == null)
+                    {
+                        value = default(T);
+                        return true;
+                    }
+
+                    var type = underlaying ?? typeof(T);
+                    value = (T)Convert.ChangeType(pValue, type);
+                }
                 return true;
             }
             value = default(T);

@@ -55,6 +55,7 @@
       "wwwroot/js/core/controlBase.js",
       "wwwroot/js/controls/html/htmlControlBase.js",
       "wwwroot/js/controls/html/div.js",
+      "wwwroot/js/mobileDetect/mobile-detect.js",
       "wwwroot/js/controls/**/*.js"
     ],
     // Optionally specify minification options
