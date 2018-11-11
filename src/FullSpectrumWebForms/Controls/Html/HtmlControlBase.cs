@@ -17,6 +17,7 @@ namespace FSW.Controls.Html
         {
             public class Item
             {
+                [JsonProperty]
                 internal int Id;
                 public string Name;
                 [JsonIgnore]
