@@ -3,7 +3,7 @@ var controls;
 (function (controls) {
     var html;
     (function (html) {
-        function BuildRightClickMenu(menu, selector, callback) {
+        function BuildRightClickMenu(menu) {
             var buildLastItem = function (item) {
                 return {
                     name: item.Name,
@@ -27,11 +27,7 @@ var controls;
                 return menuItems;
             };
             var items = buildItems(menu.Items);
-            return $.contextMenu({
-                selector: selector,
-                callback: callback,
-                items: items,
-            });
+            return items;
         }
         html.BuildRightClickMenu = BuildRightClickMenu;
         class htmlControlBase extends core.controlBase {
@@ -237,16 +233,25 @@ var controls;
                 this.element.addClass(this.Classes.join(' '));
             }
             onRightClickMenuChanged(property, args) {
-                if (this.lastContextMenu)
-                    $.contextMenu('destroy', this.element);
                 if (!this.RightClickMenu)
                     return;
-                let that = this;
-                this.lastContextMenu = BuildRightClickMenu(this.RightClickMenu, '#' + this.id, function (key, options) {
-                    that.customControlEvent('OnRightClickMenuClickedFromClient', {
-                        id: parseInt(key)
+                if (!this.lastContextMenu) {
+                    let that = this;
+                    $.contextMenu({
+                        selector: '#' + this.id,
+                        build: function () {
+                            return {
+                                callback: function (key, options) {
+                                    that.customControlEvent('OnRightClickMenuClickedFromClient', {
+                                        id: parseInt(key)
+                                    });
+                                },
+                                items: that.lastContextMenu,
+                            };
+                        }
                     });
-                });
+                }
+                this.lastContextMenu = BuildRightClickMenu(this.RightClickMenu);
             }
         }
         html.htmlControlBase = htmlControlBase;

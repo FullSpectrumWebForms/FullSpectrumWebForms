@@ -10,7 +10,7 @@ namespace controls.html {
     export interface RightClickMenuOptions {
         Items: RightClickMenuItem[];
     }
-    export function BuildRightClickMenu(menu: RightClickMenuOptions, selector: string, callback: (key: string, options: any) => void) {
+    export function BuildRightClickMenu(menu: RightClickMenuOptions) {
         var buildLastItem = function (item: RightClickMenuItem) {
             return {
                 name: item.Name,
@@ -34,11 +34,7 @@ namespace controls.html {
             return menuItems;
         };
         var items = buildItems(menu.Items);
-        return ($ as any).contextMenu({
-            selector: selector,
-            callback: callback,
-            items: items,
-        });
+        return items;
     }
     export class htmlControlBase extends core.controlBase {
 
@@ -279,18 +275,27 @@ namespace controls.html {
 
         lastContextMenu: any;
         private onRightClickMenuChanged(property: core.controlProperty<string[]>, args: { old: string[], new: string[] }) {
-            if (this.lastContextMenu)
-                ($ as any).contextMenu('destroy', this.element);
 
             if (!this.RightClickMenu)
                 return;
 
-            let that = this;
-            this.lastContextMenu = BuildRightClickMenu(this.RightClickMenu, '#' + this.id, function (key, options) {
-                that.customControlEvent('OnRightClickMenuClickedFromClient', {
-                    id: parseInt(key)
+            if (!this.lastContextMenu) {
+                let that = this;
+                ($ as any).contextMenu({
+                    selector: '#' + this.id,
+                    build: function () {
+                        return {
+                            callback: function (key, options) {
+                                that.customControlEvent('OnRightClickMenuClickedFromClient', {
+                                    id: parseInt(key)
+                                });
+                            },
+                            items: that.lastContextMenu,
+                        };
+                    }
                 });
-            });
+            }
+            this.lastContextMenu = BuildRightClickMenu(this.RightClickMenu);
         }
     }
 }
