@@ -73,6 +73,14 @@ namespace FSW.Controls.Html
         public delegate void OnSelectedIdsChangedHandler(ComboBox sender, string[] oldId, string[] newId);
         public event OnSelectedIdsChangedHandler OnSelectedIdsChanged;
 
+        public void InvokeOnSelectedIdChanged(string oldId)
+        {
+            OnSelectedIdChanged?.Invoke(this, oldId, SelectedId);
+        }
+        public void InvokeOnSelectedIdsChanged(string[] oldIds)
+        {
+            OnSelectedIdsChanged?.Invoke(this, oldIds, SelectedIds.ToArray());
+        }
 
         public override void InitializeProperties()
         {
@@ -105,6 +113,8 @@ namespace FSW.Controls.Html
     }
     public class ComboBox_Ajax : HtmlControlBase
     {
+
+
         public ComboBox_Ajax(FSWPage page = null) : base(page)
         {
         }
@@ -184,6 +194,16 @@ namespace FSW.Controls.Html
         public event OnSelectedIdsAndValuesChangedHandler OnSelectedIdsAndValuesChanged;
 
 
+        public void InvokeOnSelectedIdAndValueChanged()
+        {
+            OnSelectedIdAndValueChanged?.Invoke(this, SelectedIdAndValue);
+        }
+
+        public void InvokeOnSelectedIdsAndValuesChanged(Dictionary<string, string> oldId)
+        {
+            OnSelectedIdsAndValuesChanged?.Invoke(this, oldId, SelectedIdsAndValues.ToDictionary(x => x.Key, x => x.Value));
+        }
+
         public override void InitializeProperties()
         {
             base.InitializeProperties();
@@ -218,7 +238,7 @@ namespace FSW.Controls.Html
         {
             OnSelectedIdsAndValuesChanged?.Invoke(this, (Dictionary<string, string>)lastValue, (Dictionary<string, string>)newValue);
         }
-        
+
     }
 
 }
