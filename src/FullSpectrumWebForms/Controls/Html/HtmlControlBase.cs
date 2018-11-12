@@ -17,8 +17,11 @@ namespace FSW.Controls.Html
         {
             public class Item
             {
-                public int Id;
+                [JsonProperty]
+                internal int Id;
                 public string Name;
+                [JsonIgnore]
+                public object Tag;
                 [JsonIgnore]
                 public Action OnClick;
 
@@ -26,14 +29,15 @@ namespace FSW.Controls.Html
             }
             internal void GenerateRightClickMenuItem()
             {
-                GenerateRightClickMenuItem(Items, 0);
+                int c = 0;
+                GenerateRightClickMenuItem(Items, ref c);
             }
-            private void GenerateRightClickMenuItem(List<Item> items, int currentId)
+            private void GenerateRightClickMenuItem(List<Item> items, ref int currentId)
             {
                 foreach (var subItem in items)
                 {
                     subItem.Id = ++currentId;
-                    GenerateRightClickMenuItem(subItem.Items, currentId);
+                    GenerateRightClickMenuItem(subItem.Items, ref currentId);
                 }
             }
             internal Item FindItemById(int id)
