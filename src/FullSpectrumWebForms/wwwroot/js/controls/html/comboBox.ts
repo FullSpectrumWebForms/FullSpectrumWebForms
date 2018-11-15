@@ -181,7 +181,7 @@
                     contentType: "application/json; charset=utf-8",
                     dataType: 'json',
                     delay: 100,
-                    url: '/Polinet/CoreServices/OnComboBoxAjaxCall',
+                    url: '/FSW/CoreServices/OnComboBoxAjaxCall',
                     data: function (searchString: any) {
                         return JSON.stringify({
                             controlId: that.id,

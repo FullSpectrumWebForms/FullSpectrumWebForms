@@ -1,11 +1,11 @@
-﻿using System;
+﻿using FSW;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
-using Newtonsoft.Json;
-using FSW;
-using Microsoft.AspNetCore.Mvc;
 
 namespace FSW.Core
 {
@@ -60,7 +60,7 @@ namespace FSW.Core
         public List<ControlProperty_NoId> properties;
     }
 
-    [Route("Polinet/[controller]")]
+    [Route("FSW/[controller]")]
     public class CoreServices : Controller
     {
         [HttpPost(nameof(OnComboBoxAjaxCall))]
@@ -91,6 +91,12 @@ namespace FSW.Core
                     return JsonConvert.SerializeObject(editor.CallRequest(searchString));
             }
             return null;
+        }
+
+        [HttpGet("GenericRequest/{actionToDo}/{connectionId}/{data}", Name = nameof(GenericRequest))]
+        public async Task<IActionResult> GenericRequest(string actionToDo, string connectionId, string data)
+        {
+            return await CommunicationHub.GetPage(connectionId).InvokeGenericRequest(actionToDo, data);
         }
     }
 }

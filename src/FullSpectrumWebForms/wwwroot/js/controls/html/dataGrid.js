@@ -359,7 +359,7 @@ var controls;
                                 contentType: "application/json; charset=utf-8",
                                 dataType: 'json',
                                 delay: 100,
-                                url: '/Polinet/CoreServices/OnDataGridComboBoxAjaxCall',
+                                url: '/FSW/CoreServices/OnDataGridComboBoxAjaxCall',
                                 data: function (searchString) {
                                     return JSON.stringify({
                                         connectionId: core.manager.connectionId,

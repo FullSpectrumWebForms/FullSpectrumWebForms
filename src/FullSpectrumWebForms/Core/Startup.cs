@@ -15,7 +15,6 @@ namespace FSW.Core
         {
             mvc.AddApplicationPart(typeof(Startup).Assembly);
 
-
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 foreach (var type in assembly.GetTypes())

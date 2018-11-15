@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -163,6 +165,24 @@ namespace FSW.Core
                 }
             }
         }
+
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, Func<JToken, Task<IActionResult>>> RegisteredGenericRequests =
+            new System.Collections.Concurrent.ConcurrentDictionary<string, Func<JToken, Task<IActionResult>>>();
+        public void RegisterNewGenericRequest(string action, Func<JToken, Task<IActionResult>> callback)
+        {
+            if (RegisteredGenericRequests.ContainsKey(action))
+                throw new Exception("Generic request already registered:" + action);
+            RegisteredGenericRequests.TryAdd(action, callback);
+        }
+
+        internal async Task<IActionResult> InvokeGenericRequest(string action, JToken privateData)
+        {
+            if (!RegisteredGenericRequests.TryGetValue(action, out var callback))
+                throw new KeyNotFoundException("Cannot find generic request:" + action);
+
+            return await callback(privateData);
+        }
+
         private HostedServicesContainer ServicesContainer;
         public void RegisterHostedService(Action callback, HostedServicePriority priority = HostedServicePriority.Medium)
         {
