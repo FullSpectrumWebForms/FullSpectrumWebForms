@@ -41,7 +41,7 @@ var controls;
                 let that = this;
                 let str = this.tryGet(this.TemplatePath, this.TemplatePathAlternative != null);
                 if (!str && this.TemplatePathAlternative != null)
-                    str = this.tryGet(this.TemplatePath, false);
+                    str = this.tryGet(this.TemplatePathAlternative, false);
                 this.element.html(str);
             }
         }
