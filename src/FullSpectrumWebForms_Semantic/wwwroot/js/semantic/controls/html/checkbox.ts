@@ -66,7 +66,10 @@
                 this.element.addClass('toggle');
         }
         onStateChangedFromServer(property: core.controlProperty<string[]>, args: { old: string[], new: string[] }) {
-            this.checkElement.toggle(this.Checked);
+            if (this.Checked)
+                this.checkElement.attr('checked', 'checked');
+            else
+                this.checkElement.removeAttr('checked');
         }
         onTextChangedFromServer(property: core.controlProperty<string[]>, args: { old: string[], new: string[] }) {
             this.label.text(this.Text);

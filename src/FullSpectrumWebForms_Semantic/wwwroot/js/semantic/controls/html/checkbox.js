@@ -54,7 +54,10 @@ var controls;
                     this.element.addClass('toggle');
             }
             onStateChangedFromServer(property, args) {
-                this.checkElement.toggle(this.Checked);
+                if (this.Checked)
+                    this.checkElement.attr('checked', 'checked');
+                else
+                    this.checkElement.removeAttr('checked');
             }
             onTextChangedFromServer(property, args) {
                 this.label.text(this.Text);
