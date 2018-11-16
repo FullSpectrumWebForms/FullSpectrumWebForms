@@ -23,9 +23,6 @@ namespace controls.html {
             
             this.getProperty<this, string>("Items").onChangedFromServer.register(this.onItemsChangedFromServer.bind(this));
 
-            this.ulElement = $('<ul></ul>').appendTo(this.element);
-
-            this.viewer = new Viewer(this.ulElement[0]);
         }
 
         protected initializeHtmlElement(): void {
@@ -36,7 +33,12 @@ namespace controls.html {
 
         onItemsChangedFromServer() {
 
-            this.ulElement.empty();
+            this.ulElement = $('<ul></ul>').appendTo(this.element);
+            if (this.viewer) {
+                this.viewer.destroy();
+                this.viewer.remove();
+            }
+            this.viewer = new Viewer(this.ulElement[0]);
             var items = this.Items;
             for (let i = 0; i < items.length; ++i) {
 

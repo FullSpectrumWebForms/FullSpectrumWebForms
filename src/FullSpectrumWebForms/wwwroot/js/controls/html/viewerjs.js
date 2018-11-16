@@ -12,15 +12,18 @@ var controls;
             initialize(type, index, id, properties) {
                 super.initialize(type, index, id, properties);
                 this.getProperty("Items").onChangedFromServer.register(this.onItemsChangedFromServer.bind(this));
-                this.ulElement = $('<ul></ul>').appendTo(this.element);
-                this.viewer = new Viewer(this.ulElement[0]);
             }
             initializeHtmlElement() {
                 this.element = $('<div></div>');
                 this.appendElementToParent();
             }
             onItemsChangedFromServer() {
-                this.ulElement.empty();
+                this.ulElement = $('<ul></ul>').appendTo(this.element);
+                if (this.viewer) {
+                    this.viewer.destroy();
+                    this.viewer.remove();
+                }
+                this.viewer = new Viewer(this.ulElement[0]);
                 var items = this.Items;
                 for (let i = 0; i < items.length; ++i) {
                     let img = $('<img></img>');
