@@ -15,7 +15,8 @@
       "wwwroot/css/select2/select2.css",
       "wwwroot/css/slickGrid/slick.grid.css",
       "wwwroot/css/slickGrid/slick-default-theme.css",
-      "wwwroot/css/treeTable/treeTable.css"
+      "wwwroot/css/treeTable/treeTable.css",
+      "wwwroot/css/viewerjs/viewer.min.css"
     ]
   },
   {
@@ -40,6 +41,7 @@
       "wwwroot/js/SlickGrid/customEditor.js",
       "wwwroot/js/SlickGrid/slick.grid.js",
       "wwwroot/js/SlickGrid/slick.dataview.js",
+      "wwwroot/js/viewerjs/viewer.min.js",
       "wwwroot/js/treeTable/treeTable.js",
       "wwwroot/js/fsw/genericAjax.js",
       "wwwroot/js/fsw/utility.js",
