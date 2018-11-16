@@ -18,13 +18,13 @@ var controls;
                 this.appendElementToParent();
             }
             onItemsChangedFromServer() {
-                this.ulElement = $('<ul></ul>').appendTo(this.element);
-                if (this.viewer) {
-                    this.viewer.destroy();
-                    this.viewer.remove();
-                }
-                this.viewer = new Viewer(this.ulElement[0]);
                 var items = this.Items;
+                if (this.viewer)
+                    this.viewer.destroy();
+                if (this.ulElement)
+                    this.ulElement.remove();
+                this.ulElement = $('<ul></ul>').appendTo(this.element);
+                this.ulElement.addClass('pictures');
                 for (let i = 0; i < items.length; ++i) {
                     let img = $('<img></img>');
                     if (items[i].ThumbnailSrc && items[i].ThumbnailSrc != '')
@@ -32,7 +32,20 @@ var controls;
                     img.attr('data-original', items[i].OriginalSrc);
                     img.appendTo($('<li></li>').appendTo(this.ulElement));
                 }
-                this.viewer.update();
+                let that = this;
+                this.viewer = new Viewer(this.ulElement[0], {
+                    url: 'data-original',
+                    toolbar: {
+                        oneToOne: true,
+                        prev: function () {
+                            that.viewer.prev(true);
+                        },
+                        play: true,
+                        next: function () {
+                            that.viewer.next(true);
+                        },
+                    }
+                });
             }
         }
         html.viewerjs = viewerjs;
