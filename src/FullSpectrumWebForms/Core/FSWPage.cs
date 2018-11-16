@@ -166,9 +166,9 @@ namespace FSW.Core
             }
         }
 
-        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, Func<JToken, Task<IActionResult>>> RegisteredGenericRequests =
-            new System.Collections.Concurrent.ConcurrentDictionary<string, Func<JToken, Task<IActionResult>>>();
-        public void RegisterNewGenericRequest(string action, Func<JToken, Task<IActionResult>> callback)
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, Func<Dictionary<string, string>, Task<IActionResult>>> RegisteredGenericRequests =
+            new System.Collections.Concurrent.ConcurrentDictionary<string, Func<Dictionary<string, string>, Task<IActionResult>>>();
+        public void RegisterNewGenericRequest(string action, Func<Dictionary<string, string>, Task<IActionResult>> callback)
         {
             if (RegisteredGenericRequests.ContainsKey(action))
                 throw new Exception("Generic request already registered:" + action);
@@ -180,7 +180,22 @@ namespace FSW.Core
             if (!RegisteredGenericRequests.TryGetValue(action, out var callback))
                 throw new KeyNotFoundException("Cannot find generic request:" + action);
 
-            return await callback(privateData);
+            var parameters = privateData.ToString().Split('&');
+            var parametersParsed = new Dictionary<string, string>();
+
+            for (int i = 0; i < parameters.Length; i += 2)
+                parametersParsed[System.Web.HttpUtility.UrlDecode(parameters[i])] = System.Web.HttpUtility.UrlDecode(parameters[i + 1]);
+
+            return await callback(parametersParsed);
+
+        }
+
+        public string GetGenericRequestUrl(string action, Dictionary<string, string> parameters)
+        {
+            var url = "/FSW/CoreServices/GenericRequest/" + action + "/" + ID;
+            if (parameters != null && parameters.Count != 0)
+                url += "?" + string.Join("&", parameters.SelectMany(x => new[] { System.Web.HttpUtility.UrlEncode(x.Key), System.Web.HttpUtility.UrlEncode(x.Value) }));
+            return url;
         }
 
         private HostedServicesContainer ServicesContainer;
