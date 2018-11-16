@@ -192,9 +192,11 @@ namespace FSW.Core
 
         public string GetGenericRequestUrl(string action, Dictionary<string, string> parameters)
         {
-            var url = "/FSW/CoreServices/GenericRequest/" + action + "/" + ID;
+            var url = "/FSW/CoreServices/GenericRequest/" + ID + "/" + action;
             if (parameters != null && parameters.Count != 0)
-                url += "?" + string.Join("&", parameters.SelectMany(x => new[] { System.Web.HttpUtility.UrlEncode(x.Key), System.Web.HttpUtility.UrlEncode(x.Value) }));
+                url += "/" + string.Join("&", parameters.SelectMany(x => new[] { System.Web.HttpUtility.UrlEncode(x.Key), System.Web.HttpUtility.UrlEncode(x.Value) }));
+            else
+                url += "/";
             return url;
         }
 

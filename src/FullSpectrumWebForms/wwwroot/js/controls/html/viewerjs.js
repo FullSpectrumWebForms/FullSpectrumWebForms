@@ -23,11 +23,11 @@ var controls;
                 this.ulElement.empty();
                 var items = this.Items;
                 for (let i = 0; i < items.length; ++i) {
-                    let li = $('<li></li>');
+                    let img = $('<img></img>');
                     if (items[i].ThumbnailSrc && items[i].ThumbnailSrc != '')
-                        li.attr('src', items[i].ThumbnailSrc);
-                    li.attr('data-original', items[i].OriginalSrc);
-                    li.appendTo(this.ulElement);
+                        img.attr('src', items[i].ThumbnailSrc);
+                    img.attr('data-original', items[i].OriginalSrc);
+                    img.appendTo($('<li></li>').appendTo(this.ulElement));
                 }
                 this.viewer.update();
             }
