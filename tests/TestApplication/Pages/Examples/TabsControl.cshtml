@@ -1,0 +1,16 @@
+﻿@page
+@model FSW.Core.ModelBase<TabsControlModel>
+@{
+    ViewData["Title"] = "TabsControl";
+    Layout = "~/Pages/_Layout.cshtml";
+}
+
+<h2>TabsControl</h2>
+
+<div id="TAB_Test"></div>
+
+<script>
+    $('.menu .item')
+        .tab()
+        ;
+</script>

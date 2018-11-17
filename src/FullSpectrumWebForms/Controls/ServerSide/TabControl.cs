@@ -119,37 +119,32 @@ namespace FSW.Controls.ServerSide
         {
             var tab = new HtmlControlBase(Page)
             {
-                HtmlDefaultTag = "li",
-                GenerateClickEvents = true
-            };
-            var a = new HtmlControlBase(Page)
-            {
+                
                 HtmlDefaultTag = "a",
-                InitialAttributes = new Dictionary<string, string>
+                GenerateClickEvents = true,
+                InitialClasses = new List<string>() { "item" },
+                InitialAttributes = new Dictionary<string, string>()
                 {
-                    ["href"] = "#" + item.FrameId
-                }
+                    ["data-tab"] = item.FrameId
+                },
+                InnerText = item.HeaderText,
             };
-            a.Children.Add(new Span(Page)
-            {
-                Text = item.HeaderText
-            });
-            tab.Children.Add(a);
 
             var frame = new Div(Page)
             {
-                InitialClasses = new List<string>() { "frame" },
+                InitialClasses = new List<string>() { "ui", "bottom", "attached", "tab", "segment" },
                 InitialAttributes = new Dictionary<string, string>()
                 {
-                    ["id"] = item.FrameId
-                }
+                    ["id"] = item.FrameId,
+                    ["data-tab"] = item.FrameId,
+                },
+                InnerText = item.HeaderText,
             };
-            frame.Children.Add(item.Frame);
 
             tab.OnClicked += (control) => SelectTab(item);
 
             TabsContainer.Children.Add(tab);
-            FramesContainer.Children.Add(frame);
+            Children.Add(frame);
         }
 
         public delegate void OnSelectedTabChangedHandler(TabItem item);
@@ -172,13 +167,13 @@ namespace FSW.Controls.ServerSide
             {
                 var i = Tabs.IndexOf(previouslySelected);
                 ((HtmlControlBase)TabsContainer.Children[i]).Classes.Remove("active");
-                ((HtmlControlBase)FramesContainer.Children[i]).Visible = VisibleState.None;
+                ((HtmlControlBase)Children[i+1]).Classes.Remove("active");
             }
             if (item != null)
             {
                 var i = Tabs.IndexOf(item);
                 ((HtmlControlBase)TabsContainer.Children[i]).Classes.Add("active");
-                ((HtmlControlBase)FramesContainer.Children[i]).Visible = VisibleState.Block;
+                ((HtmlControlBase)Children[i+1]).Classes.Add("active");
             }
             SelectedTab_ = item;
 
@@ -188,7 +183,7 @@ namespace FSW.Controls.ServerSide
         private void ClearItems()
         {
             TabsContainer.Children.Clear();
-            FramesContainer.Children.Clear();
+            Children.Clear();
             SelectedTab = null;
         }
         /// <summary>
@@ -198,25 +193,19 @@ namespace FSW.Controls.ServerSide
         private void RemoveTabItem(int index)
         {
             TabsContainer.Children.RemoveAt(index);
-            FramesContainer.Children.RemoveAt(index);
+            Children.RemoveAt(index);
         }
         public override void InitializeProperties()
         {
             base.InitializeProperties();
 
-            Classes.Add("tabcontrol");
-            Attributes.Add("data-role", "tabcontrol");
-
             TabsContainer = new HtmlControlBase(Page)
             {
-                HtmlDefaultTag = "ul"
+                HtmlDefaultTag = "div"
             };
             Children.Add(TabsContainer);
-            TabsContainer.Classes.Add("tabs");
+            TabsContainer.Classes.AddRange(new List<string>() { "ui", "top", "attached", "tabular", "menu" });
 
-            FramesContainer = new Div(Page);
-            Children.Add(FramesContainer);
-            FramesContainer.Classes.Add("frames");
 
         }
     }
