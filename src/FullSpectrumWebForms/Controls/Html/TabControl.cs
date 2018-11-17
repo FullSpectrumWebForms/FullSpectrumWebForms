@@ -6,7 +6,7 @@ using System.Linq;
 using FSW.Controls.Html;
 using FSW.Core;
 
-namespace FSW.Controls.ServerSide
+namespace FSW.Controls.Html
 {
     public class TabItem
     {

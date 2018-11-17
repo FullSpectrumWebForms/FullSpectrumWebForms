@@ -9,18 +9,18 @@ namespace TestApplication.Pages
 {
     public class TabsControlModel : FSW.Core.FSWPage
     {
-        FSW.Controls.ServerSide.TabItem item1;
-        FSW.Controls.ServerSide.TabItem item2;
-        FSW.Controls.ServerSide.TabControl TAB_Test = new FSW.Controls.ServerSide.TabControl();
+        FSW.Controls.Html.TabItem item1;
+        FSW.Controls.Html.TabItem item2;
+        FSW.Controls.Html.TabControl TAB_Test = new FSW.Controls.Html.TabControl();
 
         public override void OnPageLoad()
         {
             base.OnPageLoad();
             
-            item1 = new FSW.Controls.ServerSide.TabItem("Item1",this);
-            item2 = new FSW.Controls.ServerSide.TabItem("Item2", this);
+            item1 = new FSW.Controls.Html.TabItem("Item1",this);
+            item2 = new FSW.Controls.Html.TabItem("Item2", this);
 
-            TAB_Test.Tabs.AddRange(new FSW.Controls.ServerSide.TabItem[] { item1,item2});
+            TAB_Test.Tabs.AddRange(new FSW.Controls.Html.TabItem[] { item1,item2});
         }
     }
 }
