@@ -19,8 +19,16 @@ namespace TestApplication.Pages
             
             item1 = new FSW.Controls.Html.TabItem("Item1",this);
             item2 = new FSW.Controls.Html.TabItem("Item2", this);
-
+           
             TAB_Test.Tabs.AddRange(new FSW.Controls.Html.TabItem[] { item1,item2});
+            TAB_Test.SelectTab(item1);
+            TAB_Test.OnSelectedTabChanged += TAB_Test_OnSelectedTabChanged;
+ 
+        }
+
+        private void TAB_Test_OnSelectedTabChanged(FSW.Controls.Html.TabItem item)
+        {
+            MessageBox.Success("title", item.HeaderText);
         }
     }
 }

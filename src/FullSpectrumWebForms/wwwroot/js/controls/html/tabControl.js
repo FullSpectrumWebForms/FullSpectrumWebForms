@@ -5,6 +5,7 @@ var controls;
         class tabControl extends html.htmlControlBase {
             initialize(type, index, id, properties) {
                 super.initialize(type, index, id, properties);
+                //($('.menu .item') as any).tab();
             }
             initializeHtmlElement() {
             }

@@ -130,21 +130,20 @@ namespace FSW.Controls.Html
                 InnerText = item.HeaderText,
             };
 
-            var frame = new Div(Page)
+            var tabContainer = new Div(Page)
             {
                 InitialClasses = new List<string>() { "ui", "bottom", "attached", "tab", "segment" },
                 InitialAttributes = new Dictionary<string, string>()
                 {
-                    ["id"] = item.FrameId,
                     ["data-tab"] = item.FrameId,
                 },
-                InnerText = item.HeaderText,
+
             };
 
             tab.OnClicked += (control) => SelectTab(item);
 
             TabsContainer.Children.Add(tab);
-            Children.Add(frame);
+            Children.Add(tabContainer);
         }
 
         public delegate void OnSelectedTabChangedHandler(TabItem item);
@@ -205,7 +204,6 @@ namespace FSW.Controls.Html
             };
             Children.Add(TabsContainer);
             TabsContainer.Classes.AddRange(new List<string>() { "ui", "top", "attached", "tabular", "menu" });
-
 
         }
     }
