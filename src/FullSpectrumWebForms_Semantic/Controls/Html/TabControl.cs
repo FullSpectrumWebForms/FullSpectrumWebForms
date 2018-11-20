@@ -6,7 +6,7 @@ using System.Linq;
 using FSW.Controls.Html;
 using FSW.Core;
 
-namespace FSW.Controls.Html
+namespace FSW.Semantic.Controls.Html
 {
     public class TabItem
     {
@@ -14,11 +14,11 @@ namespace FSW.Controls.Html
         public TabItem(string headerText, FSWPage page): this(headerText, new Div(page))
         {
         }
-        public TabItem(string headerText, Div frame)
+        private TabItem(string headerText, Div frame)
         {
             HeaderText = headerText;
             Frame = frame;
-            FrameId = "_TBI_" + FrameIds;
+            FrameId = "_TBI_" + ++FrameIds;
         }
         /// <summary>
         /// Unique frame id, must be unique in the entire page
@@ -137,12 +137,16 @@ namespace FSW.Controls.Html
                 {
                     ["data-tab"] = item.FrameId,
                 },
-
+                InitialChildren = new List<ControlBase>
+                {
+                    item.Frame,
+                }
             };
 
             tab.OnClicked += (control) => SelectTab(item);
 
             TabsContainer.Children.Add(tab);
+             
             Children.Add(tabContainer);
         }
 
