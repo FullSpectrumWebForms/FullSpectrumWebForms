@@ -110,6 +110,19 @@ namespace FSW.Semantic.Controls.Html
             Tabs = new TabItemsCollection(this);
         }
 
+        public bool Inverted
+        {
+            get =>  TabsContainer.Classes.Contains("inverted");
+            set
+            {
+                if (value == Inverted)
+                    return;
+                if (value)
+                    TabsContainer.Classes.Add("inverted");
+                else
+                    TabsContainer.Classes.Remove("inverted");
+            }
+        }
 
         public HtmlControlBase TabsContainer { get; private set; }
         public Div FramesContainer { get; private set; }

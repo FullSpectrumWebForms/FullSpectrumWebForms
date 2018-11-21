@@ -23,7 +23,7 @@ namespace TestApplication.Pages
             TAB_Test.Tabs.AddRange(new FSW.Semantic.Controls.Html.TabItem[] { item1,item2});
             TAB_Test.SelectTab(item1);
             TAB_Test.OnSelectedTabChanged += TAB_Test_OnSelectedTabChanged;
-
+            TAB_Test.Inverted = true;
             FSW.Controls.Html.Div frame1 = item1.Frame;
 
             item1.Frame.Children.Add(new FSW.Controls.Html.Span(this) {
