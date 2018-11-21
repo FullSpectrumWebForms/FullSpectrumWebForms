@@ -175,10 +175,16 @@ namespace FSW.Core
             RegisteredGenericRequests.TryAdd(action, callback);
         }
 
+        public void UnregisterGenericRequest(string action)
+        {
+            if (!RegisteredGenericRequests.TryRemove(action, out var value))
+                throw new Exception("Generic request not found: " + action);
+        }
+
         internal async Task<IActionResult> InvokeGenericRequest(string action, JToken privateData)
         {
             if (!RegisteredGenericRequests.TryGetValue(action, out var callback))
-                throw new KeyNotFoundException("Cannot find generic request:" + action);
+                throw new KeyNotFoundException("Cannot find generic request: " + action);
 
             var parameters = privateData.ToString().Split('&');
             var parametersParsed = new Dictionary<string, string>();
