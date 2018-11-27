@@ -1,4 +1,5 @@
 ﻿using FSW.Core;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -103,7 +104,7 @@ namespace FSW.Controls.Html
 
         private void OnSelectedIdsChangedFromClient(Property property, object lastValue, object newValue)
         {
-            OnSelectedIdsChanged?.Invoke(this, (string[])lastValue, (string[])newValue);
+            OnSelectedIdsChanged?.Invoke(this, (string[])lastValue, ((JArray) newValue).ToObject<string[]>());
         }
 
         private void OnSelectedIdChangedFromClient(Property property, object lastValue, object newValue)
@@ -113,8 +114,6 @@ namespace FSW.Controls.Html
     }
     public class ComboBox_Ajax : HtmlControlBase
     {
-
-
         public ComboBox_Ajax(FSWPage page = null) : base(page)
         {
         }
