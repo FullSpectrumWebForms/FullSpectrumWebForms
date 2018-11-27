@@ -235,7 +235,7 @@ namespace FSW.Controls.Html
 
         private void OnSelectedIdsAndValuesChangedFromClient(Property property, object lastValue, object newValue)
         {
-            OnSelectedIdsAndValuesChanged?.Invoke(this, (Dictionary<string, string>)lastValue, (Dictionary<string, string>)newValue);
+            OnSelectedIdsAndValuesChanged?.Invoke(this, (Dictionary<string, string>)lastValue, ((JObject)newValue).ToObject<Dictionary<string, string>>());
         }
 
     }
