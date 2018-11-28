@@ -104,7 +104,9 @@ namespace FSW.Controls.Html
 
         private void OnSelectedIdsChangedFromClient(Property property, object lastValue, object newValue)
         {
-            OnSelectedIdsChanged?.Invoke(this, (string[])lastValue, ((JArray) newValue).ToObject<string[]>());
+            if (lastValue is JArray lastValueArray)
+                lastValue = lastValueArray.ToObject<string[]>();
+            OnSelectedIdsChanged?.Invoke(this, (string[])lastValue, ((JArray)newValue).ToObject<string[]>());
         }
 
         private void OnSelectedIdChangedFromClient(Property property, object lastValue, object newValue)
@@ -235,6 +237,8 @@ namespace FSW.Controls.Html
 
         private void OnSelectedIdsAndValuesChangedFromClient(Property property, object lastValue, object newValue)
         {
+            if (lastValue is JObject lastValueDictionary)
+                lastValue = lastValueDictionary.ToObject<Dictionary<string, string>>();
             OnSelectedIdsAndValuesChanged?.Invoke(this, (Dictionary<string, string>)lastValue, ((JObject)newValue).ToObject<Dictionary<string, string>>());
         }
 
