@@ -78,6 +78,7 @@ namespace FSW.Controls.Html
         {
             OnSelectedIdChanged?.Invoke(this, oldId, SelectedId);
         }
+
         public void InvokeOnSelectedIdsChanged(string[] oldIds)
         {
             OnSelectedIdsChanged?.Invoke(this, oldIds, SelectedIds.ToArray());
