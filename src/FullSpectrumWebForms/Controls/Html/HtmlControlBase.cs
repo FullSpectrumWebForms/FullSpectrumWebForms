@@ -29,7 +29,7 @@ namespace FSW.Controls.Html
             }
             internal void GenerateRightClickMenuItem()
             {
-                int c = 0;
+                var c = 0;
                 GenerateRightClickMenuItem(Items, ref c);
             }
             private void GenerateRightClickMenuItem(List<Item> items, ref int currentId)
@@ -121,6 +121,80 @@ namespace FSW.Controls.Html
         protected void OnClickedFromClient()
         {
             OnClicked?.Invoke(this);
+        }
+
+
+        public delegate void OnDoubleClickedHandler(HtmlControlBase control);
+        private event OnDoubleClickedHandler OnDoubleClicked_;
+        public event OnDoubleClickedHandler OnDoubleClicked
+        {
+            add
+            {
+                OnDoubleClicked_ += value;
+                SetProperty(nameof(OnDoubleClicked), true);
+            }
+            remove
+            {
+                OnDoubleClicked_ -= value;
+                if (OnDoubleClicked_.GetInvocationList().Length == 0)
+                    SetProperty(nameof(OnDoubleClicked), false);
+            }
+        }
+
+        [CoreEvent]
+        protected void OnDoubleClickedFromClient()
+        {
+            OnDoubleClicked_?.Invoke(this);
+        }
+
+
+        public delegate void OnFocusInHandler(HtmlControlBase control);
+        private event OnFocusInHandler OnFocusIn_;
+        public event OnFocusInHandler OnFocusIn
+        {
+            add
+            {
+                OnFocusIn_ += value;
+                SetProperty(nameof(OnFocusIn), true);
+            }
+            remove
+            {
+                OnFocusIn_ -= value;
+                if (OnFocusIn_.GetInvocationList().Length == 0)
+                    SetProperty(nameof(OnFocusIn), false);
+            }
+        }
+        [CoreEvent]
+        protected void OnFocusInFromClient()
+        {
+            OnFocusIn_?.Invoke(this);
+        }
+
+        public delegate void OnFocusOutHandler(HtmlControlBase control);
+        private event OnFocusOutHandler OnFocusOut_;
+        public event OnFocusOutHandler OnFocusOut
+        {
+            add
+            {
+                OnFocusOut_ += value;
+                SetProperty(nameof(OnFocusOut), true);
+            }
+            remove
+            {
+                OnFocusOut_ -= value;
+                if (OnFocusOut_.GetInvocationList().Length == 0)
+                    SetProperty(nameof(OnFocusOut), false);
+            }
+        }
+        [CoreEvent]
+        protected void OnFocusOutFromClient()
+        {
+            OnFocusOut_?.Invoke(this);
+        }
+
+        public void Focus()
+        {
+            CallCustomClientEvent("FocusFromServer");
         }
 
         /// <summary>

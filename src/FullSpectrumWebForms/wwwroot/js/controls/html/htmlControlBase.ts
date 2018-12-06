@@ -69,7 +69,18 @@ namespace controls.html {
         set GenerateClickEvents(value: boolean) {
             this.setPropertyValue<this>("GenerateClickEvents", value);
         }
-
+        // ------------------------------------------------------------------------   OnDoubleClicked
+        get OnDoubleClicked(): boolean {
+            return this.tryGetPropertyValue<this, boolean>("OnDoubleClicked");
+        }
+        // ------------------------------------------------------------------------   OnFocusIn
+        get OnFocusIn(): boolean {
+            return this.tryGetPropertyValue<this, boolean>("OnFocusIn");
+        }
+        // ------------------------------------------------------------------------   OnFocusOut
+        get OnFocusOut(): boolean {
+            return this.tryGetPropertyValue<this, boolean>("OnFocusOut");
+        }
         // ------------------------------------------------------------------------   PopupTitle
         get PopupTitle(): string {
             return this.getPropertyValue<this, string>("PopupTitle");
@@ -188,6 +199,24 @@ namespace controls.html {
                     e.stopPropagation();
                 }
             });
+            this.element.focusin(function (e) {
+                if (that.OnFocusIn) {
+                    that.customControlEvent('OnFocusInFromClient', {});
+                    e.stopPropagation();
+                }
+            });
+            this.element.focusout(function (e) {
+                if (that.OnFocusOut) {
+                    that.customControlEvent('OnFocusOutFromClient', {});
+                    e.stopPropagation();
+                }
+            });
+            this.element.dblclick(function (e) {
+                if (that.OnDoubleClicked) {
+                    that.customControlEvent('OnDoubleClickedFromClient', {});
+                    e.stopPropagation();
+                }
+            });
 
             // PAR - 2018/06/02, check if the html contains properties default values
             // properties in html code are defined with 'data-po-[property name]="value"'
@@ -225,6 +254,9 @@ namespace controls.html {
 
         }
 
+        FocusFromServer() {
+            this.element.focus();
+        }
 
         protected initializeHtmlElement() {
             var tag = this.tryGetPropertyValue<this, string>("HtmlDefaultTag") || "div";

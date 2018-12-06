@@ -60,6 +60,18 @@ var controls;
             set GenerateClickEvents(value) {
                 this.setPropertyValue("GenerateClickEvents", value);
             }
+            // ------------------------------------------------------------------------   OnDoubleClicked
+            get OnDoubleClicked() {
+                return this.tryGetPropertyValue("OnDoubleClicked");
+            }
+            // ------------------------------------------------------------------------   OnFocusIn
+            get OnFocusIn() {
+                return this.tryGetPropertyValue("OnFocusIn");
+            }
+            // ------------------------------------------------------------------------   OnFocusOut
+            get OnFocusOut() {
+                return this.tryGetPropertyValue("OnFocusOut");
+            }
             // ------------------------------------------------------------------------   PopupTitle
             get PopupTitle() {
                 return this.getPropertyValue("PopupTitle");
@@ -161,6 +173,24 @@ var controls;
                         e.stopPropagation();
                     }
                 });
+                this.element.focusin(function (e) {
+                    if (that.OnFocusIn) {
+                        that.customControlEvent('OnFocusInFromClient', {});
+                        e.stopPropagation();
+                    }
+                });
+                this.element.focusout(function (e) {
+                    if (that.OnFocusOut) {
+                        that.customControlEvent('OnFocusOutFromClient', {});
+                        e.stopPropagation();
+                    }
+                });
+                this.element.dblclick(function (e) {
+                    if (that.OnDoubleClicked) {
+                        that.customControlEvent('OnDoubleClickedFromClient', {});
+                        e.stopPropagation();
+                    }
+                });
                 // PAR - 2018/06/02, check if the html contains properties default values
                 // properties in html code are defined with 'data-po-[property name]="value"'
                 if (!this.parent || hasSelector) {
@@ -190,6 +220,9 @@ var controls;
                         core.manager.unlockPropertyUpdate();
                     }
                 }
+            }
+            FocusFromServer() {
+                this.element.focus();
             }
             initializeHtmlElement() {
                 var tag = this.tryGetPropertyValue("HtmlDefaultTag") || "div";
