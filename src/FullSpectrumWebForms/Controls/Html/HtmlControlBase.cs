@@ -114,6 +114,11 @@ namespace FSW.Controls.Html
             get => GetProperty<bool>(PropertyName());
             set => SetProperty(PropertyName(), value);
         }
+        public bool PreventClickEventsPropagation
+        {
+            get => GetProperty<bool>(PropertyName());
+            set => SetProperty(PropertyName(), value);
+        }
         public delegate void OnClickedHandler(HtmlControlBase control);
         public event OnClickedHandler OnClicked;
 

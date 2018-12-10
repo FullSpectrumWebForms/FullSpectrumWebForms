@@ -69,6 +69,13 @@ namespace controls.html {
         set GenerateClickEvents(value: boolean) {
             this.setPropertyValue<this>("GenerateClickEvents", value);
         }
+        // ------------------------------------------------------------------------   PreventClickEventsPropagation
+        get PreventClickEventsPropagation(): boolean {
+            return this.tryGetPropertyValue<this, boolean>("PreventClickEventsPropagation");
+        }
+        set PreventClickEventsPropagation(value: boolean) {
+            this.setPropertyValue<this>("PreventClickEventsPropagation", value);
+        }
         // ------------------------------------------------------------------------   OnDoubleClicked
         get OnDoubleClicked(): boolean {
             return this.tryGetPropertyValue<this, boolean>("OnDoubleClicked");
@@ -196,7 +203,8 @@ namespace controls.html {
             this.element.click(function (e) {
                 if (that.GenerateClickEvents) {
                     that.customControlEvent('OnClickedFromClient', {});
-                    e.stopPropagation();
+                    if (that.PreventClickEventsPropagation != false)
+                        e.stopPropagation();
                 }
             });
             this.element.focusin(function (e) {

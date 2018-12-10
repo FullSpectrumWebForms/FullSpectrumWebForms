@@ -60,6 +60,13 @@ var controls;
             set GenerateClickEvents(value) {
                 this.setPropertyValue("GenerateClickEvents", value);
             }
+            // ------------------------------------------------------------------------   PreventClickEventsPropagation
+            get PreventClickEventsPropagation() {
+                return this.tryGetPropertyValue("PreventClickEventsPropagation");
+            }
+            set PreventClickEventsPropagation(value) {
+                this.setPropertyValue("PreventClickEventsPropagation", value);
+            }
             // ------------------------------------------------------------------------   OnDoubleClicked
             get OnDoubleClicked() {
                 return this.tryGetPropertyValue("OnDoubleClicked");
@@ -170,7 +177,8 @@ var controls;
                 this.element.click(function (e) {
                     if (that.GenerateClickEvents) {
                         that.customControlEvent('OnClickedFromClient', {});
-                        e.stopPropagation();
+                        if (that.PreventClickEventsPropagation != false)
+                            e.stopPropagation();
                     }
                 });
                 this.element.focusin(function (e) {
