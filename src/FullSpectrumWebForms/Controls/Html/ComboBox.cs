@@ -1,4 +1,5 @@
 ﻿using FSW.Core;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,6 +78,7 @@ namespace FSW.Controls.Html
         {
             OnSelectedIdChanged?.Invoke(this, oldId, SelectedId);
         }
+
         public void InvokeOnSelectedIdsChanged(string[] oldIds)
         {
             OnSelectedIdsChanged?.Invoke(this, oldIds, SelectedIds.ToArray());
@@ -103,7 +105,9 @@ namespace FSW.Controls.Html
 
         private void OnSelectedIdsChangedFromClient(Property property, object lastValue, object newValue)
         {
-            OnSelectedIdsChanged?.Invoke(this, (string[])lastValue, (string[])newValue);
+            if (lastValue is JArray lastValueArray)
+                lastValue = lastValueArray.ToObject<string[]>();
+            OnSelectedIdsChanged?.Invoke(this, (string[])lastValue, ((JArray)newValue)?.ToObject<string[]>());
         }
 
         private void OnSelectedIdChangedFromClient(Property property, object lastValue, object newValue)
@@ -113,8 +117,6 @@ namespace FSW.Controls.Html
     }
     public class ComboBox_Ajax : HtmlControlBase
     {
-
-
         public ComboBox_Ajax(FSWPage page = null) : base(page)
         {
         }
@@ -236,7 +238,9 @@ namespace FSW.Controls.Html
 
         private void OnSelectedIdsAndValuesChangedFromClient(Property property, object lastValue, object newValue)
         {
-            OnSelectedIdsAndValuesChanged?.Invoke(this, (Dictionary<string, string>)lastValue, (Dictionary<string, string>)newValue);
+            if (lastValue is JObject lastValueDictionary)
+                lastValue = lastValueDictionary.ToObject<Dictionary<string, string>>();
+            OnSelectedIdsAndValuesChanged?.Invoke(this, (Dictionary<string, string>)lastValue, ((JObject)newValue)?.ToObject<Dictionary<string, string>>());
         }
 
     }

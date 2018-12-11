@@ -60,6 +60,25 @@ var controls;
             set GenerateClickEvents(value) {
                 this.setPropertyValue("GenerateClickEvents", value);
             }
+            // ------------------------------------------------------------------------   PreventClickEventsPropagation
+            get PreventClickEventsPropagation() {
+                return this.tryGetPropertyValue("PreventClickEventsPropagation");
+            }
+            set PreventClickEventsPropagation(value) {
+                this.setPropertyValue("PreventClickEventsPropagation", value);
+            }
+            // ------------------------------------------------------------------------   OnDoubleClicked
+            get OnDoubleClicked() {
+                return this.tryGetPropertyValue("OnDoubleClicked");
+            }
+            // ------------------------------------------------------------------------   OnFocusIn
+            get OnFocusIn() {
+                return this.tryGetPropertyValue("OnFocusIn");
+            }
+            // ------------------------------------------------------------------------   OnFocusOut
+            get OnFocusOut() {
+                return this.tryGetPropertyValue("OnFocusOut");
+            }
             // ------------------------------------------------------------------------   PopupTitle
             get PopupTitle() {
                 return this.getPropertyValue("PopupTitle");
@@ -158,6 +177,25 @@ var controls;
                 this.element.click(function (e) {
                     if (that.GenerateClickEvents) {
                         that.customControlEvent('OnClickedFromClient', {});
+                        if (that.PreventClickEventsPropagation != false)
+                            e.stopPropagation();
+                    }
+                });
+                this.element.focusin(function (e) {
+                    if (that.OnFocusIn) {
+                        that.customControlEvent('OnFocusInFromClient', {});
+                        e.stopPropagation();
+                    }
+                });
+                this.element.focusout(function (e) {
+                    if (that.OnFocusOut) {
+                        that.customControlEvent('OnFocusOutFromClient', {});
+                        e.stopPropagation();
+                    }
+                });
+                this.element.dblclick(function (e) {
+                    if (that.OnDoubleClicked) {
+                        that.customControlEvent('OnDoubleClickedFromClient', {});
                         e.stopPropagation();
                     }
                 });
@@ -190,6 +228,9 @@ var controls;
                         core.manager.unlockPropertyUpdate();
                     }
                 }
+            }
+            FocusFromServer() {
+                this.element.focus();
             }
             initializeHtmlElement() {
                 var tag = this.tryGetPropertyValue("HtmlDefaultTag") || "div";

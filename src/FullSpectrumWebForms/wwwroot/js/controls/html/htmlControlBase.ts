@@ -69,7 +69,25 @@ namespace controls.html {
         set GenerateClickEvents(value: boolean) {
             this.setPropertyValue<this>("GenerateClickEvents", value);
         }
-
+        // ------------------------------------------------------------------------   PreventClickEventsPropagation
+        get PreventClickEventsPropagation(): boolean {
+            return this.tryGetPropertyValue<this, boolean>("PreventClickEventsPropagation");
+        }
+        set PreventClickEventsPropagation(value: boolean) {
+            this.setPropertyValue<this>("PreventClickEventsPropagation", value);
+        }
+        // ------------------------------------------------------------------------   OnDoubleClicked
+        get OnDoubleClicked(): boolean {
+            return this.tryGetPropertyValue<this, boolean>("OnDoubleClicked");
+        }
+        // ------------------------------------------------------------------------   OnFocusIn
+        get OnFocusIn(): boolean {
+            return this.tryGetPropertyValue<this, boolean>("OnFocusIn");
+        }
+        // ------------------------------------------------------------------------   OnFocusOut
+        get OnFocusOut(): boolean {
+            return this.tryGetPropertyValue<this, boolean>("OnFocusOut");
+        }
         // ------------------------------------------------------------------------   PopupTitle
         get PopupTitle(): string {
             return this.getPropertyValue<this, string>("PopupTitle");
@@ -185,6 +203,25 @@ namespace controls.html {
             this.element.click(function (e) {
                 if (that.GenerateClickEvents) {
                     that.customControlEvent('OnClickedFromClient', {});
+                    if (that.PreventClickEventsPropagation != false)
+                        e.stopPropagation();
+                }
+            });
+            this.element.focusin(function (e) {
+                if (that.OnFocusIn) {
+                    that.customControlEvent('OnFocusInFromClient', {});
+                    e.stopPropagation();
+                }
+            });
+            this.element.focusout(function (e) {
+                if (that.OnFocusOut) {
+                    that.customControlEvent('OnFocusOutFromClient', {});
+                    e.stopPropagation();
+                }
+            });
+            this.element.dblclick(function (e) {
+                if (that.OnDoubleClicked) {
+                    that.customControlEvent('OnDoubleClickedFromClient', {});
                     e.stopPropagation();
                 }
             });
@@ -225,6 +262,9 @@ namespace controls.html {
 
         }
 
+        FocusFromServer() {
+            this.element.focus();
+        }
 
         protected initializeHtmlElement() {
             var tag = this.tryGetPropertyValue<this, string>("HtmlDefaultTag") || "div";
