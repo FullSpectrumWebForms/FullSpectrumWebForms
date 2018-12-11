@@ -39,6 +39,12 @@ namespace FSW.Utility
             var prop = Control.GetPropertyInternal(PropertyName);
             prop.Value = newValue;
         }
+
+        public void Update()
+        {
+            UpdateInternalValue();
+        }
+
         public T this[int index]
         {
             get => GetIntervalValue()[index];
