@@ -45,6 +45,8 @@ namespace FSW.Controls.Html
             public bool AllowEdit;
             [JsonIgnore]
             public Action<DataGridColumn, object, object> ApplyNewValue;
+            [JsonIgnore]
+            public Func<DataGridColumn, object, object> ParseNewInputValue_SecondPass;
 
             public EditorBase()
             {
@@ -529,6 +531,8 @@ namespace FSW.Controls.Html
                 value = null;
 
             var realValue = editor.ParseNewInputValue(colDef, value);
+            if (editor.ParseNewInputValue_SecondPass != null)
+                realValue = editor.ParseNewInputValue_SecondPass(colDef, realValue);
 
             if (editor.ApplyNewValue != null)
                 editor.ApplyNewValue(colDef, item, realValue);
