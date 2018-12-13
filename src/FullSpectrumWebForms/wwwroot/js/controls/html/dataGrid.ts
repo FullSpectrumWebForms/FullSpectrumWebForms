@@ -587,7 +587,17 @@
         validateValueCellChange(value: any, args: onValidateValueCellChangeArgs<gen.treeTableData>) {
             var col = this.Columns[args.column.id];
             if (col.EditorInfo) {
-                let ret = col.EditorInfo.validateValueCellChange(value, args);
+
+
+
+                let row = this.treeTable.dataView.getIdxById(args.item.id);
+                let meta = this.MetaDatas[row];
+                let ret;
+                if (meta && meta.Columns && meta.Columns[args.column.id] && meta.Columns[args.column.id].EditorInfo)
+                    ret = meta.Columns[args.column.id].EditorInfo.validateValueCellChange(value, args);
+                else
+                    ret = col.EditorInfo.validateValueCellChange(value, args);
+
                 if (!ret.valid && ret.msg && ret.msg.length != 0)
                     gen_utility.showMessage('Erreur', ret.msg, 'error');
                 return ret;
@@ -892,7 +902,7 @@
                     col.EditorInfo = this.buildEditorInfo(col.Editor.EditorName, col.Editor, colInternal);
                     formatter = colInternal.formatter;
                 }
-                
+
                 colInternal.formatter = this.getFormatter(enableTreeTableView, col.Append, col.Prepend, col.Popup, formatter);
 
                 this.columnsInternal.push(colInternal);
