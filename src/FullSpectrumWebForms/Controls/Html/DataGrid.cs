@@ -454,23 +454,27 @@ namespace FSW.Controls.Html
         public virtual void RefreshDatas(bool skipMetaDatasGeneration = false)
         {
             if (!skipMetaDatasGeneration)
-            {
-                if (OnGenerateMetasData == null)
-                    MetaDatas.Set(new Dictionary<string, DataGridColumn.MetaData>());
-                else
-                {
-                    var dct = new Dictionary<string, DataGridColumn.MetaData>();
-                    for (var i = 0; i < Datas.Count; ++i)
-                    {
-                        OnGenerateMetasData.Invoke(i, Datas[i], out var metaData);
-                        if (metaData != null)
-                            dct[i.ToString()] = metaData;
-                    }
-                    MetaDatas.Set(dct);
-                }
-            }
+                RefreshMetaDatas();
             SendNewDatasToClient();
         }
+
+        public void RefreshMetaDatas()
+        {
+            if (OnGenerateMetasData == null)
+                MetaDatas.Set(new Dictionary<string, DataGridColumn.MetaData>());
+            else
+            {
+                var dct = new Dictionary<string, DataGridColumn.MetaData>();
+                for (var i = 0; i < Datas.Count; ++i)
+                {
+                    OnGenerateMetasData.Invoke(i, Datas[i], out var metaData);
+                    if (metaData != null)
+                        dct[i.ToString()] = metaData;
+                }
+                MetaDatas.Set(dct);
+            }
+        }
+
         private void SendNewDatasToClient()
         {
             if (EnableTreeTableView)
