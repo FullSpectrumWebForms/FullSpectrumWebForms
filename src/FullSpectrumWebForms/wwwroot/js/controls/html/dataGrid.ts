@@ -588,8 +588,6 @@
             var col = this.Columns[args.column.id];
             if (col.EditorInfo) {
 
-
-
                 let row = this.treeTable.dataView.getIdxById(args.item.id);
                 let meta = this.MetaDatas[row];
                 let ret;
@@ -871,6 +869,8 @@
         }
         parseMetaDatasFromServer() {
             this.metaDatasInternal = {};
+            this.treeTable.grid.invalidateAllRows();
+            this.treeTable.grid.render();
         }
         // when we receive the columns from the server, we must parse them in order to create the editors
         parseColumnsFromServer() {

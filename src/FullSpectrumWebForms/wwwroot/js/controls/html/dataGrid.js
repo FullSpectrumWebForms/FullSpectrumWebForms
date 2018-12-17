@@ -730,6 +730,8 @@ var controls;
                 }
                 parseMetaDatasFromServer() {
                     this.metaDatasInternal = {};
+                    this.treeTable.grid.invalidateAllRows();
+                    this.treeTable.grid.render();
                 }
                 // when we receive the columns from the server, we must parse them in order to create the editors
                 parseColumnsFromServer() {
