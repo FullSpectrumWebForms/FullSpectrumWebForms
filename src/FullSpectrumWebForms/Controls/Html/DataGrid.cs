@@ -45,6 +45,8 @@ namespace FSW.Controls.Html
             public bool AllowEdit;
             [JsonIgnore]
             public Action<DataGridColumn, object, object> ApplyNewValue;
+            [JsonIgnore]
+            public Func<DataGridColumn, object, object> ParseNewInputValue_SecondPass;
 
             public EditorBase()
             {
@@ -452,23 +454,27 @@ namespace FSW.Controls.Html
         public virtual void RefreshDatas(bool skipMetaDatasGeneration = false)
         {
             if (!skipMetaDatasGeneration)
-            {
-                if (OnGenerateMetasData == null)
-                    MetaDatas.Set(new Dictionary<string, DataGridColumn.MetaData>());
-                else
-                {
-                    var dct = new Dictionary<string, DataGridColumn.MetaData>();
-                    for (var i = 0; i < Datas.Count; ++i)
-                    {
-                        OnGenerateMetasData.Invoke(i, Datas[i], out var metaData);
-                        if (metaData != null)
-                            dct[i.ToString()] = metaData;
-                    }
-                    MetaDatas.Set(dct);
-                }
-            }
+                RefreshMetaDatas();
             SendNewDatasToClient();
         }
+
+        public void RefreshMetaDatas()
+        {
+            if (OnGenerateMetasData == null)
+                MetaDatas.Set(new Dictionary<string, DataGridColumn.MetaData>());
+            else
+            {
+                var dct = new Dictionary<string, DataGridColumn.MetaData>();
+                for (var i = 0; i < Datas.Count; ++i)
+                {
+                    OnGenerateMetasData.Invoke(i, Datas[i], out var metaData);
+                    if (metaData != null)
+                        dct[i.ToString()] = metaData;
+                }
+                MetaDatas.Set(dct);
+            }
+        }
+
         private void SendNewDatasToClient()
         {
             if (EnableTreeTableView)
@@ -529,6 +535,8 @@ namespace FSW.Controls.Html
                 value = null;
 
             var realValue = editor.ParseNewInputValue(colDef, value);
+            if (editor.ParseNewInputValue_SecondPass != null)
+                realValue = editor.ParseNewInputValue_SecondPass(colDef, realValue);
 
             if (editor.ApplyNewValue != null)
                 editor.ApplyNewValue(colDef, item, realValue);
