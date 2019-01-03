@@ -3,7 +3,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>FSW</PackageId>
-    <Version>1.7.17.3</Version>
+    <Version>1.8.1.1</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
     <PackageTags>FSW</PackageTags>
@@ -59,13 +59,14 @@
   <ItemGroup>
     <EmbeddedResource Include="wwwroot\fsw.min.js"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\fsw.min.css"></EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\js\core\delayedLoader.js"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.gif"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.png"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.jpg"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.jpeg"></EmbeddedResource>
     <EmbeddedResource Include="wwwroot\**\*.bmp"></EmbeddedResource>
   </ItemGroup>
-
+  
   <ItemGroup>
     <Folder Include="wwwroot\css\jqueryContextMenu\" />
     <Folder Include="wwwroot\js\jqueryTimepicker\" />
