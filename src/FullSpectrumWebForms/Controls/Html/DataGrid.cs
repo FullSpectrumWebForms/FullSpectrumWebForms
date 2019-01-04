@@ -68,14 +68,41 @@ namespace FSW.Controls.Html
                 var dictField = colDef.Field.Substring(colDef.Field.LastIndexOf('.') + 1);
                 dict[dictField] = newValue;
             }
+
+            public abstract EditorBase Clone();
+
+            protected EditorBase CloneInto(EditorBase other)
+            {
+                other.AllowEdit = AllowEdit;
+                other.ApplyNewValue = ApplyNewValue;
+                other.ParseNewInputValue_SecondPass = ParseNewInputValue_SecondPass;
+                return other;
+            }
         }
         public class TextEditor : EditorBase
         {
             public int? MaxLength;
+
+            public override EditorBase Clone()
+            {
+                return CloneInto(new TextEditor()
+                {
+                    MaxLength = MaxLength
+                });
+            }
         }
         public class DatePickerEditor : EditorBase
         {
             public string DisplayFormat = "L";
+
+            public override EditorBase Clone()
+            {
+                return CloneInto( new DatePickerEditor()
+                {
+                    DisplayFormat = DisplayFormat
+                } );
+            }
+
             public override object ParseNewInputValue(DataGridColumn colDef, object value)
             {
                 var str = (string)value;
@@ -93,6 +120,14 @@ namespace FSW.Controls.Html
             // null = total hours
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             public bool? Format = null;
+
+            public override EditorBase Clone()
+            {
+                return CloneInto( new TimeSpanHoursEditor()
+                {
+                    Format = Format
+                } );
+            }
 
             public override object ParseNewInputValue(DataGridColumn colDef, object value)
             {
@@ -112,6 +147,18 @@ namespace FSW.Controls.Html
             public int Step = 15;
             public string MinTime = null;
             public string MaxTime = null;
+
+            public override EditorBase Clone()
+            {
+                return CloneInto(new TimeSpanEditor()
+                {
+                    EditorFormat = EditorFormat,
+                    Format = Format,
+                    Step = Step,
+                    MinTime = MinTime,
+                    MaxTime = MaxTime
+                });
+            }
 
             public override object ParseNewInputValue(DataGridColumn colDef, object value)
             {
@@ -154,12 +201,31 @@ namespace FSW.Controls.Html
             public float? Min;
             public float? Max;
             public int Precision = 2;
+
+            public override EditorBase Clone()
+            {
+                return CloneInto(new FloatEditor()
+                {
+                    Min = Min,
+                    Max = Max,
+                    Precision = Precision
+                });
+            }
         }
         public class IntEditor : EditorBase
         {
             public int? Min;
             public int? Max;
             public int Precision = 0;
+            public override EditorBase Clone()
+            {
+                return CloneInto(new IntEditor()
+                {
+                    Min = Min,
+                    Max = Max,
+                    Precision = Precision
+                });
+            }
         }
         public class IntEditorAttribute : Attribute
         {
@@ -183,6 +249,10 @@ namespace FSW.Controls.Html
         }
         public class BoolEditor : EditorBase
         {
+            public override EditorBase Clone()
+            {
+                return CloneInto(new BoolEditor());
+            }
         }
         public class ComboBoxEditor : EditorBase
         {
@@ -191,6 +261,18 @@ namespace FSW.Controls.Html
             public bool UseLargeDropDown = false;
             public bool ShowKeyInsteadOfValueInCell = false;
             public Dictionary<string, string> ClientSideFormatting;
+
+            public override EditorBase Clone()
+            {
+                return CloneInto(new ComboBoxEditor()
+                {
+                    AvailableChoices = AvailableChoices,
+                    IsMultiple = IsMultiple,
+                    UseLargeDropDown = UseLargeDropDown,
+                    ShowKeyInsteadOfValueInCell = ShowKeyInsteadOfValueInCell,
+                    ClientSideFormatting = ClientSideFormatting
+                });
+            }
 
             public override object ParseNewInputValue(DataGridColumn colDef, object value)
             {
@@ -207,6 +289,17 @@ namespace FSW.Controls.Html
             public bool IsMultiple = false;
             public bool UseLargeDropDown = false;
             public bool ShowKeyInsteadOfValueInCell = false;
+
+            public override EditorBase Clone()
+            {
+                return CloneInto(new ComboBoxAjaxEditor()
+                {
+                    IsMultiple = IsMultiple,
+                    UseLargeDropDown = UseLargeDropDown,
+                    ShowKeyInsteadOfValueInCell = ShowKeyInsteadOfValueInCell,
+                    OnRequest = OnRequest
+                });
+            }
 
             public Dictionary<string, string> CallRequest(string searchString)
             {
