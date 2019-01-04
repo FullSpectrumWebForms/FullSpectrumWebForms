@@ -58,7 +58,6 @@
             (this.element as any).dropdown({
                 onChange: this.onSelectedValueChangedFromClient.bind(this),
                 ignoreCase: true,
-                action: 'hide',
                 clearable: this.AllowNull,
                 fullTextSearch: true
             });
