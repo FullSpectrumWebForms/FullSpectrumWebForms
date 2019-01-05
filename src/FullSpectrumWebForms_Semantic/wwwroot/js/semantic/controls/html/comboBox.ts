@@ -162,7 +162,7 @@
 
 
     }
-    export class comboBox_ajax extends htmlControlBase {
+    export class semanticComboBox_ajax extends htmlControlBase {
 
         // ------------------------------------------------------------------------   AllowNull
         get AllowNull(): boolean {
@@ -365,4 +365,4 @@
     }
 }
 core.controlTypes['Semantic.ComboBox'] = () => new controls.html.semanticComboBox();
-core.controlTypes['Semantic.ComboBox_Ajax'] = () => new controls.html.comboBox_ajax();
+core.controlTypes['Semantic.ComboBox_Ajax'] = () => new controls.html.semanticComboBox_ajax();

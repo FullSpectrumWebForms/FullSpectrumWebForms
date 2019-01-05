@@ -143,7 +143,7 @@ var controls;
             }
         }
         html.semanticComboBox = semanticComboBox;
-        class comboBox_ajax extends html.htmlControlBase {
+        class semanticComboBox_ajax extends html.htmlControlBase {
             constructor() {
                 super(...arguments);
                 this.skipChange = false;
@@ -314,9 +314,9 @@ var controls;
                 this.appendElementToParent();
             }
         }
-        html.comboBox_ajax = comboBox_ajax;
+        html.semanticComboBox_ajax = semanticComboBox_ajax;
     })(html = controls.html || (controls.html = {}));
 })(controls || (controls = {}));
 core.controlTypes['Semantic.ComboBox'] = () => new controls.html.semanticComboBox();
-core.controlTypes['Semantic.ComboBox_Ajax'] = () => new controls.html.comboBox_ajax();
+core.controlTypes['Semantic.ComboBox_Ajax'] = () => new controls.html.semanticComboBox_ajax();
 //# sourceMappingURL=comboBox.js.map
