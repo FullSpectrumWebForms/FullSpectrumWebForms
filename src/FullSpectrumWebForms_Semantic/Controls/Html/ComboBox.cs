@@ -86,7 +86,7 @@ namespace FSW.Semantic.Controls.Html
         public delegate void OnSelectedIdChangedHandler(ComboBox sender, string oldId, string newId);
         public event OnSelectedIdChangedHandler OnSelectedIdChanged;
 
-        public delegate void OnSelectedIdsChangedHandler(ComboBox sender, string[] oldId, string[] newId);
+        public delegate void OnSelectedIdsChangedHandler(ComboBox sender, string[] oldIds, string[] newIds);
         public event OnSelectedIdsChangedHandler OnSelectedIdsChanged;
 
         public ComboBox(FSWPage page = null) : base(page)
@@ -107,7 +107,6 @@ namespace FSW.Semantic.Controls.Html
 
             GetPropertyInternal(nameof(SelectedId)).OnNewValueFromClient += OnSelectedIdChangedFromClient;
             GetPropertyInternal(nameof(SelectedIds)).OnNewValueFromClient += OnSelectedIdsChangedFromClient;
-
             Classes.Add("ui selection dropdown");
         }
 

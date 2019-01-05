@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace TestApplication.Pages.Examples.Semantic
 {
@@ -33,7 +33,7 @@ namespace TestApplication.Pages.Examples.Semantic
 
         private void CB_Test_OnSelectedIdChanged(FSW.Semantic.Controls.Html.ComboBox sender, string oldId, string newId)
         {
-            MessageBox.Success("Selection changed", "Selection:" + newId);
+            MessageBox.Success("Selection changed", newId ?? "nothing!");
         }
     }
 }

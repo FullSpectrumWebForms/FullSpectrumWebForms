@@ -42,44 +42,70 @@
 
         inputControl: JQuery;
         placeHolderDiv: JQuery;
-        menuDiv: JQuery;
+        closeIcon: JQuery;
 
 
+        callOnInitProperties() {
+            super.callOnInitProperties();
+
+            (this.element as any).dropdown({
+                action: this.onSelectedValueChangedFromClient.bind(this),
+                ignoreCase: true,
+                clearable: this.AllowNull,
+                fullTextSearch: true,
+                placeholder: this.Placeholder,
+                values: this.getValues()
+            });
+            this.onSelectedIdChangedFromServer();
+            this.onSelectedIdsChangedFromServer();
+        }
         initialize(type: string, index: number, id: string, properties: { property: string, value: any }[]) {
             super.initialize(type, index, id, properties);
 
+            $('<div class="text"></div>').appendTo(this.element);
+            this.closeIcon = $('<i class="dropdown icon"></i>').appendTo(this.element);
 
+            this.closeIcon.click(this.onCloseIconClicked.bind(this));
 
-            this.inputControl = $('<input type="hidden" name="test">').appendTo(this.element);
-            $('<i class="dropdown icon"></i>').appendTo(this.element);
+            this.getProperty<this, string>("AvailableChoices").onChangedFromServer.register(this.onAvailableChoicesChangedFromServer.bind(this));
+            //this.getProperty<this, string>("Placeholder").onChangedFromServer.register(this.onPlaceholderChangedFromServer.bind(this), true);
+            this.getProperty<this, string>("SelectedId").onChangedFromServer.register(this.onSelectedIdChangedFromServer.bind(this));
+            this.getProperty<this, string>("SelectedIds").onChangedFromServer.register(this.onSelectedIdsChangedFromServer.bind(this));
 
-            this.menuDiv = $('<div class="menu"></div>').appendTo(this.element);
-            
-            (this.element as any).dropdown({
-                onChange: this.onSelectedValueChangedFromClient.bind(this),
-                ignoreCase: true,
-                clearable: this.AllowNull,
-                fullTextSearch: true
-            });
-
-            this.getProperty<this, string>("AvailableChoices").onChangedFromServer.register(this.onAvailableChoicesChangedFromServer.bind(this), true);
-            this.getProperty<this, string>("Placeholder").onChangedFromServer.register(this.onPlaceholderChangedFromServer.bind(this), true);
-            this.getProperty<this, string>("SelectedId").onChangedFromServer.register(this.onSelectedIdChangedFromServer.bind(this), true);
-            this.getProperty<this, string>("SelectedIds").onChangedFromServer.register(this.onSelectedIdsChangedFromServer.bind(this), true);
-
+            if (this.IsMultiple) {
+                let that = this;
+                this.element.on('click', '.delete', function () {
+                    that.onItemDeletedFromMultipleComboBox($(this).parent().attr('data-value'));
+                });
+            }
 
         }
         protected initializeHtmlElement(): void {
             this.element = $('<div></div>');
             this.appendElementToParent();
         }
+        onCloseIconClicked() {
+            if (this.closeIcon.hasClass('clear')) {
+                let that = this;
+                setTimeout(function () {
+                    that.onSelectedValueChangedFromClient(null, null, null); // execute in a timeout so it's done after every click even is processed
+                }, 1);
+            }
+        }
+        onItemDeletedFromMultipleComboBox(id: string) {
+            this.SelectedIds = this.SelectedIds.filter(x => x != id);
+        }
+        onSelectedValueChangedFromClient(text, value: string, element) {
 
-        onSelectedValueChangedFromClient() {
-            let value = (this.element as any).dropdown('get value');
+            (this.element as any).dropdown('hide');
+            (this.element as any).dropdown('set selected', value);
+
             if (this.IsMultiple)
-                this.SelectedIds = value;
-            else
-                this.SelectedId = value;
+                this.SelectedIds = [value].concat(this.SelectedIds);
+            else {
+                if (this.SelectedId != value && !(this.SelectedId == undefined && value == ''))
+                    this.SelectedId = value == '' ? null : value;
+            }
         }
 
         onPlaceholderChangedFromServer() {
@@ -94,33 +120,47 @@
                 this.placeHolderDiv = null;
             }
         }
-        onAvailableChoicesChangedFromServer() {
+        private getValues() {
             let choices = this.AvailableChoices;
-            (this.element as any).dropdown('setup menu', {
-                values: Object.keys(choices).map(x => {
-                    return {
-                        text: choices[x],
-                        value: x,
-                        name: choices[x]
-                    };
-                })
+            var res = Object.keys(choices).map(x => {
+                return {
+                    text: choices[x],
+                    value: x,
+                    name: choices[x]
+                };
             });
+
+            if (this.AllowNull && !this.IsMultiple) {
+                res = [{
+                    text: this.Placeholder,
+                    value: '',
+                    name: this.Placeholder
+                }].concat(res);
+            }
+            return res;
+        }
+        onAvailableChoicesChangedFromServer() {
+            (this.element as any).dropdown('setup menu', {
+                values: this.getValues()
+            });
+            this.onSelectedIdChangedFromServer();
+            this.onSelectedIdsChangedFromServer();
         }
         onSelectedIdChangedFromServer() {
             if (this.IsMultiple)
                 return;
 
-            (this.element as any).dropdown('clear');
-            (this.element as any).dropdown('set selected', this.SelectedId);
+            (this.element as any).dropdown('set selected', this.SelectedId == null ? '' : this.SelectedId);
         }
         onSelectedIdsChangedFromServer() {
             if (!this.IsMultiple)
                 return;
+
             (this.element as any).dropdown('clear');
             (this.element as any).dropdown('set selected', this.SelectedIds);
         }
 
-        
+
     }
 }
 core.controlTypes['Semantic.ComboBox'] = () => new controls.html.semanticComboBox();
