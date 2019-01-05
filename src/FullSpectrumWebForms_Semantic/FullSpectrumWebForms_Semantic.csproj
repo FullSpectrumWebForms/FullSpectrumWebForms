@@ -74,7 +74,7 @@
     <Content Update="**\*.js" Pack="false" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="wwwroot\js\semantic\controls\extensions\transition.ts" />
+    <TypeScriptCompile Include="wwwroot\js\semantic\**\*.ts" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Azure|AnyCPU'">
