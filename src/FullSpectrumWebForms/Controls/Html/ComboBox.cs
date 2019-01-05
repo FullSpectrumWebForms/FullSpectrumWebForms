@@ -146,9 +146,7 @@ namespace FSW.Controls.Html
             get
             {
                 var prop = GetProperty<Dictionary<string, string>>(PropertyName());
-                if (prop == null || prop.Count == 0)
-                    return null;
-                return prop.First();
+                return prop == null || prop.Count == 0 ? null : (KeyValuePair<string, string>?)prop.First();
             }
             set
             {

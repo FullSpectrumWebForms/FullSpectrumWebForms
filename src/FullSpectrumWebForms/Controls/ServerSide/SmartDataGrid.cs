@@ -45,6 +45,10 @@ namespace FSW.Controls.ServerSide.DataGrid
         {
             string[] RequiredCols { get; }
         }
+        public interface IDynamicReadOnlyCols
+        {
+            string[] ReadOnlyCols { get; }
+        }
 
         public interface IInvalidOrIncompleteRow
         {
@@ -255,6 +259,25 @@ namespace FSW.Controls.ServerSide.DataGrid
                 {
                     var css = GetBackgroundColorCss(backgroundcolor);
                     metaData.CssClasses += " " + css;
+                }
+            }
+            if (item is DataInterfaces.IDynamicReadOnlyCols readOnlyCols)
+            {
+                var cols = readOnlyCols.ReadOnlyCols;
+                if( cols?.Length > 0 )
+                {
+                    if (metaData == null)
+                        metaData = new DataGridColumn.MetaData();
+
+                    foreach ( var col in cols )
+                    {
+                         if(!metaData.Columns.TryGetValue(col, out var colMeta))
+                            colMeta = metaData.Columns[col] = new DataGridColumn.MetaDataColumn();
+                         // take the actual editor and clone it, this ensure the client side formatter is the same
+                        colMeta.Editor = Columns[col].Editor?.Clone();
+                        if (colMeta.Editor != null) // if there was an editor ( should be 'cause it's already readonly if there isn't... )
+                            colMeta.Editor.AllowEdit = false; // put the cell readonly
+                    }
                 }
             }
         }
