@@ -99,7 +99,7 @@ namespace FSW.Semantic.Controls.Html
             AllowSearch = true;
             AllowNull = false;
             IsMultiple = false;
-            Placeholder = null;
+            Placeholder = "";
             AvailableChoices_ = new Utility.ControlPropertyDictionary<string>(this, nameof(AvailableChoices));
             SelectedIds_ = new Utility.ControlPropertyList<string>(this, nameof(SelectedIds));
             SelectedId = null;
