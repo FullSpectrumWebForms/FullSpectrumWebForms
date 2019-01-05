@@ -69,7 +69,7 @@ var controls;
                 }
             }
             initializeHtmlElement() {
-                this.element = $('<select></select>');
+                this.element = $('<div></div>');
                 this.appendElementToParent();
             }
             onCloseIconClicked() {
@@ -114,7 +114,7 @@ var controls;
                         name: choices[x]
                     };
                 });
-                if (this.AllowNull) {
+                if (this.AllowNull && !this.IsMultiple) {
                     res = [{
                             text: this.Placeholder,
                             value: '',
