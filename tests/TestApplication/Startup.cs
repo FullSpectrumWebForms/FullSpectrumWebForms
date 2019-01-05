@@ -46,6 +46,11 @@ namespace TestApplication
             app.UseStaticFiles();
 
             app.UseMvc();
+
+            FSW.Core.Startup.RegisterFiles(new[]
+            {
+                "/js/highlight/highlight.pack.js"
+            });
         }
     }
 }

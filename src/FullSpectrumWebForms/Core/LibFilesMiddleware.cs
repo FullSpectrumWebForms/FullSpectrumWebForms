@@ -120,11 +120,19 @@ namespace FSW.Core
                 {
                     var startupBases = Startup.LoadedStartupBases.Select(x => x.Name);
 
-                    var content = "var fsw_delayed_loader_refs = [" + 
-                        "'fsw.min.css?module=fsw'," +
-                        string.Join(",", startupBases.Select(x => "'fsw.min.css?module=" + x + "'")) + "," + 
-                        "'fsw.min.js?module=fsw'," +
-                        string.Join(",", startupBases.Select(x => "'fsw.min.js?module=" + x + "'")) + "];";
+
+                    var appFilesCss = string.Join(",", Startup.AppFiles.Where(x => x.EndsWith(".css")).Select(x => $"'{x}'"));
+                    appFilesCss = string.IsNullOrEmpty(appFilesCss) ? "" : appFilesCss + ",";
+                    var appFilesJs = string.Join(",", Startup.AppFiles.Where(x => x.EndsWith(".js")).Select(x => $"'{x}'"));
+                    appFilesJs = string.IsNullOrEmpty(appFilesJs) ? "" : appFilesJs + ",";
+
+                    var content = "var fsw_delayed_loader_refs = [" +
+                        "'/fsw.min.css?module=fsw'," +
+                        string.Join(",", startupBases.Select(x => "'/fsw.min.css?module=" + x + "'")) + "," +
+                         appFilesCss +
+                        "'/fsw.min.js?module=fsw'," +
+                        string.Join(",", startupBases.Select(x => "'/fsw.min.js?module=" + x + "'")) + "," +
+                        appFilesJs + "];";
 
                     var currentAssembly = typeof(LibFilesMiddleware).Assembly;
                     using (var stream = currentAssembly.GetManifestResourceStream("FSW.wwwroot.js.core.delayedLoader.js"))

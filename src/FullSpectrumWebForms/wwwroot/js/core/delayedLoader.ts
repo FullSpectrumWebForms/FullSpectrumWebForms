@@ -8,11 +8,11 @@ var load = function () {
 
     let src = fsw_delayed_loader_refs.pop();
 
-    let script = document.createElement(src.startsWith('fsw.min.css') ? 'link' : 'script');
+    let script = document.createElement(src.startsWith('/fsw.min.css') ? 'link' : 'script');
     script.onload = function () {
         load();
     };
-    if (src.startsWith('fsw.min.css')) {
+    if (src.startsWith('/fsw.min.css')) {
         (script as HTMLLinkElement).href = src;
         (script as HTMLLinkElement).rel = "stylesheet";
     }

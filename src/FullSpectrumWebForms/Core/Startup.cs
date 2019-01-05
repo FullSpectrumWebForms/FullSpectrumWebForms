@@ -10,7 +10,8 @@ namespace FSW.Core
 {
     public static class Startup
     {
-        public static List<StartupBase> LoadedStartupBases = new List<StartupBase>();
+        internal static List<string> AppFiles = new List<string>();
+        internal static List<StartupBase> LoadedStartupBases = new List<StartupBase>();
         public static void ConfigureMvc(IMvcBuilder mvc)
         {
             mvc.AddApplicationPart(typeof(Startup).Assembly);
@@ -67,6 +68,17 @@ namespace FSW.Core
 
             foreach (var loadedStartupBase in LoadedStartupBases)
                 loadedStartupBase.Configure(app, env);
+        }
+
+
+        public static void RegisterFile(string path)
+        {
+            AppFiles.Add(path);
+        }
+
+        public static void RegisterFiles(IEnumerable<string> path)
+        {
+            AppFiles.AddRange(path);
         }
     }
 }

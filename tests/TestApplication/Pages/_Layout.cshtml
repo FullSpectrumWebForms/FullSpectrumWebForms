@@ -12,10 +12,15 @@
     <link href="/css/highlight/vs2015.css" rel="stylesheet" />
     <link rel="stylesheet" href="/css/site.css" />
 
-    <script src="/fsw.min.js"></script>
+    <script src="~/fsw.min.js"></script>
 
-    <script src="/js/highlight/highlight.pack.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
+    <script>
+        window.onload = function () {
+            hljs.initHighlightingOnLoad();
+
+            $('.ui.accordion').accordion();
+        };
+    </script>
 
 </head>
 <body>
