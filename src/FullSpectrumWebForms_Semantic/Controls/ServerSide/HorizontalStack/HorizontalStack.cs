@@ -1,10 +1,10 @@
-﻿using System;
+﻿using FSW.Controls.Html;
+using FSW.Semantic.Controls.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FSW.Controls.Html;
-using FSW.Semantic.Controls.Extensions;
 
 namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
 {
@@ -41,7 +41,7 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
                 Width = width ?? DefaultWidth,
                 Height = "100%",
                 Float = FloatDirection.Left,
-                InitialCssProperties = new Dictionary<string, string>
+                CssProperties = new Dictionary<string, string>
                 {
                     ["margin-top"] = "0px",
                     ["padding-right"] = "3px"
@@ -64,9 +64,15 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
             Children.Clear();
             Stacks.Clear();
         }
-        public void Clear() => PopAllStacks();
+        public void Clear()
+        {
+            PopAllStacks();
+        }
 
-        public void PopSingleStack() => Children.Remove(Stacks.Pop().Control);
+        public void PopSingleStack()
+        {
+            Children.Remove(Stacks.Pop().Control);
+        }
 
         public class HorizontalMenuItem
         {
@@ -123,7 +129,7 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
                 mainContainer = new Div(Page)
                 {
                     Height = "100%",
-                    InitialClasses = new List<string> { "ui", "inverted", "segment" }
+                    Classes = new List<string> { "ui", "inverted", "segment" }
                 };
 
                 var searchBox = new TextBox(Page)
@@ -146,10 +152,10 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
 
                 mainContainer.Children.Add(new Div(Page)
                 {
-                    InitialClasses = new List<string> { "ui", "input" },
+                    Classes = new List<string> { "ui", "input" },
                     Width = width ?? DefaultWidth,
                     Height = "40px",
-                    InitialChildren = new List<Core.ControlBase>
+                    Children = new List<Core.ControlBase>
                     {
                         searchBox
                     }
@@ -186,7 +192,7 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
                 {
                     container.Children.Add(new Span(Page, obj.Value)
                     {
-                        InitialClasses = new List<string> { "ui", "label" }
+                        Classes = new List<string> { "ui", "label" }
                     });
                 }
             };

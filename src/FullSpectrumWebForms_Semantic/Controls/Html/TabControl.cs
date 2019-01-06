@@ -135,8 +135,8 @@ namespace FSW.Semantic.Controls.Html
                 
                 HtmlDefaultTag = "a",
                 GenerateClickEvents = true,
-                InitialClasses = new List<string>() { "item" },
-                InitialAttributes = new Dictionary<string, string>()
+                Classes = new List<string>() { "item" },
+                Attributes = new Dictionary<string, string>()
                 {
                     ["data-tab"] = item.FrameId
                 },
@@ -145,12 +145,12 @@ namespace FSW.Semantic.Controls.Html
 
             var tabContainer = new Div(Page)
             {
-                InitialClasses = new List<string>() { "ui", "bottom", "attached", "tab", "segment" },
-                InitialAttributes = new Dictionary<string, string>()
+                Classes = new List<string>() { "ui", "bottom", "attached", "tab", "segment" },
+                Attributes = new Dictionary<string, string>()
                 {
                     ["data-tab"] = item.FrameId,
                 },
-                InitialChildren = new List<ControlBase>
+                Children = new List<ControlBase>
                 {
                     item.Frame,
                 }

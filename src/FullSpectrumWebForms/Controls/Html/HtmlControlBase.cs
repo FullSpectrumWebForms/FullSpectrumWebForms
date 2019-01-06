@@ -87,22 +87,25 @@ namespace FSW.Controls.Html
             set => SetProperty(PropertyName(), value);
         }
 
-        public Utility.ControlPropertyDictionary<string> CssProperties { get; private set; }
-        public Dictionary<string, string> InitialCssProperties
+        private Utility.ControlPropertyDictionary<string> CssProperties_;
+        public IDictionary<string, string> CssProperties
         {
-            set => CssProperties.AddRange(value);
-        }
-        public Utility.ControlPropertyDictionary<string> Attributes { get; private set; }
-        public Dictionary<string, string> InitialAttributes
-        {
-            set => Attributes.AddRange(value);
+            get => CssProperties_;
+            set => CssProperties_.Set(value is Dictionary<string, string> dic ? dic : value.ToDictionary(x => x.Key, x => x.Value));
         }
 
-
-        public Utility.ControlPropertyList<string> Classes { get; private set; }
-        public List<string> InitialClasses
+        private Utility.ControlPropertyDictionary<string> Attributes_;
+        public IDictionary<string, string> Attributes
         {
-            set => Classes.AddRange(value);
+            get => Attributes_;
+            set => Attributes_.Set(value is Dictionary<string, string> dic ? dic : value.ToDictionary(x => x.Key, x => x.Value));
+        }
+
+        private Utility.ControlPropertyList<string> Classes_;
+        public IList<string> Classes
+        {
+            get => Classes_;
+            set => Classes_.Set(value is List<string> list ? list : value.ToList());
         }
 
         /// <summary>
@@ -342,9 +345,9 @@ namespace FSW.Controls.Html
         }
         public override void InitializeProperties()
         {
-            CssProperties = new Utility.ControlPropertyDictionary<string>(this, nameof(CssProperties));
-            Attributes = new Utility.ControlPropertyDictionary<string>(this, nameof(Attributes));
-            Classes = new Utility.ControlPropertyList<string>(this, nameof(Classes));
+            CssProperties_ = new Utility.ControlPropertyDictionary<string>(this, nameof(CssProperties));
+            Attributes_ = new Utility.ControlPropertyDictionary<string>(this, nameof(Attributes));
+            Classes_ = new Utility.ControlPropertyList<string>(this, nameof(Classes));
             InternalStyles = new Utility.ControlPropertyDictionary<Dictionary<string, string>>(this, nameof(InternalStyles));
             GenerateClickEvents = false;
             RightClickMenu = null;

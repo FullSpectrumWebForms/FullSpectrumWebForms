@@ -26,7 +26,7 @@ namespace FSW.Core
 
             IsInitializing = true;
             IsRemoved = false;
-            Children.CollectionChanged += Children_CollectionChanged;
+            Children_.CollectionChanged += Children_CollectionChanged;
             Extensions = new ControlExtensionsCollection(this);
 
             InternalInitialize(Page);
@@ -91,14 +91,16 @@ namespace FSW.Core
         /// <summary>
         /// faut refaire une class custom pour stosti de cochonnerie la
         /// </summary>
-        public ObservableCollection<ControlBase> Children = new ObservableCollection<ControlBase>();
-        private List<ControlBase> Children_ = new List<ControlBase>();
-        public List<ControlBase> InitialChildren
+        private ObservableCollection<ControlBase> Children_ = new ObservableCollection<ControlBase>();
+        private List<ControlBase> Children_backup = new List<ControlBase>();
+        public IList<ControlBase> Children
         {
+            get => Children_;
             set
             {
+                Children_.Clear();
                 foreach (var child in value)
-                    Children.Add(child);
+                    Children_.Add(child);
             }
         }
 
@@ -120,7 +122,7 @@ namespace FSW.Core
                     if (Id != null) // if initialized
                         Page.Manager.AddNewDynamicControl(control, Children.IndexOf(control));
 
-                    Children_.Add(control);
+                    Children_backup.Add(control);
                 }
             }
             else if (e.OldItems != null)
@@ -130,14 +132,14 @@ namespace FSW.Core
                     if (!oldItem.IsRemoved)
                         oldItem.Remove();
 
-                    Children_.Remove(oldItem);
+                    Children_backup.Remove(oldItem);
                 }
             }
             else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
             {
-                foreach (var child in Children_)
+                foreach (var child in Children_backup)
                     child.Remove();
-                Children_.Clear();
+                Children_backup.Clear();
             }
         }
 

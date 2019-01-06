@@ -108,7 +108,7 @@ namespace FSW.Semantic.Controls.ServerSide
             {
                 HtmlDefaultTag = ContainerHtmlDefaultTag,
                 GenerateClickEvents = true,
-                InitialClasses = new List<string> { "item" }
+                Classes = new List<string> { "item" }
             };
             if (index.HasValue)
                 Children.Insert(index.Value, mainDiv);

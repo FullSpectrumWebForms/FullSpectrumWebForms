@@ -34,7 +34,7 @@ namespace TestApplication.Pages
         {
             var div = new Div(this)
             {
-                InitialChildren = new List<FSW.Core.ControlBase>
+                Children = new List<FSW.Core.ControlBase>
                 {
                     new Label(this)
                     {
