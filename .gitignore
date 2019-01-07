@@ -43,3 +43,5 @@
 /src/FullSpectrumWebForms_Diagnostic/wwwroot/fsw.diagnostic.min.js
 /src/FullSpectrumWebForms_Diagnostic/wwwroot/js/diagnostic/controls/**/*.map
 /src/FullSpectrumWebForms_Diagnostic/wwwroot/js/diagnostic/controls/**/*.js
+/doc/FSWDocumentation/.vs/FSWDocumentation
+/doc/FSWDocumentation/obj

@@ -22,6 +22,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "tests\UnitTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FullSpectrumWebForms_Diagnostic", "src\FullSpectrumWebForms_Diagnostic\FullSpectrumWebForms_Diagnostic.csproj", "{F33902CD-5E37-4A67-9661-5D7E605A15D0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FSWDocumentation", "doc\FSWDocumentation\FSWDocumentation.csproj", "{31ACF212-5380-4C3D-875A-49A1552DE5AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Azure|Any CPU = Azure|Any CPU
@@ -81,6 +83,16 @@ Global
 		{F33902CD-5E37-4A67-9661-5D7E605A15D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F33902CD-5E37-4A67-9661-5D7E605A15D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F33902CD-5E37-4A67-9661-5D7E605A15D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31ACF212-5380-4C3D-875A-49A1552DE5AA}.Azure|Any CPU.ActiveCfg = Debug|Any CPU
+		{31ACF212-5380-4C3D-875A-49A1552DE5AA}.Azure|Any CPU.Build.0 = Debug|Any CPU
+		{31ACF212-5380-4C3D-875A-49A1552DE5AA}.Debug_NetFramework|Any CPU.ActiveCfg = Debug|Any CPU
+		{31ACF212-5380-4C3D-875A-49A1552DE5AA}.Debug_NetFramework|Any CPU.Build.0 = Debug|Any CPU
+		{31ACF212-5380-4C3D-875A-49A1552DE5AA}.Debug_Test|Any CPU.ActiveCfg = Debug|Any CPU
+		{31ACF212-5380-4C3D-875A-49A1552DE5AA}.Debug_Test|Any CPU.Build.0 = Debug|Any CPU
+		{31ACF212-5380-4C3D-875A-49A1552DE5AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31ACF212-5380-4C3D-875A-49A1552DE5AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31ACF212-5380-4C3D-875A-49A1552DE5AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31ACF212-5380-4C3D-875A-49A1552DE5AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

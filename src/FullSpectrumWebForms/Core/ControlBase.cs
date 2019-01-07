@@ -13,9 +13,9 @@ namespace FSW.Core
         /// <summary>
         /// Control Id for both client and server side
         /// </summary>
-        public string Id;
-        protected FSWPage Page;
-        protected Session Session => Page.Session;
+        public string Id { get; internal set; }
+        public FSWPage Page { get; private set; }
+        public Session Session => Page.Session;
 
         public readonly ControlExtensionsCollection Extensions;
 
@@ -39,12 +39,12 @@ namespace FSW.Core
         /// </summary>
         public object Tag;
 
-        public bool NewlyAddedDynamicControl = false;
+        internal bool NewlyAddedDynamicControl = false;
         public ControlBase Parent { get; private set; }
         public string ParentElementId
         {
             get => GetProperty<string>(PropertyName());
-            set => SetProperty(PropertyName(), value);
+            internal set => SetProperty(PropertyName(), value);
         }
 
         public delegate void OnControlRemovedHandler(ControlBase control);
@@ -150,7 +150,7 @@ namespace FSW.Core
         /// <summary>
         /// Contain all the properties of the 
         /// </summary>
-        public Dictionary<string, Property> Properties = new Dictionary<string, Property>();
+        internal Dictionary<string, Property> Properties = new Dictionary<string, Property>();
 
         /// <summary>
         /// Add a new property
@@ -276,7 +276,7 @@ namespace FSW.Core
             else
                 throw new Exception("Client answer id not found");
         }
-        public List<ServerToClientCustomEvent> ExtractPendingCustomEvents()
+        internal List<ServerToClientCustomEvent> ExtractPendingCustomEvents()
         {
             if (PendingCustomEvents.Count == 0)
                 return PendingCustomEvents;
@@ -285,7 +285,7 @@ namespace FSW.Core
             PendingCustomEvents = new List<ServerToClientCustomEvent>();
             return res;
         }
-        public void InternalInitialize(FSWPage page)
+        internal void InternalInitialize(FSWPage page)
         {
             Page = page;
             ControlType_ = ControlType;
@@ -311,9 +311,9 @@ namespace FSW.Core
                     child.InternalInitialize(Page);
             }
         }
-        public bool IsInitializing { get; private set; }
+        internal bool IsInitializing { get; private set; }
         public abstract void InitializeProperties();
-        public void UpdatePropertyValueFromClient(string propertyName, object newValue)
+        internal void UpdatePropertyValueFromClient(string propertyName, object newValue)
         {
             if (Properties.TryGetValue(propertyName, out var value))
                 value.UpdateValue(newValue);
