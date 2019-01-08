@@ -3,9 +3,10 @@
 fsw_delayed_loader_refs = fsw_delayed_loader_refs.reverse();
 
 var load = function () {
-    if (fsw_delayed_loader_refs.length == 0)
+    if (fsw_delayed_loader_refs.length == 0) {
+        core.manager.initialize();
         return;
-
+    }
     let src = fsw_delayed_loader_refs.pop();
 
     let script = document.createElement(src.startsWith('/fsw.min.css') ? 'link' : 'script');

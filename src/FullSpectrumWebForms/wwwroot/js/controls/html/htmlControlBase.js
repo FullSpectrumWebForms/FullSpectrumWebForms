@@ -266,7 +266,7 @@ var controls;
                         content: this.PopupContent,
                     });
                 }
-                else
+                else if (this.element.popup)
                     this.element.popup('destroy');
             }
             onClassesChanged(property, args) {

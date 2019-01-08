@@ -305,7 +305,7 @@ namespace controls.html {
                     content: this.PopupContent,
                 });
             }
-            else
+            else if ((this.element as any).popup)
                 (this.element as any).popup('destroy');
         }
         private onClassesChanged(property: core.controlProperty<string[]>, args: { old: string[], new: string[] }) {

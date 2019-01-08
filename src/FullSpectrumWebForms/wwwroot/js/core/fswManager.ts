@@ -399,4 +399,3 @@ namespace core {
     export var controlExtensionTypes: { [clientId: string]: () => controlExtension } = {};
 
 }
-$(core.manager.initialize.bind(core.manager));
