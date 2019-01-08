@@ -33,7 +33,7 @@ namespace FSWDocumentation.Pages
                     Header = "Base Controls",
                     Items = new List<MenuItem>
                     {
-                        new  MenuItemT<BaseControls.ControlBase.ControlBase>("ControlBase")
+                        new  MenuItemT<BaseClasses.ControlBase.ControlBase>("ControlBase")
                     }
                 }
             });
