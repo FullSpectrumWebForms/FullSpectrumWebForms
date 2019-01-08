@@ -46,3 +46,5 @@
 /doc/FSWDocumentation/.vs/FSWDocumentation
 /doc/FSWDocumentation/obj
 /doc/FSWDocumentation/bin/Debug/netcoreapp2.2
+/doc/FSWDocumentation/bin
+/doc/FSWDocumentation/obj
