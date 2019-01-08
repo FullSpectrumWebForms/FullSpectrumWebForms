@@ -49,4 +49,5 @@ var controls;
     })(html = controls.html || (controls.html = {}));
 })(controls || (controls = {}));
 core.controlTypes['TemplateContainer'] = () => new controls.html.templateContainer();
+sessionStorage.clear();
 //# sourceMappingURL=templateContainer.js.map
