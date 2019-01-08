@@ -38,14 +38,14 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
         {
             var div = new Div(Page)
             {
-                Width = width ?? DefaultWidth,
-                Height = "100%",
-                Float = FloatDirection.Left,
                 CssProperties = new Dictionary<string, string>
                 {
                     ["margin-top"] = "0px",
                     ["padding-right"] = "3px"
-                }
+                },
+                Width = width ?? DefaultWidth,
+                Height = "100%",
+                Float = FloatDirection.Left,
             };
             if (width == "auto")
                 div.CssProperties["flex"] = "1";

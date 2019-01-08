@@ -18,6 +18,9 @@ var controls;
         redirect(url) {
             window.location.replace(url);
         }
+        closeTab() {
+            window.close();
+        }
     }
     controls.urlManager = urlManager;
 })(controls || (controls = {}));

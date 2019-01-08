@@ -45,3 +45,4 @@
 /src/FullSpectrumWebForms_Diagnostic/wwwroot/js/diagnostic/controls/**/*.js
 /doc/FSWDocumentation/.vs/FSWDocumentation
 /doc/FSWDocumentation/obj
+/doc/FSWDocumentation/bin/Debug/netcoreapp2.2
