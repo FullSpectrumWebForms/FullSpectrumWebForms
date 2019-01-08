@@ -9,4 +9,4 @@ var core;
     }
     core.controlExtension = controlExtension;
 })(core || (core = {}));
-//# sourceMappingURL=controlExtension.js.map
+//# sourceMappingURL=controlextension.js.map

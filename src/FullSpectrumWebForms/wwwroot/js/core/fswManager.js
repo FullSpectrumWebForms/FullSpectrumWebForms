@@ -269,5 +269,4 @@ var core;
     core.controlTypes = {};
     core.controlExtensionTypes = {};
 })(core || (core = {}));
-$(core.manager.initialize.bind(core.manager));
 //# sourceMappingURL=fswManager.js.map
