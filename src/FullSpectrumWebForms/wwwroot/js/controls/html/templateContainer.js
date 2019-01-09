@@ -49,4 +49,9 @@ var controls;
     })(html = controls.html || (controls.html = {}));
 })(controls || (controls = {}));
 core.controlTypes['TemplateContainer'] = () => new controls.html.templateContainer();
+for (let i = 0; i < sessionStorage.length; ++i) {
+    let key = sessionStorage.key(i);
+    if (key.startsWith('templateContainer.'))
+        sessionStorage.removeItem(key);
+}
 //# sourceMappingURL=templateContainer.js.map

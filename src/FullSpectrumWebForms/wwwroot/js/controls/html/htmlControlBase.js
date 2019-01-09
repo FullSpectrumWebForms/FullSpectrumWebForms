@@ -177,7 +177,7 @@ var controls;
                 this.element.click(function (e) {
                     if (that.GenerateClickEvents) {
                         that.customControlEvent('OnClickedFromClient', {});
-                        if (that.PreventClickEventsPropagation != false)
+                        if (that.PreventClickEventsPropagation != false) // by default, prevent is undefined, so the stopPropagation will be called
                             e.stopPropagation();
                     }
                 });
@@ -266,7 +266,7 @@ var controls;
                         content: this.PopupContent,
                     });
                 }
-                else
+                else if (this.element.popup)
                     this.element.popup('destroy');
             }
             onClassesChanged(property, args) {

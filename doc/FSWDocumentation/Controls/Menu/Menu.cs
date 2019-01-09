@@ -14,10 +14,13 @@ namespace FSWDocumentation.Controls.Menu
     }
     public class MenuItemT<T>: MenuItem where T : MenuPage
     {
-        public MenuItemT(string text)
+        public MenuItemT(string text = null)
         {
             MenuPageType = typeof(T);
-            Text = text;
+            if (text == null)
+                Text = typeof(T).Name;
+            else
+                Text = text;
         }
     }
     public class MenuGroup

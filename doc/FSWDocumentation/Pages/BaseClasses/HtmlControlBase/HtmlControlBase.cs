@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FSWDocumentation.Pages.BaseControls.ControlBase
+namespace FSWDocumentation.Pages.BaseClasses.HtmlControlBase
 {
-    public class ControlBase: MenuPage
+    public class HtmlControlBase: MenuPage
     {
     }
 }

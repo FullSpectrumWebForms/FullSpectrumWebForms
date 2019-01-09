@@ -108,27 +108,34 @@ namespace FSW.Controls.Html
             set => Classes_.Set(value is List<string> list ? list : value.ToList());
         }
 
-        /// <summary>
-        /// You can turn this to "true" if you want the control to generate click events
-        /// By default, it is initialized to false for performances reasons
-        /// </summary>
-        public bool GenerateClickEvents
-        {
-            get => GetProperty<bool>(PropertyName());
-            set => SetProperty(PropertyName(), value);
-        }
         public bool PreventClickEventsPropagation
         {
             get => GetProperty<bool>(PropertyName());
             set => SetProperty(PropertyName(), value);
         }
+
+
         public delegate void OnClickedHandler(HtmlControlBase control);
-        public event OnClickedHandler OnClicked;
+        private event OnClickedHandler OnClicked_;
+        public event OnClickedHandler OnClicked
+        {
+            add
+            {
+                OnClicked_ += value;
+                SetProperty("GenerateClickEvents", true);
+            }
+            remove
+            {
+                OnClicked_ -= value;
+                if( OnClicked_.GetInvocationList().Length == 0 )
+                    SetProperty("GenerateClickEvents", false);
+            }
+        }
 
         [CoreEvent]
         protected void OnClickedFromClient()
         {
-            OnClicked?.Invoke(this);
+            OnClicked_?.Invoke(this);
         }
 
 
@@ -311,7 +318,12 @@ namespace FSW.Controls.Html
             }
         }
 
-        public Utility.ControlPropertyDictionary<Dictionary<string, string>> InternalStyles { get; private set; }
+        private Utility.ControlPropertyDictionary<Dictionary<string, string>> InternalStyles_;
+        public IDictionary<string, Dictionary<string, string>> InternalStyles
+        {
+            get => InternalStyles_;
+            set => InternalStyles_.Set(value is Dictionary<string, Dictionary<string, string>> dic ? dic : value.ToDictionary(x => x.Key, x => x.Value));
+        }
 
         // please if you set the PopupTitle just freaking set the PopupContent too...
         // come on...
@@ -348,8 +360,7 @@ namespace FSW.Controls.Html
             CssProperties_ = new Utility.ControlPropertyDictionary<string>(this, nameof(CssProperties));
             Attributes_ = new Utility.ControlPropertyDictionary<string>(this, nameof(Attributes));
             Classes_ = new Utility.ControlPropertyList<string>(this, nameof(Classes));
-            InternalStyles = new Utility.ControlPropertyDictionary<Dictionary<string, string>>(this, nameof(InternalStyles));
-            GenerateClickEvents = false;
+            InternalStyles_ = new Utility.ControlPropertyDictionary<Dictionary<string, string>>(this, nameof(InternalStyles));
             RightClickMenu = null;
             PopupTitle = null;
             PopupContent = null;

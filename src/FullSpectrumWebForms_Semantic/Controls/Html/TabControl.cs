@@ -134,7 +134,6 @@ namespace FSW.Semantic.Controls.Html
             {
                 
                 HtmlDefaultTag = "a",
-                GenerateClickEvents = true,
                 Classes = new List<string>() { "item" },
                 Attributes = new Dictionary<string, string>()
                 {

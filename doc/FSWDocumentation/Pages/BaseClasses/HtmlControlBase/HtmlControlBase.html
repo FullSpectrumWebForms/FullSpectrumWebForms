@@ -1,0 +1,254 @@
+﻿
+<h2 class="ui header controlName">HtmlControlBase: <span class="classLink">ControlBase</span></h2>
+
+<h4 class="ui header controlName">Properties</h4>
+
+<table class="apiTable ui table celled">
+    <thead class="full-width">
+        <tr>
+            <th>Property</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Get/Set</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>CustomSelector</td>
+            <td>string</td>
+            <td>
+                Must be set before the control is initialized. If set, the client will search for the control using the provided selector. <br />
+                It is usefull to bind controls to existing html code
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>InnerText</td>
+            <td>string</td>
+            <td>Set the InnerText of the control</td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>CssProperties</td>
+            <td>IDictionary&lt;string, string&gt;</td>
+            <td>
+                Css properties of the control. These will be set inside "style=" in the html code
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Attributes</td>
+            <td>IDictionary&lt;string, string&gt;</td>
+            <td>
+                List of attribues of the control. These will be set directly on the html element.
+                By example, this <span class="inlineCode">mySpanControl.Attributes["data-test"] = "test";</span> will give: <span class="inlineCode">&lt;span data-test="test"&gt;&lt;/span&gt;</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Classes</td>
+            <td>IList&lt;string&gt;</td>
+            <td>
+                List of the css classes to put inside "class=" in the html code. Note that if a javascript library modify the classes of an element, the server will not be informed.
+                Modifying this list server side will removed any classes the server is unware of, and add any classes that were removed client-side.
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>PreventClickEventsPropagation</td>
+            <td>bool</td>
+            <td>
+                When listening to click events, the jQuery "stopPropagation" function is called client side after sending the event to the server. To prevent this, turn <span class="propertyLink">PreventClickEventsPropagation</span> to true
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>HtmlDefaultTag</td>
+            <td>string</td>
+            <td>
+                if set before the control is sent to the client, this will determine the html tag used. By example, set "a" to get a <span class="inlineCode">&lt;a&gt;</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Width</td>
+            <td>string</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["width"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Float</td>
+            <td>FloatDirection</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["float"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Height</td>
+            <td>string</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["height"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>PaddingTop</td>
+            <td>string</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["padding-top"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>PaddingBottom</td>
+            <td>string</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["padding-bottom"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>PaddingRight</td>
+            <td>string</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["padding-right"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>PaddingLeft</td>
+            <td>string</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["padding-left"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>BackgroundColor</td>
+            <td>System.Drawing.Color</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["background-color"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Color</td>
+            <td>System.Drawing.Color</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["color"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Visible</td>
+            <td>VisibleState</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["display"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>InternalStyles</td>
+            <td>IDictionary&lt;string, Dictionary&lt;string, string&gt;&gt;</td>
+            <td>
+                Will generate a &lt;style&gt;&lt;/style&gt; element inside the control with the listed classes. <br />
+                The key of the <span class="inlineCode">IDictionary</span> is used for the name of the css class, then the <span class="inlineCode">Dictionary</span> inside is used to specify each css attribute and value
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>PopupTitle</td>
+            <td>string</td>
+            <td>
+                When used with FSW.Semantic, a popup will appear over the control when the user move the mouse over it. This property control the title of the popup. Do not forget to set <span class="propertyLink">PopupContent</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>PopupContent</td>
+            <td>string</td>
+            <td>
+                When used with FSW.Semantic, a popup will appear over the control when the user move the mouse over it. This property control the content of the popup. Do not forget to set <span class="propertyLink">PopupTitle</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>RightClickMenu</td>
+            <td>RightClickMenuOptions</td>
+            <td>
+                This property allows you to generate a custom right click menu. The menu will appear when the user right click your control. See <span class="classLink">RightClickMenuOptions</span> for more informations
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<h4 class="ui header controlName">Methods</h4>
+
+<table class="apiTableMethods ui table celled structured">
+    <thead class="full-width">
+        <tr>
+            <th>Method</th>
+            <th>Return type</th>
+            <th>Parameters</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Focus</td>
+            <td>void</td>
+            <td>()</td>
+            <td>
+                Will call <span class="inlineCode"> $(this.element).focus(); </span> client side
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+<h4 class="ui header controlName">Events</h4>
+
+<table class="apiTableMethods ui table celled structured">
+    <thead class="full-width">
+        <tr>
+            <th>Name</th>
+            <th>Parameters</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>OnClicked</td>
+            <td>(<span class="classLink">HtmlControlBase</span> control)</td>
+            <td>
+                Called when the user left click on the control
+            </td>
+        </tr>
+        <tr>
+            <td>OnDoubleClicked</td>
+            <td>(<span class="classLink">HtmlControlBase</span> control)</td>
+            <td>
+                Called when the user double click on the control
+            </td>
+        </tr>
+        <tr>
+            <td>OnFocusIn</td>
+            <td>(<span class="classLink">HtmlControlBase</span> control)</td>
+            <td>
+                Called when the control gain focus
+            </td>
+        </tr>
+        <tr>
+            <td>OnFocusOut</td>
+            <td>(<span class="classLink">HtmlControlBase</span> control)</td>
+            <td>
+                Called when the control lose focus
+            </td>
+        </tr>
+    </tbody>
+</table>

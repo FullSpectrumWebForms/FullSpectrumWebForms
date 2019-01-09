@@ -64,10 +64,7 @@ namespace UnitTests
                 var waitingTask = new TaskCompletionSource<object>();
                 using (x.ServerSideLock)
                 {
-                    x.Container.Children.Add(tb = new TextBox(x.Page)
-                    {
-                        GenerateClickEvents = true
-                    });
+                    x.Container.Children.Add(tb = new TextBox(x.Page));
 
                     tb.OnClicked += (obj) =>
                     {

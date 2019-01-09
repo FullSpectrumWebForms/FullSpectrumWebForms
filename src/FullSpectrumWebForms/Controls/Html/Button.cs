@@ -48,7 +48,6 @@ namespace FSW.Controls.Html
         {
             base.InitializeProperties();
 
-            GenerateClickEvents = true;
             OnClicked += Button_OnClicked;
 
             Text = "";

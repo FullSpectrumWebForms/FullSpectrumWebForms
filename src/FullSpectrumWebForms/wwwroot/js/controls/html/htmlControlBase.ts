@@ -203,7 +203,7 @@ namespace controls.html {
             this.element.click(function (e) {
                 if (that.GenerateClickEvents) {
                     that.customControlEvent('OnClickedFromClient', {});
-                    if (that.PreventClickEventsPropagation != false)
+                    if (that.PreventClickEventsPropagation != false) // by default, prevent is undefined, so the stopPropagation will be called
                         e.stopPropagation();
                 }
             });
@@ -305,7 +305,7 @@ namespace controls.html {
                     content: this.PopupContent,
                 });
             }
-            else
+            else if ((this.element as any).popup)
                 (this.element as any).popup('destroy');
         }
         private onClassesChanged(property: core.controlProperty<string[]>, args: { old: string[], new: string[] }) {
