@@ -95,12 +95,6 @@ namespace FSW.Core
                         return;
                     }
 
-                    if (context.Request.Headers.TryGetValue("If-None-Match", out var ifNoneMatch) && (module?.Version == ifNoneMatch || (moduleName == "fsw" && Version == ifNoneMatch)))
-                    {
-                        context.Response.StatusCode = 304;
-                        return;
-                    }
-
                     var filter = Path.GetExtension(context.Request.Path.Value);
 
                     string content;
@@ -113,25 +107,31 @@ namespace FSW.Core
                     else
                         content = await ReadResource(module.GetType(), module.Files.Where(x => x.EndsWith(filter)));
 
-                    context.Response.Headers["ETag"] = isFswModule ? Version : module.Version;
+                    context.Response.Headers["Cache-Control"] = "max-age=" + ((int)TimeSpan.FromDays(31).TotalSeconds).ToString();
+
                     await context.Response.SendFileAsync(new FileTransfer(Path.GetFileName(context.Request.Path.Value), content));
                 }
                 else
                 {
-                    var startupBases = Startup.LoadedStartupBases.Select(x => x.Name);
+                    var assembly = System.Reflection.Assembly.GetEntryAssembly();
+                    var attr = assembly.GetCustomAttributes(typeof(System.Reflection.AssemblyFileVersionAttribute), false);
+                    var currentProjectVersion = ((System.Reflection.AssemblyFileVersionAttribute)attr[0]).Version;                    
 
-
-                    var appFilesCss = string.Join(",", Startup.AppFiles.Where(x => x.EndsWith(".css")).Select(x => $"'{x}'"));
+                    var appFilesCss = string.Join(",", Startup.AppFiles.Where(x => x.EndsWith(".css")).Select(x => $"'{x}?v=" + currentProjectVersion + "'"));
                     appFilesCss = string.IsNullOrEmpty(appFilesCss) ? "" : appFilesCss + ",";
-                    var appFilesJs = string.Join(",", Startup.AppFiles.Where(x => x.EndsWith(".js")).Select(x => $"'{x}'"));
+                    var appFilesJs = string.Join(",", Startup.AppFiles.Where(x => x.EndsWith(".js")).Select(x => $"'{x}?v=" + currentProjectVersion + "'"));
                     appFilesJs = string.IsNullOrEmpty(appFilesJs) ? "" : appFilesJs + ",";
 
+                    assembly = GetType().Assembly;
+                    attr = assembly.GetCustomAttributes(typeof(System.Reflection.AssemblyFileVersionAttribute), false);
+                    var fswVersion = ((System.Reflection.AssemblyFileVersionAttribute)attr[0]).Version;
+
                     var content = "var fsw_delayed_loader_refs = [" +
-                        "'/fsw.min.css?module=fsw'," +
-                        string.Join(",", startupBases.Select(x => "'/fsw.min.css?module=" + x + "'")) + "," +
+                        "'/fsw.min.css?module=fsw&v=" + fswVersion + "'," +
+                        string.Join(",", Startup.LoadedStartupBases.Select(x => "'/fsw.min.css?module=" + x.Name + "&v=" + x.Version + "'")) + "," +
                          appFilesCss +
-                        "'/fsw.min.js?module=fsw'," +
-                        string.Join(",", startupBases.Select(x => "'/fsw.min.js?module=" + x + "'")) + "," +
+                        "'/fsw.min.js?module=fsw&v=" + fswVersion + "'," +
+                        string.Join(",", Startup.LoadedStartupBases.Select(x => "'/fsw.min.js?module=" + x.Name + "&v=" + x.Version + "'")) + "," +
                         appFilesJs + "];";
 
                     var currentAssembly = typeof(LibFilesMiddleware).Assembly;
