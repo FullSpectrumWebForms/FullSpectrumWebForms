@@ -108,27 +108,34 @@ namespace FSW.Controls.Html
             set => Classes_.Set(value is List<string> list ? list : value.ToList());
         }
 
-        /// <summary>
-        /// You can turn this to "true" if you want the control to generate click events
-        /// By default, it is initialized to false for performances reasons
-        /// </summary>
-        public bool GenerateClickEvents
-        {
-            get => GetProperty<bool>(PropertyName());
-            set => SetProperty(PropertyName(), value);
-        }
         public bool PreventClickEventsPropagation
         {
             get => GetProperty<bool>(PropertyName());
             set => SetProperty(PropertyName(), value);
         }
+
+
         public delegate void OnClickedHandler(HtmlControlBase control);
-        public event OnClickedHandler OnClicked;
+        private event OnClickedHandler OnClicked_;
+        public event OnClickedHandler OnClicked
+        {
+            add
+            {
+                OnClicked_ += value;
+                SetProperty("GenerateClickEvents", true);
+            }
+            remove
+            {
+                OnClicked_ -= value;
+                if( OnClicked_.GetInvocationList().Length == 0 )
+                    SetProperty("GenerateClickEvents", false);
+            }
+        }
 
         [CoreEvent]
         protected void OnClickedFromClient()
         {
-            OnClicked?.Invoke(this);
+            OnClicked_?.Invoke(this);
         }
 
 
