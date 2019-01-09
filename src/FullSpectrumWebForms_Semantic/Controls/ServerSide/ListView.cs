@@ -107,7 +107,6 @@ namespace FSW.Semantic.Controls.ServerSide
             var mainDiv = new HtmlControlBase(Page)
             {
                 HtmlDefaultTag = ContainerHtmlDefaultTag,
-                GenerateClickEvents = true,
                 Classes = new List<string> { "item" }
             };
             if (index.HasValue)
