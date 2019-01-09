@@ -1,5 +1,5 @@
 ﻿
-<h2 class="ui header controlName">HtmlControlBase</h2>
+<h2 class="ui header controlName">HtmlControlBase: <span class="classLink">ControlBase</span></h2>
 
 <h4 class="ui header controlName">Properties</h4>
 
@@ -14,73 +14,172 @@
     </thead>
     <tbody>
         <tr>
-            <td>Id</td>
+            <td>CustomSelector</td>
             <td>string</td>
-            <td>Id used internally by FSW to manage client/server communication regarding this control. This value is always unique to the current control</td>
-            <td>{ get; }</td>
-        </tr>
-        <tr>
-            <td>Page</td>
-            <td>FSWPage</td>
             <td>
-                The page that's currently hosting the control. This value may be null if the control hasn't been added in a page yet.
-                The value can be set even if the control isn't in a page yet, if the control was initialized with a page directly but not added to a parent control
-            </td>
-            <td>{ get; }</td>
-        </tr>
-        <tr>
-            <td>Session</td>
-            <td>Session</td>
-            <td>
-                Access the current page session. Equivalent to <span class="inlineCode">control.Page.Session</span>
-            </td>
-            <td>{ get; }</td>
-        </tr>
-        <tr>
-            <td>Tag</td>
-            <td>object</td>
-            <td>
-                General use value. You can put whatever you want here <br />
-                As a rule of thumbs, do not use this value inside a control ( <span class="inlineCode">this.Tag</span> ). Leave the value to the user using your control. <br />
-                A common use for the Tag property is to store data that is closely associated with the control. For example, if you have a control that displays information about a customer, you might store a DataSet that contains the customer's order history in that control's Tag property so the data can be accessed quickly.
+                Must be set before the control is initialized. If set, the client will search for the control using the provided selector. <br />
+                It is usefull to bind controls to existing html code
             </td>
             <td>{ get; set; }</td>
         </tr>
         <tr>
-            <td>Parent</td>
-            <td>ControlBase</td>
-            <td>
-                Parent control of the current control. For a <span class="classLink">HtmlControlBase</span> control, this mean the current control is inside the html code of the parent. <br />
-                For any other control with no link to html content, it is a simple way to structure the controls
-            </td>
-            <td>{ get; }</td>
+            <td>InnerText</td>
+            <td>string</td>
+            <td>Set the InnerText of the control</td>
+            <td>{ get; set; }</td>
         </tr>
         <tr>
-            <td>IsRemoved</td>
+            <td>CssProperties</td>
+            <td>IDictionary&lt;string, string&gt;</td>
+            <td>
+                Css properties of the control. These will be set inside "style=" in the html code
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Attributes</td>
+            <td>IDictionary&lt;string, string&gt;</td>
+            <td>
+                List of attribues of the control. These will be set directly on the html element.
+                By example, this <span class="inlineCode">mySpanControl.Attributes["data-test"] = "test";</span> will give: <span class="inlineCode">&lt;span data-test="test"&gt;&lt;/span&gt;</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Classes</td>
+            <td>IList&lt;string&gt;</td>
+            <td>
+                List of the css classes to put inside "class=" in the html code. Note that if a javascript library modify the classes of an element, the server will not be informed.
+                Modifying this list server side will removed any classes the server is unware of, and add any classes that were removed client-side.
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>PreventClickEventsPropagation</td>
             <td>bool</td>
             <td>
-                Indicates if the control was removed from the UI <br />
-                It is good practice to verify this value inside a thread to ensure the control still exist before accessing it. <br />
-                As with every other properties, this isn't thread safe. You will need to verify this value inside a <span class="methodLink">FSWPage.ServerSideLock</span>
-            </td>
-            <td>{ get; }</td>
-        </tr>
-        <tr>
-            <td>Children</td>
-            <td>IList&lt;ControlBase&gt;</td>
-            <td>
-                List of the children in the current control <br />
-                Any modification made to this list is live; if you clear it, all the children will be removed from the client too
+                When listening to click events, the jQuery "stopPropagation" function is called client side after sending the event to the server. To prevent this, turn <span class="propertyLink">PreventClickEventsPropagation</span> to true
             </td>
             <td>{ get; set; }</td>
         </tr>
         <tr>
-            <td>ControlType</td>
+            <td>HtmlDefaultTag</td>
             <td>string</td>
             <td>
-                Used to match the server side control code with the client side control code. <br />
-                By default, the <span class="propertyLink">ControlType</span> is set to <span class="inlineCode">GetType().Name</span> <br />
-                If you want to create a control that doesn't have any custom client side code, override this property and set it to <span class="inlineCode">nameof(ParentClassOfYourControl)</span> ( in general <span class="inlineCode">HtmlControlBase</span> )
+                if set before the control is sent to the client, this will determine the html tag used. By example, set "a" to get a <span class="inlineCode">&lt;a&gt;</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Width</td>
+            <td>string</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["width"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Float</td>
+            <td>FloatDirection</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["float"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Height</td>
+            <td>string</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["height"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>PaddingTop</td>
+            <td>string</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["padding-top"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>PaddingBottom</td>
+            <td>string</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["padding-bottom"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>PaddingRight</td>
+            <td>string</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["padding-right"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>PaddingLeft</td>
+            <td>string</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["padding-left"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>BackgroundColor</td>
+            <td>System.Drawing.Color</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["background-color"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Color</td>
+            <td>System.Drawing.Color</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["color"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Visible</td>
+            <td>VisibleState</td>
+            <td>
+                Simple accessor to update <span class="inlineCode">CssProperties["display"]</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>InternalStyles</td>
+            <td>IDictionary&lt;string, Dictionary&lt;string, string&gt;&gt;</td>
+            <td>
+                Will generate a &lt;style&gt;&lt;/style&gt; element inside the control with the listed classes. <br />
+                The key of the <span class="inlineCode">IDictionary</span> is used for the name of the css class, then the <span class="inlineCode">Dictionary</span> inside is used to specify each css attribute and value
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>PopupTitle</td>
+            <td>string</td>
+            <td>
+                When used with FSW.Semantic, a popup will appear over the control when the user move the mouse over it. This property control the title of the popup. Do not forget to set <span class="propertyLink">PopupContent</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>PopupContent</td>
+            <td>string</td>
+            <td>
+                When used with FSW.Semantic, a popup will appear over the control when the user move the mouse over it. This property control the content of the popup. Do not forget to set <span class="propertyLink">PopupTitle</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>RightClickMenu</td>
+            <td>RightClickMenuOptions</td>
+            <td>
+                This property allows you to generate a custom right click menu. The menu will appear when the user right click your control. See <span class="classLink">RightClickMenuOptions</span> for more informations
             </td>
             <td>{ get; set; }</td>
         </tr>
@@ -101,93 +200,11 @@
     </thead>
     <tbody>
         <tr>
-            <td>Remove</td>
+            <td>Focus</td>
             <td>void</td>
             <td>()</td>
             <td>
-                Remove the control from the page ( and from its parent ). Removing the control from the parent <span class="propertyLink">Children</span> has the same behavior <br />
-                You cannot use the control anymore, and cannot add it to another parent after <br />
-                The only valid property in the control after this call, is <span class="propertyLink">IsRemoved</span>
-            </td>
-        </tr>
-        <tr>
-            <td>TryGetProperty</td>
-            <td>bool</td>
-            <td>(<span class="type">string</span> name, <span class="type">out T</span> value)</td>
-            <td>
-                Try to get the value of a property. Return true if the value was successfully retrieved, false if the property doesn't exist
-            </td>
-        </tr>
-        <tr>
-            <td>GetProperty</td>
-            <td>T</td>
-            <td>(<span class="type">string</span> name)</td>
-            <td>
-                Get the value of a property. Throws an <span class="inlineCode">Exception</span> if the property doesn't exist
-            </td>
-        </tr>
-        <tr>
-            <td>GetPropertyInternal</td>
-            <td>Property</td>
-            <td>(<span class="type">string</span> name)</td>
-            <td>
-                Get the internal object used by FSW to represent a property
-            </td>
-        </tr>
-        <tr>
-            <td>InitializeProperties</td>
-            <td>void</td>
-            <td>()</td>
-            <td>
-                abstract method. Initialize your properties here ( FSW properties, not simple C# properties ) <br />
-                To initialize a property, simply set a default value here. The property will be registered and tracked both client and server side
-            </td>
-        </tr>
-        <tr>
-            <td rowspan="2">RegisterVariableWatch</td>
-            <td>void</td>
-            <td>(<span class="noWrap"><span class="type">Func&lt;object&gt;</span> variableToWatch</span>, <span class="noWrap"><span class="type">Action</span> callback</span>, <span class="noWrap"><span class="type">bool</span> autoInvoke = false</span>)</td>
-            <td>
-                Register a variable watch by automaticly detecting the <span class="type">VariableWatchType</span>. See full method description <br />
-                This method is not recommended since it trigger the callback once and make assumptions on the type returned
-            </td>
-        </tr>
-        <tr>
-            <td class="skip">void</td>
-            <td class="skip">(<span class="noWrap"><span class="type">Func&lt;object&gt;</span> variableToWatch</span>, <span class="noWrap"><span class="type">VariableWatchType</span> variableWatchType</span>, <span class="noWrap"><span class="type">Action</span> callback</span>, <span class="noWrap"><span class="type">bool</span> autoInvoke = false</span>)</td>
-            <td class="skip">
-                After calling this, FSW will constantly analyze the value returned by <span class="inlineCode">variableToWatch</span> and try to detect changes.
-                If the value change, the <span class="inlineCode">callback</span> will be called. <br />
-                <span class="inlineCode">autoInvoke</span> will force FSW to call the <span class="inlineCode">callback</span> at least once at the beginning <br />
-                The <span class="inlineCode">variableWatchType</span> is used to specify how to analyze the returned value of the <span class="variableToWatch"></span> function. <br />
-                If set to <span class="inlineCode">VariableWatchType.WatchVariableValue</span>, FSW will use this formulas to determine if the value changed : <span class="inlineCode">(before, after) => before is null ? after is null : before.Equals(after);</span> <br />
-                If set to <span class="inlineCode">VariableWatchType.WatchEveryFields</span>, FSW will list the fields in the returned object and compare each of their values.
-                This is usefull to bind multiple values, just return a new anonymous type containing every value you want to watch. <br />
-                If set to <span class="inlineCode">VariableWatchType.WatchEveryFieldsAndObjectValue</span>, FSW will combine the two previous watch type.
-            </td>
-        </tr>
-        <tr>
-            <td>RegisterVariableWatchValue</td>
-            <td>void</td>
-            <td>(<span class="noWrap"><span class="type">Func&lt;object&gt;</span> variableToWatch</span>, <span class="noWrap"><span class="type">Action</span> callback</span>, <span class="noWrap"><span class="type">bool</span> autoInvoke = false</span>)</td>
-            <td>
-                Register a variable watch with the <span class="type">VariableWatchType.WatchVariableValue</span> watch type<br />
-            </td>
-        </tr>
-        <tr>
-            <td>RegisterVariableWatchFields</td>
-            <td>void</td>
-            <td>(<span class="noWrap"><span class="type">Func&lt;object&gt;</span> variableToWatch</span>, <span class="noWrap"><span class="type">Action</span> callback</span>, <span class="noWrap"><span class="type">bool</span> autoInvoke = false</span>)</td>
-            <td>
-                Register a variable watch with the <span class="type">VariableWatchType.WatchEveryFields</span> watch type<br />
-            </td>
-        </tr>
-        <tr>
-            <td>BindProperty</td>
-            <td>void</td>
-            <td></td>
-            <td>
-                Deprecated. Do not use. Use <span class="methodLink">RegisterVariableWatch</span> instead
+                Will call <span class="inlineCode"> $(this.element).focus(); </span> client side
             </td>
         </tr>
     </tbody>
@@ -206,11 +223,31 @@
     </thead>
     <tbody>
         <tr>
-            <td>OnControlRemovedHandler</td>
-            <td>(<span class="classLink">ControlBase</span> control)</td>
+            <td>OnClicked</td>
+            <td>(<span class="classLink">HtmlControlBase</span> control)</td>
             <td>
-                Invoked when the control is removed. The property <span class="propertyLink">IsRemoved</span> will be se to true before this is invoked. <br />
-                It is too late to use the control, access its parent or update any property. The control is already removed and modifying or accessing its content is an undefined behavior.
+                Called when the user left click on the control
+            </td>
+        </tr>
+        <tr>
+            <td>OnDoubleClicked</td>
+            <td>(<span class="classLink">HtmlControlBase</span> control)</td>
+            <td>
+                Called when the user double click on the control
+            </td>
+        </tr>
+        <tr>
+            <td>OnFocusIn</td>
+            <td>(<span class="classLink">HtmlControlBase</span> control)</td>
+            <td>
+                Called when the control gain focus
+            </td>
+        </tr>
+        <tr>
+            <td>OnFocusOut</td>
+            <td>(<span class="classLink">HtmlControlBase</span> control)</td>
+            <td>
+                Called when the control lose focus
             </td>
         </tr>
     </tbody>

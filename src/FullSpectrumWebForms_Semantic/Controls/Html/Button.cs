@@ -59,7 +59,6 @@ namespace FSW.Semantic.Controls.Html
             Classes.AddRange(new List<string> { "ui", "icon", "button" });
             Text = null;
             Icon = null;
-            GenerateClickEvents = true;
             OnClicked += IconTextButton_OnClicked;
         }
 

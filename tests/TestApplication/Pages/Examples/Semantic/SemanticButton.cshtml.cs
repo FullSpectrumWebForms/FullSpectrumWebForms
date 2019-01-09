@@ -20,7 +20,6 @@ namespace TestApplication.Pages.Examples.Semantic
 
             BT_Test.Text = "Test Text";
             BT_Test.Icon = "heart";
-            BT_Test.GenerateClickEvents = true;
             BT_Test.OnClicked += BT_Test_OnClicked;
             
             //BT_Test.IconPositionRight = true;

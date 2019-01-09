@@ -177,7 +177,7 @@ var controls;
                 this.element.click(function (e) {
                     if (that.GenerateClickEvents) {
                         that.customControlEvent('OnClickedFromClient', {});
-                        if (that.PreventClickEventsPropagation != false)
+                        if (that.PreventClickEventsPropagation != false) // by default, prevent is undefined, so the stopPropagation will be called
                             e.stopPropagation();
                     }
                 });
