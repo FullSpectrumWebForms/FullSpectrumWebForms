@@ -1,8 +1,4 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
-
-/.vs
+﻿/.vs
 /src/.vs/config
 /src/FullSpectrumWebForms/bin
 /src/FullSpectrumWebForms/node_modules
@@ -45,6 +41,5 @@
 /src/FullSpectrumWebForms_Diagnostic/wwwroot/js/diagnostic/controls/**/*.js
 /doc/FSWDocumentation/.vs/FSWDocumentation
 /doc/FSWDocumentation/obj
-/doc/FSWDocumentation/bin/Debug/netcoreapp2.2
 /doc/FSWDocumentation/bin
 /doc/FSWDocumentation/obj
