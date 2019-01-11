@@ -211,6 +211,13 @@ namespace controls.html {
                     return false;
                 }
             });
+            this.element.click(function (e) {
+                if (that.GenerateClickEvents) {
+                    that.customControlEvent('OnClickedFromClient', {});
+                    if (that.PreventClickEventsPropagation != false) // by default, prevent is undefined, so the stopPropagation will be called
+                        e.stopPropagation();
+                }
+            });
             this.element.focusin(function (e) {
                 if (that.OnFocusIn) {
                     that.customControlEvent('OnFocusInFromClient', {});
