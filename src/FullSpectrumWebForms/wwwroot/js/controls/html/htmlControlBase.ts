@@ -64,7 +64,7 @@ namespace controls.html {
         }
         // ------------------------------------------------------------------------   GenerateClickEvents
         get GenerateClickEvents(): boolean {
-            return this.getPropertyValue<this, boolean>("GenerateClickEvents");
+            return this.tryGetPropertyValue<this, boolean>("GenerateClickEvents") == true;
         }
         set GenerateClickEvents(value: boolean) {
             this.setPropertyValue<this>("GenerateClickEvents", value);
@@ -83,6 +83,10 @@ namespace controls.html {
         // ------------------------------------------------------------------------   OnFocusIn
         get OnFocusIn(): boolean {
             return this.tryGetPropertyValue<this, boolean>("OnFocusIn");
+        }
+        // ------------------------------------------------------------------------   OnContextMenu
+        get OnContextMenu(): boolean {
+            return this.tryGetPropertyValue<this, boolean>("OnContextMenu");
         }
         // ------------------------------------------------------------------------   OnFocusOut
         get OnFocusOut(): boolean {
@@ -200,11 +204,11 @@ namespace controls.html {
             this.getProperty<this, any>("RightClickMenu").onChangedFromServer.register(this.onRightClickMenuChanged.bind(this), true);
 
             let that = this;
-            this.element.click(function (e) {
-                if (that.GenerateClickEvents) {
-                    that.customControlEvent('OnClickedFromClient', {});
-                    if (that.PreventClickEventsPropagation != false) // by default, prevent is undefined, so the stopPropagation will be called
-                        e.stopPropagation();
+            this.element.on('contextmenu', function (e) {
+                if (that.OnContextMenu) {
+                    e.preventDefault();
+                    that.customControlEvent('OnContextMenuFromClient', {});
+                    return false;
                 }
             });
             this.element.focusin(function (e) {

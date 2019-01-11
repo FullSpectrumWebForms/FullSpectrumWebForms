@@ -207,6 +207,29 @@ namespace FSW.Controls.Html
             OnFocusOut_?.Invoke(this);
         }
 
+        public delegate void OnContextMenuHandler(HtmlControlBase control);
+        private event OnContextMenuHandler OnContextMenu_;
+        public event OnContextMenuHandler OnContextMenu
+        {
+            add
+            {
+                OnContextMenu_ += value;
+                SetProperty(nameof(OnContextMenu), true);
+            }
+            remove
+            {
+                OnContextMenu_ -= value;
+                if (OnContextMenu_.GetInvocationList().Length == 0)
+                    SetProperty(nameof(OnContextMenu), false);
+            }
+        }
+
+        [CoreEvent]
+        protected void OnContextMenuFromClient()
+        {
+            OnContextMenu_?.Invoke(this);
+        }
+
         public void Focus()
         {
             CallCustomClientEvent("FocusFromServer");
