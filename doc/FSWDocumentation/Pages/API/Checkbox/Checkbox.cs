@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FSWDocumentation.Pages.BaseClasses.FSWPage
+namespace FSWDocumentation.Pages.API.Checkbox
 {
-    public class FSWPage: MenuPage
+    public class Checkbox: MenuPage
     {
     }
 }

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FSWDocumentation.Pages.BaseClasses.HtmlControlBase
+namespace FSWDocumentation.Pages.API.TextArea
 {
-    public class HtmlControlBase: MenuPage
+    public class TextArea: MenuPage
     {
     }
 }

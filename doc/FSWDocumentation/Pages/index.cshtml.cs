@@ -30,12 +30,21 @@ namespace FSWDocumentation.Pages
             {
                 new MenuGroup()
                 {
-                    Header = "Base classes",
+                    Header = "API",
                     Items = new List<MenuItem>
                     {
-                        new MenuItemT<BaseClasses.ControlBase.ControlBase>(),
-                        new MenuItemT<BaseClasses.HtmlControlBase.HtmlControlBase>(),
-                        new MenuItemT<BaseClasses.FSWPage.FSWPage>()
+                        new MenuItemT<API.ControlBase.ControlBase>(),
+                        new MenuItemT<API.HtmlControlBase.HtmlControlBase>(),
+                        new MenuItemT<API.FSWPage.FSWPage>(),
+                        new MenuItemT<API.TemplateContainer.TemplateContainer>(),
+                        new MenuItemT<API.Button.Button>(),
+                        new MenuItemT<API.Checkbox.Checkbox>(),
+                        new MenuItemT<API.Div.Div>(),
+                        new MenuItemT<API.Label.Label>(),
+                        new MenuItemT<API.RichTextBox.RichTextBox>(),
+                        new MenuItemT<API.TextArea.TextArea>(),
+                        new MenuItemT<API.TextBox.TextBox>(),
+                        new MenuItemT<API.DatePicker.DatePicker>(),
                     }
                 }
             });
