@@ -55,7 +55,7 @@ var controls;
             }
             // ------------------------------------------------------------------------   GenerateClickEvents
             get GenerateClickEvents() {
-                return this.getPropertyValue("GenerateClickEvents");
+                return this.tryGetPropertyValue("GenerateClickEvents") == true;
             }
             set GenerateClickEvents(value) {
                 this.setPropertyValue("GenerateClickEvents", value);
@@ -74,6 +74,10 @@ var controls;
             // ------------------------------------------------------------------------   OnFocusIn
             get OnFocusIn() {
                 return this.tryGetPropertyValue("OnFocusIn");
+            }
+            // ------------------------------------------------------------------------   OnContextMenu
+            get OnContextMenu() {
+                return this.tryGetPropertyValue("OnContextMenu");
             }
             // ------------------------------------------------------------------------   OnFocusOut
             get OnFocusOut() {
@@ -174,6 +178,13 @@ var controls;
                     this.getProperty("InnerText").onChangedFromServer.register(this.onInnerTextChanged.bind(this), true);
                 this.getProperty("RightClickMenu").onChangedFromServer.register(this.onRightClickMenuChanged.bind(this), true);
                 let that = this;
+                this.element.on('contextmenu', function (e) {
+                    if (that.OnContextMenu) {
+                        e.preventDefault();
+                        that.customControlEvent('OnContextMenuFromClient', {});
+                        return false;
+                    }
+                });
                 this.element.click(function (e) {
                     if (that.GenerateClickEvents) {
                         that.customControlEvent('OnClickedFromClient', {});
