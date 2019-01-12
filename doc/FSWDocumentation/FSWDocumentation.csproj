@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSW" Version="2.0.4.5" />
+    <PackageReference Include="FSW" Version="2.0.4.6" />
     <PackageReference Include="FSW.Semantic" Version="2.0.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
