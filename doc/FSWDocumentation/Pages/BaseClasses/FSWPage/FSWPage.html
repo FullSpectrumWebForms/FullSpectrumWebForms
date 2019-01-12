@@ -1,0 +1,247 @@
+﻿
+<h2 class="ui header controlName">HtmlControlBase: <span class="classLink">ControlBase</span></h2>
+
+<h4 class="ui header controlName">Properties</h4>
+
+<table class="apiTable ui table celled">
+    <thead class="full-width">
+        <tr>
+            <th>Property</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Get/Set</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>ID</td>
+            <td>string</td>
+            <td>
+                Unique ID of the page. You shouldn't need this.
+            </td>
+            <td>{ get; }</td>
+        </tr>
+        <tr>
+            <td>PageAuth</td>
+            <td>string</td>
+            <td>Used in combination with the page ID to authentificate the connection. You shouldn't need this.</td>
+            <td>{ get; }</td>
+        </tr>
+        <tr>
+            <td>OverrideErrorHandle</td>
+            <td>Func&lt;Exception, Task&gt;</td>
+            <td>
+                Set a function that is called if an exception is throwned server-side in any thread handled by the current page.
+                The function must return a task, completed when you're done handling the exception. "<span class="inlineCode">Task.Completed</span>" if you're doing it synchronously
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Session</td>
+            <td>Session</td>
+            <td>
+                Access to the current session. Use <span class="inlineCode">Session["key"]</span> to store or access custom data, by replacing the key by something you want.
+                It is usually easier to create a class with all the fields you want, and store an instance of it in the session instead of storing multiple fields separatly
+            </td>
+            <td>{ get; }</td>
+        </tr>
+        <tr>
+            <td>Manager</td>
+            <td>FSWManager</td>
+            <td>
+                Internal object used by FSW to handle the current page controls, properties, events, interactions with the client, etc.
+                There shouldn't be any need to access this object
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>MessageBox</td>
+            <td>MessageBox</td>
+            <td>
+                MessageBox object, used to show 'popup' messages. Ex: <span class="inlineCode">MessageBox.Success("title", "content")</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>LoadingScreen</td>
+            <td>LoadingScreen</td>
+            <td>
+                Allow user to show a loading screen with an optional text.
+                Take a look <a href="https://semantic-ui.com/elements/loader.html#text-loader">here</a> <br />
+                To use the loading screen: <span class="inlineCode">LoadingScreen.Show("Loading...");</span> and : <span class="inlineCode">LoadingScreen.Hide();</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>UrlManager</td>
+            <td>UrlManager</td>
+            <td>
+                Control used to manipulate the url. The most common use is to set parameters you can use on new connections to initialize the page to specific content : <br />
+                <span class="inlineCode">UrlManager.UpdateParameter("name", "value");</span> <br />
+                <span class="inlineCode">var value = UrlManager.Parameters["name"];</span> or safer method : <span class="inlineCode">UrlManager.Parameters.TryGetValue("name", out var value);</span>
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Common</td>
+            <td>CommonInformations</td>
+            <td>
+                Control used to access basic informations about the page. As of now, there is only a <span class="propertyLink">IsMobile</span> property.
+                The value is <span class="inlineCode">null</span> until the client finish initializing
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>ServerSideLock</td>
+            <td>PageLock</td>
+            <td>
+                Used to lock the main page thread. When inside a thread/hosted service, if you want to access any controls or send information to the client you must put your code inside a 
+                <span class="propertyLink">ServerSideLock</span>. Most often with a <span class="inlineCode">using</span> statement: <span class="inlineCode">using(ServerSideLock){...}</span>.
+                When leaving the <span class="inlineCode">using</span>/disposing of the <span class="inlineCode">ServerSideLock</span>, FSW will send all recorded changes to the client. <br />
+                If you only want to access a control value without making any changes, a more efficient way is to use <span class="propertyLink">ReadOnlyServerSideLock</span>.
+                Every events/action/callback invoked from a control is already inside a ServerSideLock.
+            </td>
+            <td>{ get; }</td>
+        </tr>
+        <tr>
+            <td>ReadOnlyServerSideLock</td>
+            <td>PageLock</td>
+            <td>
+                Same as <span class="propertyLink">ServerSideLock</span>, except more efficient because it doesn't validate changes at the end.
+                This mean any modification made to controls won't be sent to the client until another <span class="propertyLink">ServerSideLock</span> is disposed.
+                A <span class="propertyLink">ReadOnlyServerSideLock</span> can be turned into a normal <span class="propertyLink">ServerSideLock</span> by changing the 
+                <span class="inlineCode">IsReadOnly</span> property on the lock before it is disposed.
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<h4 class="ui header controlName">Methods</h4>
+
+<table class="apiTableMethods ui table celled structured">
+    <thead class="full-width">
+        <tr>
+            <th>Method</th>
+            <th>Return type</th>
+            <th>Parameters</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>OnPageLoad</td>
+            <td>void</td>
+            <td>()</td>
+            <td>
+                Virtual method. Called when this page is loading, no controls have been sent to the client yet. Do not do heavy processing here, because it will increase the page loading time.
+                If you need to process more ressource intensive things, show a loading screen and start a hosted service with <span class="methodLink">RegisterHostedService</span>.
+                At least, the user won't see a blank page until you finish loading.
+            </td>
+        </tr>
+        <tr>
+            <td>RedirectToUrl</td>
+            <td>void</td>
+            <td>(<span class="type">string</span> url)</td>
+            <td>
+                Shortcut for <span class="inlineCode">UrlManager.UpdateUrlAndReload(url);</span>
+            </td>
+        </tr>
+        <tr>
+            <td>RegisterNewGenericRequest</td>
+            <td>void</td>
+            <td>(<span class="type">string</span> action, <span class="noWrap"><span class="type">Func&lt;Dictionary&lt;string, string&gt;, Task&lt;IActionResult&gt;&gt;</span> callback</span>)</td>
+            <td>
+                Used to receive custom http GET request. Use <span class="methodLink">GetGenericRequestUrl</span> to get the url to use.
+                you can then specify parameters that will be sent to the callback when the request is received.
+                The action parameter must be unique, no other generic request on the same page can use the same action name. You can unregister generic request with <span class="methodLink">UnregisterGenericRequest</span>
+            </td>
+        </tr>
+        <tr>
+            <td>UnregisterGenericRequest</td>
+            <td>void</td>
+            <td>(<span class="type">string</span> action)</td>
+            <td>
+                Used to unregister a generic request registered with <span class="methodLink">RegisterGenericRequest</span>. No need to unregister generic request before unloading a page.
+            </td>
+        </tr>
+        <tr>
+            <td>GetGenericRequestUrl</td>
+            <td>string</td>
+            <td>(<span class="type">string</span> action, <span class="noWrap"><span class="type">Dictionary&lt;string, string&gt;</span> parameters</span>)</td>
+            <td>
+                get a custom url to use with <span class="methodLink">RegisterGenericRequest</span>. When the server receive a http GET request to this url, the callback set with
+                <span class="methodLink">RegisterGenericRequest</span> will be called with the provided parameters.
+                The url looks like this: <span class="inlineCode">"/FSW/CoreServices/GenericRequest/" + action + "/" + Page.ID</span>, + any parameters
+            </td>
+        </tr>
+        <tr>
+            <td>RegisterHostedService</td>
+            <td>string</td>
+            <td>(<span class="type">Action</span> callback, <span class="type">HostedServicePriority</span> priority)</td>
+            <td>
+                A hosted service is used to process things in background without blocking the UI thread.
+                You can use this method to register a new hosted service that will be called when no higher priority service is running.
+                If you want the hosted service to run right away regardless of already-running services, set the priority to <span class="inlineCode">HostedServicePriority.NewThread</span>.
+                Usually, When the processing is done and you need to access controls in the page, you need to lock the main UI thread using <span class="propertyLink">ServerSideLock</span>.
+                If you're not familiar with it, please go take a look!
+                You should also remember to check if the control you're accessing is still "alive", because the page may have been disposed since the service started running!
+                You can do so by using the <span class="propertyLink">IsRemoved</span> property of any control inside your page.
+            </td>
+        </tr>
+        <tr>
+            <td>RegisterHostedService</td>
+            <td>string</td>
+            <td>(<span class="type">TimeSpan</span> callbackInterval, <span class="type">Action</span> callback)</td>
+            <td>
+                Similar to the first <span class="methodLink">RegisterHostedService</span> overload taking a callback as first parameter.
+                This version will invoke the callback every <span class="inlineCode">callbackInterval</span>. Every services created with this is hosted in a separate thread.
+                The callback should not be invoked when the page is disposed, but since it's in a separate thread it may still be.
+                You should always use <span class="propertyLink">ServerSideLock</span> before accessing any controls,
+                and remember to check if your control is still "alive" using the <span class="propertyLink">IsRemoved</span> property of any control inside your page.
+                If you want to stop the callback from being invoke ( forever ), add a <span class="inlineCode">HostedServiceCancellation</span> parameter to the callback. 
+                Then set <span class="inlineCode">HostedServiceCancellation.Cancel</span> to true from inside the callback when ready.
+            </td>
+        </tr>
+        <tr>
+            <td>RegisterHostedService</td>
+            <td>string</td>
+            <td>(<span class="type">TimeSpan</span> callbackInterval, <span class="noWrap"><span class="type">Action&lt;HostedServiceCancellation&gt;</span> callback</span>)</td>
+            <td>
+                See previous <span class="methodLink">RegisterHostedService</span> overload for more information.
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+<h4 class="ui header controlName">Events</h4>
+
+<table class="apiTableMethods ui table celled structured">
+    <thead class="full-width">
+        <tr>
+            <th>Name</th>
+            <th>Parameters</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>OnBeforeServerUnlocked</td>
+            <td>(<span class="classLink">FSWPage</span> page)</td>
+            <td>
+                Called when disposing a ServerSideLock, right before new informations are sent to the client.
+                Mainly used by <span class="methodLink">ControlBase.RegisterVariableWatch</span>.
+                Do not do intensive processing here, this is called very often and will block the UI thread everytime.
+            </td>
+        </tr>
+        <tr>
+            <td>OnPageUnload</td>
+            <td>()</td>
+            <td>
+                Called when the page is being unloaded. The client tab in probably already closed when this is called.
+            </td>
+        </tr>
+    </tbody>
+</table>

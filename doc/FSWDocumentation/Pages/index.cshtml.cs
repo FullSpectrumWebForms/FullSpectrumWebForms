@@ -30,11 +30,12 @@ namespace FSWDocumentation.Pages
             {
                 new MenuGroup()
                 {
-                    Header = "Base Controls",
+                    Header = "Base classes",
                     Items = new List<MenuItem>
                     {
                         new MenuItemT<BaseClasses.ControlBase.ControlBase>(),
-                        new MenuItemT<BaseClasses.HtmlControlBase.HtmlControlBase>()
+                        new MenuItemT<BaseClasses.HtmlControlBase.HtmlControlBase>(),
+                        new MenuItemT<BaseClasses.FSWPage.FSWPage>()
                     }
                 }
             });

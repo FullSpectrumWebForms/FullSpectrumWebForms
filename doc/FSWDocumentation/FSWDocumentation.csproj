@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Pages\BaseClasses\FSWPage\FSWPage.html" />
     <None Remove="Pages\BaseClasses\HtmlControlBase\HtmlControlBase.html" />
   </ItemGroup>
 
@@ -20,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSW" Version="2.0.0.1" />
-    <PackageReference Include="FSW.Semantic" Version="2.0.0.1" />
+    <PackageReference Include="FSW" Version="2.0.4.2" />
+    <PackageReference Include="FSW.Semantic" Version="2.0.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
