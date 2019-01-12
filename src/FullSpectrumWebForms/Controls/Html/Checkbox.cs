@@ -20,7 +20,7 @@ namespace FSW.Controls.Html
         
         
         public delegate void OnStateChangedHandler(Checkbox sender);
-        public event OnStateChangedHandler OnStateChanged;
+        public event OnStateChangedHandler OnCheckedChanged;
 
         public override void InitializeProperties()
         {
@@ -34,7 +34,7 @@ namespace FSW.Controls.Html
         private void ComboBoxState_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
         {
             if (source == Property.UpdateSource.Client)
-                OnStateChanged?.Invoke(this);
+                OnCheckedChanged?.Invoke(this);
         }
         
     }
