@@ -716,6 +716,7 @@ var controls;
                         this.treeTable.grid.resetActiveCell();
                         this.treeTable.grid.setActiveCell(cell.row, cell.cell);
                     }
+                    this.treeTable.grid.resizeCanvas();
                 }
                 buildEditorInfo(name, editor, colInternal) {
                     if (!name)

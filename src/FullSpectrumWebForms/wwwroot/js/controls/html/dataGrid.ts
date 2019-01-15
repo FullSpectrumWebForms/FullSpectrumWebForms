@@ -851,7 +851,7 @@
                 this.treeTable.grid.resetActiveCell();
                 this.treeTable.grid.setActiveCell(cell.row, cell.cell);
             }
-
+            this.treeTable.grid.resizeCanvas();
         }
         private buildEditorInfo(name: string, editor: any, colInternal: Slick.Column<gen.treeTableData>) {
             if (!name)
