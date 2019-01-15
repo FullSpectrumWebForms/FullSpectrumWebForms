@@ -1,0 +1,63 @@
+﻿
+<h2 class="ui header controlName">TemplateContainer: <span class="classLink">HtmlControlBase</span></h2>
+
+<h4 class="ui header controlName">Properties</h4>
+
+<table class="apiTable ui table celled">
+    <thead class="full-width">
+        <tr>
+            <th>Property</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Get/Set</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>TemplatePath</td>
+            <td>string</td>
+            <td>
+                Path to the html file. This file will be requested from the client, and inlined inside the current control.
+                If the server return 404, the <span class="propertyLink">TemplatePathAlternative</span> path will be used.
+                The html file is cached client-side so it is safe to use as many template as you want ( Ex. to generate each item of a list view ).
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>TemplatePathAlternative</td>
+            <td>string</td>
+            <td>
+                Alternate path used when <span class="propertyLink">TemplatePath</span> is not found. 
+                Most common use of this is to request a mobile version in the <span class="propertyLink">TemplatePath</span>, and request the desktop version here.
+                This way, if the template doesn't have a mobile version it will automaticly fall back on the desktop version. 
+                You can then add a mobile version later without changing your code
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<h4 class="ui header controlName">Methods</h4>
+
+<table class="apiTableMethods ui table celled structured">
+    <thead class="full-width">
+        <tr>
+            <th>Method</th>
+            <th>Return type</th>
+            <th>Parameters</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>GetTemplateControl&lt;T&gt;</td>
+            <td>void</td>
+            <td>(<span class="type">string</span> selector) <span class="type">where T: HtmlControlBase</span></td>
+            <td>
+                Create a new control of type T and link it to an html element inside the loaded template.
+                The element is found using the provided selector ( <span class="inlineCode">this.element.find(selector)</span> ).
+            </td>
+        </tr>
+    </tbody>
+</table>

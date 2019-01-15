@@ -16,14 +16,14 @@ namespace FSW.Core
         public Controls.UrlManager UrlManager;
         public Controls.CommonInformations Common;
 
-        public string ID;
-        public string PageAuth;
+        public string ID { get; private set; }
+        public string PageAuth { get; internal set; }
 
         public Func<Exception, Task> OverrideErrorHandle { get; set; }
 
         public Session Session { get; internal set; }
 
-        public FSWManager Manager;
+        public FSWManager Manager { get; private set; }
 
         public event FSWManager.OnBeforeServerUnlockedHandler OnBeforeServerUnlocked
         {

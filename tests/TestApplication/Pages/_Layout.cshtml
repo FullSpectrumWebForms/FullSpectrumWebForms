@@ -13,14 +13,8 @@
     <link rel="stylesheet" href="/css/site.css" />
 
     <script src="~/fsw.min.js"></script>
+    <script src="~/js/highlight/highlight.pack.js"></script>
 
-    <script>
-        window.onload = function () {
-            hljs.initHighlightingOnLoad();
-
-            $('.ui.accordion').accordion();
-        };
-    </script>
 
 </head>
 <body>
@@ -31,6 +25,7 @@
             <div class="header">Base HTML Elements</div>
             <div class="menu">
                 <a class="item" href="~/Examples/Button">Button</a>
+                <a class="item" href="~/Examples/Checkbox">Checkbox</a>
                 <a class="item" href="~/Examples/TextBox">TextBox</a>
                 <a class="item" href="~/Examples/Label">Label</a>
                 <a class="item" href="~/Examples/DataGrid">DataGrid</a>
@@ -58,6 +53,14 @@
         @RenderBody()
     </div>
 
-    @RenderSection("Scripts", required: false)
+    @RenderSection("Scripts", required: false);
+
+
+    <script>
+        hljs.initHighlightingOnLoad();
+        window.onload = function () {
+            $('.ui.accordion').accordion();
+        };
+    </script>
 </body>
 </html>

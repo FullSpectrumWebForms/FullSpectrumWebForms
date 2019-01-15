@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <Version></Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +12,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Pages\BaseClasses\HtmlControlBase\HtmlControlBase.html" />
+    <None Remove="Pages\API\Button\Button.html" />
+    <None Remove="Pages\API\Checkbox\Checkbox.html" />
+    <None Remove="Pages\API\DatePicker\DatePicker.html" />
+    <None Remove="Pages\API\Div\Div.html" />
+    <None Remove="Pages\API\FSWPage\FSWPage.html" />
+    <None Remove="Pages\API\HtmlControlBase\HtmlControlBase.html" />
+    <None Remove="Pages\API\Label\Label.html" />
+    <None Remove="Pages\API\RichTextBox\RichTextBox.html" />
+    <None Remove="Pages\API\Span\Span.html" />
+    <None Remove="Pages\API\TemplateContainer\TemplateContainer.html" />
+    <None Remove="Pages\API\TextArea\TextArea.html" />
+    <None Remove="Pages\API\TextBox\TextBox.html" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,8 +31,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSW" Version="2.0.0.1" />
-    <PackageReference Include="FSW.Semantic" Version="2.0.0.1" />
+    <PackageReference Include="FSW" Version="2.0.4.6" />
+    <PackageReference Include="FSW.Semantic" Version="2.0.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />

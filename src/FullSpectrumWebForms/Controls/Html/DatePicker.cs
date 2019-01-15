@@ -25,7 +25,7 @@ namespace FSW.Controls.Html
         }
 
 
-        public delegate void OnDateChangedHandler(DatePicker sender, string previousText, string newText);
+        public delegate void OnDateChangedHandler(DatePicker sender);
         public event OnDateChangedHandler OnDateChanged;
 
         public override void InitializeProperties()
@@ -41,7 +41,7 @@ namespace FSW.Controls.Html
         private void DatePicker_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
         {
             if (source == Property.UpdateSource.Client)
-                OnDateChanged?.Invoke(this, (string)lastValue, (string)newValue);
+                OnDateChanged?.Invoke(this);
         }
     }
 }

@@ -1,0 +1,53 @@
+﻿@page
+@model FSW.Core.ModelBase<CheckboxPage>
+@{
+    ViewData["Title"] = "Checkbox";
+    Layout = "~/Pages/_Layout.cshtml";
+}
+
+
+<h2>Button</h2>
+<input id="CK_Test"/> Change me!
+<br /><br />
+
+<div class="ui styled accordion" style="width:100%">
+    <div class="title">
+        <i class="dropdown icon"></i>
+        Source
+    </div>
+    <div class="content">
+
+        <div class="ui raise segment">
+            <a class="ui orange ribbon label">HTML</a>
+            <pre>
+                <code>
+                    &lt;input id="CK_Test"/&gt; Change me!
+                </code>
+            </pre>
+        </div>
+
+        <div class="ui raise segment">
+            <a class="ui green ribbon label">C#</a>
+            <pre>
+                <code>
+                    public FSW.Controls.Html.Checkbox CK_Test = new FSW.Controls.Html.Checkbox();
+
+                    public override void OnPageLoad()
+                    {
+                        base.OnPageLoad();
+
+                        CK_Test.OnCheckedChanged += OnCheckedChanged;
+                    }
+
+                    private void CK_Test_OnCheckedChanged(FSW.Controls.Html.Checkbox sender)
+                    {
+                        MessageBox.Success("State", CK_Test.Checked ? "Checked!" : "Unchecked!");
+                    }
+                </code>
+            </pre>
+        </div>
+
+    </div>
+</div>
+
+

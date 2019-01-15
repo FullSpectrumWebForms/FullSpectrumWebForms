@@ -1,0 +1,87 @@
+﻿
+<h2 class="ui header controlName">TextBox: <span class="classLink">HtmlControlBase</span></h2>
+
+<h4 class="ui header controlName">Properties</h4>
+
+
+<table class="apiTable ui table celled">
+    <thead class="full-width">
+        <tr>
+            <th>Property</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Get/Set</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Text</td>
+            <td>string</td>
+            <td>
+                Text inside the TextBox. Updated when the user leave the control or when the enter key is pressed.
+                You can also use <span class="propertyLink">InstantFeeback</span> to update the text while the user is typing
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Placeholder</td>
+            <td>string</td>
+            <td>
+                Placeholder to put inside the textbox when there is no text in it
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>InstantFeedback</td>
+            <td>TimeSpan</td>
+            <td>
+                When set, this will update the <span class="propertyLink">Text</span> property serverside when the user stop typing for <span class="propertyLink">InstantFeedback</span> amout of time
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>Disabled</td>
+            <td>bool</td>
+            <td>
+                Used to disable the TextBox, preventing the user from changing it. This will add the "disabled" attribute to the html element
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+        <tr>
+            <td>ReadOnly</td>
+            <td>bool</td>
+            <td>
+                Used to disable the TextBox, preventing the user from changing it. This will add the "readonly" attribute to the html element
+            </td>
+            <td>{ get; set; }</td>
+        </tr>
+    </tbody>
+</table>
+
+<h4 class="ui header controlName">Events</h4>
+
+<table class="apiTableMethods ui table celled structured">
+    <thead class="full-width">
+        <tr>
+            <th>Name</th>
+            <th>Parameters</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>OnTextChanged</td>
+            <td>(<span class="classLink">TextBox</span> control, <span class="classLink">string</span> previousText, <span class="classLink">string</span> newText)</td>
+            <td>
+                Called when the text changed
+            </td>
+        </tr>
+        <tr>
+            <td>OnEnterPressed</td>
+            <td>(<span class="classLink">TextBox</span> control, <span class="classLink">string</span> previousText, <span class="classLink">string</span> newText)</td>
+            <td>
+                Called when the user press enter while inside the textbox. It doesn't mean the value has changed, but it may have
+            </td>
+        </tr>
+    </tbody>
+</table>

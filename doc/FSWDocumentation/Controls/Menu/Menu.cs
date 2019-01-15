@@ -81,12 +81,10 @@ namespace FSWDocumentation.Controls.Menu
 
                 foreach (var item in group.Items)
                 {
-
                     var link = new HtmlControlBase(Page, "a")
                     {
                         Classes = new List<string> { "item" },
                         InnerText = item.Text,
-                        GenerateClickEvents = true,
                     };
 
                     link.OnClicked += (control) => OnLinkClicked(item);
