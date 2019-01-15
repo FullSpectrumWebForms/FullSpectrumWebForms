@@ -826,6 +826,7 @@
                 this.treeTable.grid.invalidateRow(rowInfo.Row);
             }
             this.treeTable.grid.render();
+            this.treeTable.grid.resizeCanvas();
         }
         RefreshDatasFromServer(parameters: { Datas: { [name: string]: any }[] }) {
             let datas: gen.treeTableData[] = [];

@@ -693,6 +693,7 @@ var controls;
                         this.treeTable.grid.invalidateRow(rowInfo.Row);
                     }
                     this.treeTable.grid.render();
+                    this.treeTable.grid.resizeCanvas();
                 }
                 RefreshDatasFromServer(parameters) {
                     let datas = [];
