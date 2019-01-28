@@ -199,9 +199,13 @@ namespace FSW.Core
         }
         public Property GetPropertyInternal(string name)
         {
-            if (Properties.TryGetValue(name, out var property))
+            if (TryGetPropertyInternal(name, out var property))
                 return property;
             throw new Exception($"Property not found: {name} in control: {Id}");
+        }
+        public bool TryGetPropertyInternal(string name, out Property property)
+        {
+            return Properties.TryGetValue(name, out property);
         }
         protected void SetProperty(string name, object value)
         {
