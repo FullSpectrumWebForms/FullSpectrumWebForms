@@ -71,6 +71,10 @@ namespace FSW.Controls.ServerSide.DataGrid
             Color BackgroundColor { get; }
         }
 
+        public interface IColspanCols
+        {
+            Dictionary<string, int> ColspanCols { get; }
+        }
     }
 
     public class SmartDataGrid<DataType> : DataGrid<DataType> where DataType : DataGridBase
@@ -277,6 +281,21 @@ namespace FSW.Controls.ServerSide.DataGrid
                         colMeta.Editor = Columns[col].Editor?.Clone();
                         if (colMeta.Editor != null) // if there was an editor ( should be 'cause it's already readonly if there isn't... )
                             colMeta.Editor.AllowEdit = false; // put the cell readonly
+                    }
+                }
+            }
+            if( item is DataInterfaces.IColspanCols colspan)
+            {
+                var cols = colspan.ColspanCols;
+                if( cols?.Count > 0 )
+                {
+                    if (metaData == null)
+                        metaData = new DataGridColumn.MetaData();
+                    foreach( var col in cols)
+                    {
+                        if (!metaData.Columns.TryGetValue(col.Key, out var colMeta))
+                            colMeta = metaData.Columns[col.Key] = new DataGridColumn.MetaDataColumn();
+                        colMeta.Colspan = col.Value;
                     }
                 }
             }
