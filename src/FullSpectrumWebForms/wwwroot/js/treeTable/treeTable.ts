@@ -27,6 +27,8 @@ namespace gen {
         onCellChange?: (e: Slick.EventData, data: Slick.OnCellChangeEventArgs<DataType>) => any;
 
         activateHeaderSearchBoxes?: boolean;
+
+        hideExport?: boolean;
     }
     export namespace treeTableFormatters {
         export function dateFormatter(format: string) {
@@ -211,16 +213,18 @@ namespace gen {
             });
 
 
-            // init background right click
-            ($ as any).contextMenu({
-                selector: '#' + that.element.uniqueId()[0].id,
-                items: {
-                    export: {
-                        name: 'Exporter en excel',
-                        callback: that.exportToExcel.bind(that)
+            if (!this.options.hideExport) {
+                // init background right click
+                ($ as any).contextMenu({
+                    selector: '#' + that.element.uniqueId()[0].id,
+                    items: {
+                        export: {
+                            name: 'Exporter en excel',
+                            callback: that.exportToExcel.bind(that)
+                        }
                     }
-                }
-            });
+                });
+            }
 
             if (this.options.activateHeaderSearchBoxes) {
                 $(this.grid.getHeaderRow()).delegate(":input", "change keyup", function (e) {

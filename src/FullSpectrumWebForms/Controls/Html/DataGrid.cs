@@ -15,6 +15,11 @@ namespace FSW.Controls.Html
     {
         [JsonProperty(PropertyName = "parent", DefaultValueHandling = DefaultValueHandling.Ignore)]
         internal int? _Parent;
+
+        [DataGridColumn.IgnoreColumn]
+        [JsonProperty(PropertyName = "_collapsed", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public bool? Collapsed;
+
         [JsonIgnore]
         public DataGridBase Parent { get; set; }
     }
@@ -394,6 +399,8 @@ namespace FSW.Controls.Html
     public interface IDataGrid
     {
         ControlPropertyDictionary<DataGridColumn> GetColumns();
+
+        bool HideExportContextMenu { get; set; }
     }
     public class DataGrid<DataType> : HtmlControlBase, IDataGrid where DataType : DataGridBase
     {
@@ -433,6 +440,13 @@ namespace FSW.Controls.Html
             get => GetProperty<bool>(PropertyName());
             set => SetProperty(PropertyName(), value);
         }
+
+        public bool HideExportContextMenu
+        {
+            get => GetProperty<bool>(PropertyName());
+            set => SetProperty(PropertyName(), value);
+        }
+
 
 
         public ControlPropertyDictionary<DataGridColumn> Columns { get; private set; }

@@ -156,16 +156,18 @@ var gen;
                 that.grid.invalidate(); //   added
                 that.grid.render();
             });
-            // init background right click
-            $.contextMenu({
-                selector: '#' + that.element.uniqueId()[0].id,
-                items: {
-                    export: {
-                        name: 'Exporter en excel',
-                        callback: that.exportToExcel.bind(that)
+            if (!this.options.hideExport) {
+                // init background right click
+                $.contextMenu({
+                    selector: '#' + that.element.uniqueId()[0].id,
+                    items: {
+                        export: {
+                            name: 'Exporter en excel',
+                            callback: that.exportToExcel.bind(that)
+                        }
                     }
-                }
-            });
+                });
+            }
             if (this.options.activateHeaderSearchBoxes) {
                 $(this.grid.getHeaderRow()).delegate(":input", "change keyup", function (e) {
                     var columnId = $(this).data("columnId");

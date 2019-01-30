@@ -1,10 +1,10 @@
-﻿using System;
+﻿using FSW.Controls.Html;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using FSW.Controls.Html;
 
 namespace TestApplication.Pages.Examples
 {
@@ -22,7 +22,7 @@ namespace TestApplication.Pages.Examples
         }
         #region UpdateSingleRow
 
-        public class Item5: DataGridBase
+        public class Item5 : DataGridBase
         {
             public string Col1;
             public int Col2;
@@ -52,7 +52,7 @@ namespace TestApplication.Pages.Examples
             };
 
             // update the value every 2 seconds
-            int count = 0;
+            var count = 0;
             RegisterHostedService(TimeSpan.FromSeconds(2), () =>
             {
                 using (ServerSideLock)
@@ -104,9 +104,13 @@ namespace TestApplication.Pages.Examples
         #endregion
 
         #region Formatting
+
         public class Item4 : DataGridBase
         {
+            [DataGridColumn.ColumnInfo]
             public string Name;
+
+            [DataGridColumn.ColumnInfo(ReadOnly = true)]
             public string Col2;
 
             // IgnoreColumn will prevent the dataGrid from displaying the value of this field
@@ -119,28 +123,36 @@ namespace TestApplication.Pages.Examples
 
         public void Init_Formatting()
         {
+            Grid_Formatting.AllowEdit = true;
+            Grid_Formatting.EnableTreeTableView = true;
+
             Grid_Formatting.InitializeColumns();
+
             // specify the code to be called when the data grid wants to update the metas data
             Grid_Formatting.OnGenerateMetasData += Grid_Formatting_OnGenerateMetasData; ;
 
+            Item4 parent;
             Grid_Formatting.Datas = new List<Item4>()
             {
-                new Item4()
+                (parent = new Item4()
                 {
                     Name = "Group name!",
-                    IsGroup = true
-                },
+                    IsGroup = true,
+                    Collapsed = true
+                }),
                 new Item4()
                 {
                     Name = "test",
                     Col2 = "test 2",
-                    IsError = true
+                    IsError = true,
+                    Parent = parent
                 },
                 new Item4()
                 {
                     Name = "test 4",
                     Col2 = "test 5",
-                    IsError = false
+                    IsError = false,
+                    Parent = parent
                 },
             };
         }
@@ -150,7 +162,13 @@ namespace TestApplication.Pages.Examples
             if (item.IsGroup)
             {
                 metaData = new DataGridColumn.MetaData();
-                metaData.Columns[nameof(Item4.Name)] = new DataGridColumn.MetaDataColumn(Colspan: Grid_Formatting.Columns.Count);
+                metaData.Columns[nameof(Item4.Name)] = new DataGridColumn.MetaDataColumn(Colspan: Grid_Formatting.Columns.Count)
+                {
+                    Editor = new DataGridColumn.TextEditor()
+                    {
+                        AllowEdit = false
+                    }
+                };
                 metaData.CssClasses = "group";
             }
             else if (item.IsError)
@@ -277,7 +295,8 @@ namespace TestApplication.Pages.Examples
 
             Grid_Editing_Advanced.OnCellChanged += Grid_Basic3_OnCellChanged;
         }
-        Dictionary<string, string> TestDictionary = new Dictionary<string, string>
+
+        private Dictionary<string, string> TestDictionary = new Dictionary<string, string>
         {
             ["test"] = "Test string 1",
             ["test 2"] = "Test string 2",

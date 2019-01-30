@@ -751,6 +751,7 @@
                     autoEdit: this.UseSingleClickEdit,
                     forceFitColumns: this.ForceAutoFit,
                 },
+                hideExport: this.tryGetPropertyValue('HideExportContextMenu')
             } as gen.treeTableOptions<gen.treeTableData>);
             this.treeTable._create();
 
@@ -811,7 +812,8 @@
                 if (rowInfo.Row == datas.length) {
                     var item = {
                         id: "_new_" + (++this._newRowId),
-                        parent: parent
+                        parent: parent,
+                        _collapsed: rowInfo.Data._collapsed ? true : false
                     } as any;
                     datas.push(item);
                     item.indent = this.getIndentationFromItem(item, datas);
@@ -836,7 +838,8 @@
                     parent = datas[parameters.Datas[i].parent].id;
                 var d: any = {
                     id: i.toString(),
-                    parent: parent
+                    parent: parent,
+                    _collapsed: parameters.Datas[i]._collapsed ? true : false
                 };
                 d.datas = parameters.Datas[i];
                 datas.push(d);
