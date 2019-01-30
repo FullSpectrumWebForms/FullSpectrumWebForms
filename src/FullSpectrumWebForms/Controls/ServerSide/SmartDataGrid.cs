@@ -73,7 +73,7 @@ namespace FSW.Controls.ServerSide.DataGrid
 
         public interface IColspanCols
         {
-            Dictionary<string, int> ColspanCols { get; }
+            Dictionary<string, int?> ColspanCols { get; }
         }
     }
 
