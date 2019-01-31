@@ -50,6 +50,7 @@ namespace FSW.Core
                     Manager.AddControl(field.Name, control);
                     if (control.IsInitializing)
                         control.InternalInitialize(this);
+                    control.ControlInitialized();
                 }
             }
 

@@ -325,6 +325,9 @@ namespace FSW.Core
                 throw new ArgumentException($"Property not found:{propertyName} in control:{Id.ToString()}");
         }
 
+        virtual protected internal void ControlInitialized()
+        {
+        }
 
         public enum VariableWatchType
         {

@@ -327,6 +327,7 @@ namespace FSW.Core
             foreach (var subControl in control.Children)
                 AddNewDynamicControl(subControl, i++);
 
+            control.ControlInitialized();
         }
         internal List<NewControlWithProperties> GetNewDynamicControls()
         {
