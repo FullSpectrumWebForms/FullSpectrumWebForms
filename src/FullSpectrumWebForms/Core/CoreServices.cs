@@ -1,11 +1,12 @@
-﻿using FSW;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using FSW;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace FSW.Core
 {
@@ -97,6 +98,12 @@ namespace FSW.Core
         public async Task<IActionResult> GenericRequest(string actionToDo, string connectionId, string data)
         {
             return await CommunicationHub.GetPage(connectionId).InvokeGenericRequest(actionToDo, data);
+        }
+
+        [HttpPost("GenericFileUploadRequest/{actionToDo}/connectionId/")]
+        public async Task<IActionResult> GenericFileUploadRequest(string actionToDo, string connectionId, string data, List<IFormFile> files)
+        {
+            return await CommunicationHub.GetPage(connectionId).InvokeGenericFileUploadRequest(actionToDo, data, files);
         }
     }
 }
