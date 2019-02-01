@@ -213,6 +213,8 @@ var controls;
                                     msg: ''
                                 };
                             }
+                            if (value && value.startsWith('.'))
+                                value = '0' + value;
                             var parse = gen_utility.filterFloat(value);
                             if ((parse || null) == null && parse != 0) {
                                 return {
@@ -649,7 +651,7 @@ var controls;
                     let isEnter = keyCode == 13;
                     var regExp = /^[A-Za-z0-9]+$/;
                     let isAlphaNumeric = (!!key.match(regExp) && key.length == 1) ||
-                        ['-', '+', '*', '/', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '=', '\\', 'é', 'è', 'à', 'É', 'È', 'À'].includes(key);
+                        ['-', '+', '*', '/', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '=', '\\', 'é', 'è', 'à', 'É', 'È', 'À', '.'].includes(key);
                     if (isAlphaNumeric || isEnter) { // || enter
                         try {
                             this.treeTable.grid.editActiveCell(undefined);
