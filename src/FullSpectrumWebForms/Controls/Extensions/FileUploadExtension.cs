@@ -11,7 +11,7 @@ namespace FSW.Controls.Extensions
     public class FileUploadExtension : ControlExtension
     {
 
-        public delegate void OnFileUploadReceivedHandler(List<IFormFile> files, TaskCompletionSource<IActionResult> TaskCompletionSource);
+        public delegate void OnFileUploadReceivedHandler(List<IFormFile> files, TaskCompletionSource<IActionResult> taskCompletionSource);
         public event OnFileUploadReceivedHandler GetOnFileUploadReceivedFromClient;
 
         protected internal override void Initialize()
