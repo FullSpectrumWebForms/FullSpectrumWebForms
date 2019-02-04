@@ -145,7 +145,7 @@ namespace FSW.Core
             });
         }
 
-        protected internal void Uninitialize()
+        protected internal virtual void Uninitialize()
         {
         }
     }

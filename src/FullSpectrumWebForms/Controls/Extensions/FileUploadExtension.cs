@@ -31,6 +31,12 @@ namespace FSW.Controls.Extensions
                     return Task.FromResult<IActionResult>(new NoContentResult());
             });
         }
+        protected internal override void Uninitialize()
+        {
+            base.Uninitialize();
+
+            Control.Page.UnregisterGenericFileUploadRequest(Control.Id + "_" + Id);
+        }
 
         protected internal override void Bind(ControlBase control)
         {
