@@ -55,41 +55,12 @@ namespace FSW.Controls
                 return Task.FromResult((IActionResult)file);
             });
         }
-
-        public void RequestFileGeneric(bool multiple, Func<List<IFormFile>, Task<IActionResult>> callback)
-        {
-            FileUploadCallback = callback;
-            CallCustomClientEvent("callUpload", new
-            {
-                url = Page.GetGenericFileUploadRequestUrl("FileDownloader_" + Id, new Dictionary<string, string>
-                {
-                    ["_"] = "_" // there's a bug when getting a generic request url without any parametres
-                }),
-                multiple
-            });
-        }
-
-        public Task<(List<IFormFile> Files, TaskCompletionSource<IActionResult> TaskCompletionSource)> RequestFileUploadFromClient(bool multiple)
-        {
-            var taskCompletionSource = new TaskCompletionSource<(List<IFormFile> Files, TaskCompletionSource<IActionResult> TaskCompletionSource)>();
-            RequestFileGeneric(multiple, (files) =>
-            {
-                var callbackCompletionResult = new TaskCompletionSource<IActionResult>();
-                taskCompletionSource.SetResult((files, callbackCompletionResult));
-
-                return callbackCompletionResult.Task;
-            });
-
-            return taskCompletionSource.Task;
-        }
-
-
+        
         protected internal override void ControlInitialized()
         {
             base.ControlInitialized();
 
             Page.RegisterNewGenericRequest("FileDownloader_" + Id, OnFileDownloadRequest);
-            Page.RegisterNewGenericFileUploadRequest("FileDownloader_" + Id, OnFileUploadRequest);
 
             OnControlRemoved += FileDownloader_OnControlRemoved;
         }
@@ -108,10 +79,6 @@ namespace FSW.Controls
         {
             return FileDownloadCallback();
         }
-
-        private Task<IActionResult> OnFileUploadRequest(Dictionary<string, string> parameters, List<IFormFile> files)
-        {
-            return FileUploadCallback(files);
-        }
+        
     }
 }

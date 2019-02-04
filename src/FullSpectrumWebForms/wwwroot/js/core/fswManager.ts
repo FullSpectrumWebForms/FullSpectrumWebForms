@@ -390,6 +390,30 @@ namespace core {
 
             return def;
         }
+        sendCustomControlExtensionEvent(controlId: string, extension: string, eventName: string, parameters: any, forceSync?: boolean) {
+            let that = this;
+
+
+            function doCall() {
+
+                that.connection.send('CustomControlExtensionEvent', {
+                    controlId: controlId,
+                    extension: extension,
+                    eventName: eventName,
+                    parameters: parameters
+                });
+
+            };
+            var def = $.Deferred();
+            this.customEventQueue.push(def);
+
+            if (this.customEventQueue.length == 1)
+                doCall();
+            else
+                this.customEventQueue[this.customEventQueue.length - 2].done(doCall);
+
+            return def;
+        }
     }
 
 

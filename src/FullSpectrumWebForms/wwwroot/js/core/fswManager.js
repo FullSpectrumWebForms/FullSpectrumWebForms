@@ -263,6 +263,25 @@ var core;
                 this.customEventQueue[this.customEventQueue.length - 2].done(doCall);
             return def;
         }
+        sendCustomControlExtensionEvent(controlId, extension, eventName, parameters, forceSync) {
+            let that = this;
+            function doCall() {
+                that.connection.send('CustomControlExtensionEvent', {
+                    controlId: controlId,
+                    extension: extension,
+                    eventName: eventName,
+                    parameters: parameters
+                });
+            }
+            ;
+            var def = $.Deferred();
+            this.customEventQueue.push(def);
+            if (this.customEventQueue.length == 1)
+                doCall();
+            else
+                this.customEventQueue[this.customEventQueue.length - 2].done(doCall);
+            return def;
+        }
     }
     core.polinetManager = polinetManager;
     core.manager = new polinetManager();

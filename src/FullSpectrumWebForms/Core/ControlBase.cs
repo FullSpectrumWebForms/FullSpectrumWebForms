@@ -191,22 +191,26 @@ namespace FSW.Core
             value = default(T);
             return false;
         }
+
         public T GetProperty<T>(string name)
         {
             if (TryGetProperty<T>(name, out var value))
                 return value;
             throw new Exception($"Property not found: {name} in control: {Id}");
         }
+
         public Property GetPropertyInternal(string name)
         {
             if (TryGetPropertyInternal(name, out var property))
                 return property;
             throw new Exception($"Property not found: {name} in control: {Id}");
         }
+
         public bool TryGetPropertyInternal(string name, out Property property)
         {
             return Properties.TryGetValue(name, out property);
         }
+
         protected void SetProperty(string name, object value)
         {
             if (Properties.TryGetValue(name, out var property))
@@ -264,6 +268,7 @@ namespace FSW.Core
                 break;
             }
         }
+
         internal protected System.Threading.Tasks.Task<T> CallCustomClientEvent<T>(string name, object parameters = null)
         {
             var src = new System.Threading.Tasks.TaskCompletionSource<T>();
@@ -272,6 +277,7 @@ namespace FSW.Core
 
             return src.Task;
         }
+
         [CoreEvent]
         protected void OnCustomClientEventAnswerReceivedFromClient(int id, Newtonsoft.Json.Linq.JProperty answer)
         {
@@ -280,6 +286,7 @@ namespace FSW.Core
             else
                 throw new Exception("Client answer id not found");
         }
+        
         internal List<ServerToClientCustomEvent> ExtractPendingCustomEvents()
         {
             if (PendingCustomEvents.Count == 0)

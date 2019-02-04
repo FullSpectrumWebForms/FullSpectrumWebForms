@@ -109,6 +109,10 @@ namespace core {
         // this.element will soon be removed from the ui
         uninitialiseControlFromServer() {
             this.wasRemoved = true;
+            let keys = Object.keys(this.extensions);
+            for (let i = 0; i < keys.length; ++i)
+                this.extensions[keys[i]].remove();
+            this.extensions = {};
         }
         // force is false when a child is being removed from UI, then no need to remove the
         // this.element, because the parent will be removed
@@ -126,16 +130,19 @@ namespace core {
             ClientId: string
         }) {
             var controlExtension = controlExtensionTypes[data.ClientId]();
+            controlExtension.id = data.ClientId;
             this.extensions[data.ClientId] = controlExtension;
 
             controlExtension.initialize(this);
         }
+
         unregisterControlExtension(data: {
             ClientId: string
         }) {
             this.extensions[data.ClientId].remove();
             delete this.extensions[data.ClientId];
         }
+
         callControlExtensionMethod(data: {
             ClientId: string,
             MethodName: string,
@@ -143,6 +150,8 @@ namespace core {
         }) {
             return this.extensions[data.ClientId][data.MethodName](data.Parameters);
         }
+
     }
 
 }
+

@@ -100,7 +100,7 @@ namespace FSW.Core
             return await CommunicationHub.GetPage(connectionId).InvokeGenericRequest(actionToDo, data);
         }
 
-        [HttpPost("GenericFileUploadRequest/{actionToDo}/connectionId/")]
+        [HttpPost("GenericFileUploadRequest/{actionToDo}/{connectionId}/{data}")]
         public async Task<IActionResult> GenericFileUploadRequest(string actionToDo, string connectionId, string data, List<IFormFile> files)
         {
             return await CommunicationHub.GetPage(connectionId).InvokeGenericFileUploadRequest(actionToDo, data, files);

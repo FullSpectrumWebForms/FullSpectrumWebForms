@@ -133,7 +133,49 @@ namespace FSW.Core
                         throw;
                     else
                     {
-                        return page.OverrideErrorHandle(e).ContinueWith( (r) =>
+                        return page.OverrideErrorHandle(e).ContinueWith((r) =>
+                        {
+                            return SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(new FSWManager.CustomControlEventResult()
+                            {
+                                properties = new CoreServerAnswer()
+                            }));
+                        });
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                SendAsync_ID(CurrentPage.ID, "error", e.ToString());
+                throw;
+            }
+        }
+        public Task CustomControlExtensionEvent(JObject data)
+        {
+            var controlId = data["controlId"].ToObject<string>();
+            var extension = data["extension"].ToObject<string>();
+            var parameters = data["parameters"];
+            var eventName = data["eventName"].ToObject<string>();
+
+            try
+            {
+                FSWManager.CustomControlEventResult res;
+                var page = CurrentPage;
+                try
+                {
+                    lock (page.Manager._lock)
+                    {
+                        res = page.Manager.CustomControlExtensionEvent(controlId, extension, eventName, parameters);
+
+                        return SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (page.OverrideErrorHandle is null)
+                        throw;
+                    else
+                    {
+                        return page.OverrideErrorHandle(e).ContinueWith((r) =>
                         {
                             return SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(new FSWManager.CustomControlEventResult()
                             {

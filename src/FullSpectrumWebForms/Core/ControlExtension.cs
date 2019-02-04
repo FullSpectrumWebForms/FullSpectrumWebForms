@@ -38,6 +38,7 @@ namespace FSW.Core
 
             controlExtension.Initialize();
         }
+
         public T Add<T>() where T: ControlExtension
         {
             var controlExtension = Activator.CreateInstance<T>();
@@ -53,9 +54,18 @@ namespace FSW.Core
         }
         public bool TryGet<T>(out T controlExtension) where T : ControlExtension
         {
-            ControlExtensions.TryGetValue(typeof(T).FullName, out var ce);
-            controlExtension = ce as T;
-            return controlExtension != null;
+            if( TryGet(typeof(T).FullName, out var controlExtension_))
+            {
+                controlExtension = controlExtension_ as T;
+                return controlExtension != null;
+            }
+            controlExtension = null;
+            return false;
+        }
+
+        public bool TryGet(string id, out ControlExtension controlExtension)
+        {
+            return ControlExtensions.TryGetValue(id, out controlExtension);
         }
 
         public void Clear()
@@ -84,6 +94,7 @@ namespace FSW.Core
             var isRemoved = ControlExtensions.Remove(controlExtension.Id);
             if (isRemoved)
             {
+                controlExtension.Uninitialize();
                 Control.CallCustomClientEvent("unregisterControlExtension", new
                 {
                     controlExtension.ClientId
@@ -134,5 +145,8 @@ namespace FSW.Core
             });
         }
 
+        protected internal void Uninitialize()
+        {
+        }
     }
 }

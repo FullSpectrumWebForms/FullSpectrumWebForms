@@ -96,6 +96,10 @@ var core;
         // this.element will soon be removed from the ui
         uninitialiseControlFromServer() {
             this.wasRemoved = true;
+            let keys = Object.keys(this.extensions);
+            for (let i = 0; i < keys.length; ++i)
+                this.extensions[keys[i]].remove();
+            this.extensions = {};
         }
         // force is false when a child is being removed from UI, then no need to remove the
         // this.element, because the parent will be removed
@@ -108,6 +112,7 @@ var core;
         }
         registerControlExtension(data) {
             var controlExtension = core.controlExtensionTypes[data.ClientId]();
+            controlExtension.id = data.ClientId;
             this.extensions[data.ClientId] = controlExtension;
             controlExtension.initialize(this);
         }

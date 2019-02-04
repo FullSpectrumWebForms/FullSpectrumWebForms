@@ -6,6 +6,9 @@ var core;
         }
         remove() {
         }
+        customControlExtensionEvent(eventName, parameters, forceSync) {
+            return core.manager.sendCustomControlExtensionEvent(this.control.id, this.id, eventName, parameters, forceSync);
+        }
     }
     core.controlExtension = controlExtension;
 })(core || (core = {}));

@@ -22,48 +22,6 @@ namespace FSW.Core
         public List<string> PendingDeletionControls = new List<string>();
 
 
-        //public CustomControlEventResult OnGenericAjaxCall(string methodName, Dictionary<string, object> parameters)
-        //{
-        //    // get the page
-        //    var method = Page.GetType().GetMethod(methodName);
-        //
-        //    if (!(method.GetCustomAttributes(typeof(System.Web.Services.WebMethodAttribute), true)?.FirstOrDefault() is System.Web.Services.WebMethodAttribute))
-        //        throw new HttpException($"Unable to get method '{methodName}' in type '{Page.GetType()}'. Access denied");
-        //
-        //    // if there are parameters for this method
-        //    object[] parametersParsed = null;
-        //    if (parameters != null)
-        //    {
-        //        // get the theorical paraemeters name
-        //        string[] paramNames = method.GetParameters().Select(p => p.Name).ToArray();
-        //        // list of actual parameters to be sent to the method
-        //        parametersParsed = new object[paramNames.Length];
-        //        // initialize them all to missing
-        //        // so if the client did not sent that parameter, it will be marked as missing
-        //        for (int i = 0; i < parametersParsed.Length; ++i)
-        //            parametersParsed[i] = Type.Missing;
-        //        // for all the received parameters ( from the client ( duh ) )
-        //        foreach (var item in parameters)
-        //        {
-        //            var paramName = item.Key;
-        //            // set the parameter in the parameters list to be sent to the method
-        //            var paramIndex = Array.IndexOf(paramNames, paramName);
-        //            parametersParsed[paramIndex] = item.Value;
-        //        }
-        //    }
-        //
-        //    var res = method.Invoke(Page, parametersParsed);
-        //
-        //    //process the property change in response to the event
-        //    var changes = ProcessPropertyChange(false);
-        //    //  return the changed properties and the return value of the method
-        //    return new CustomControlEventResult()
-        //    {
-        //        result = res, // response of the method call
-        //        properties = changes
-        //    };
-        //}
-
         public ControlBase GetControl(string controlId)
         {
             return GetControl<ControlBase>(controlId);
@@ -113,12 +71,15 @@ namespace FSW.Core
         }
         private void RemoveControl_(ControlBase control)
         {
+            control.Extensions.Clear();
+
             Controls.Remove(control.Id);
             if (control.Parent != null)
                 control.Parent.Children.Remove(control);
 
             foreach (var child in control.Children.Where(x => !x.IsRemoved).ToList())
                 RemoveControl_(child);
+
 
             control.IsRemoved = true;
             control.InvokeControlRemoved();
@@ -193,7 +154,72 @@ namespace FSW.Core
                 properties = changes
             };
         }
+        /// <summary>
+        /// Called from the client side to call custom method in a control, Ex. ticks event for the timer control
+        /// </summary>
+        internal CustomControlEventResult CustomControlExtensionEvent(string controlId, string extension, string eventName, Newtonsoft.Json.Linq.JToken parameters)
+        {
+            // get the control associated with the event in the required page
+            var control = Page.Manager.GetControl(controlId);
 
+            if (!control.Extensions.TryGet(extension, out var controlExtension))
+                throw new Exception($"Unable to get extension:" + controlExtension);
+
+            // try to get the method with the name "eventName"
+            var t = controlExtension.GetType();
+            var m = t.GetMethod(eventName, System.Reflection.BindingFlags.FlattenHierarchy | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+            if (m == null)
+                throw new Exception($"Unable to get method '{eventName}' in type '{t}'");
+
+            // check if the method have the "CoreEventAttribute", if not then for security reason, just rage-quit
+            var attr = m.GetCustomAttributes(typeof(CoreEventAttribute), true)?.FirstOrDefault() as CoreEventAttribute;
+            if (attr == null)
+                throw new Exception($"Unable to get method '{eventName}' in type '{t}'. Access denied");
+
+            // if there are parameters for this method
+            object[] parametersParsed = null;
+            if (parameters != null)
+            {
+                // get the theorical paraemeters name
+                var methodParameters = m.GetParameters();
+                var paramNames = methodParameters.Select(p => p.Name).ToList();
+                // list of actual parameters to be sent to the method
+                parametersParsed = new object[methodParameters.Length];
+                // initialize them all to missing
+                // so if the client did not sent that parameter, it will be marked as missing
+                for (var i = 0; i < parametersParsed.Length; ++i)
+                    parametersParsed[i] = Type.Missing;
+                // for all the received parameters ( from the client ( duh ) )
+                foreach (var item in parameters)
+                {
+                    var prop = (Newtonsoft.Json.Linq.JProperty)item;
+                    var paramName = prop.Name;
+                    // set the parameter in the parameters list to be sent to the method
+                    var paramIndex = paramNames.IndexOf(paramName);
+                    if (paramIndex == -1)
+                        throw new Exception($"Invalid parameter name:{paramName} in {eventName} in control {controlId}");
+
+                    var paramType = methodParameters[paramIndex].ParameterType;
+                    object value;
+                    if (paramType == typeof(Newtonsoft.Json.Linq.JProperty))
+                        value = prop;
+                    else
+                        value = prop.Value.ToObject(paramType);
+                    parametersParsed[paramIndex] = value;
+                }
+            }
+            // the actual call of the method/event
+            var res = m.Invoke(controlExtension, parametersParsed);
+
+            //process the property change in response to the event
+            var changes = ProcessPropertyChange(false);
+            //  return the changed properties and the return value of the method
+            return new CustomControlEventResult()
+            {
+                result = res, // response of the method call
+                properties = changes
+            };
+        }
         public delegate void OnBeforeServerUnlockedHandler (FSWPage page);
         public event OnBeforeServerUnlockedHandler OnBeforeServerUnlocked;
 

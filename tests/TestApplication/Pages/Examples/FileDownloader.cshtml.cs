@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FSW.Controls;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -18,12 +19,14 @@ namespace TestApplication.Pages.Examples
         {
             base.OnPageLoad();
 
-            BT_UploadFile.OnButtonClicked += BT_UploadFile_OnButtonClicked;
+            var upload = new FSW.Controls.Extensions.FileUploadExtension();
+            upload.GetOnFileUploadReceivedFromClient += Upload_GetOnFileUploadReceivedFromClient;
+            BT_UploadFile.Extensions.Add(upload);
         }
 
-        private void BT_UploadFile_OnButtonClicked(FSW.Controls.Html.Button button)
+        private void Upload_GetOnFileUploadReceivedFromClient(List<IFormFile> files, TaskCompletionSource<IActionResult> TaskCompletionSource)
         {
-            FileDownloader.RequestFileGeneric(false, (files) =>
+            RegisterHostedService(() =>
             {
                 var stream = new MemoryStream();
 
@@ -35,7 +38,7 @@ namespace TestApplication.Pages.Examples
                     FileDownloader.SendStreamThenDispose(stream, files[0].FileName);
                 }
 
-                return Task.FromResult<IActionResult>(new OkResult());
+                TaskCompletionSource.SetResult(new OkResult());
             });
         }
     }
