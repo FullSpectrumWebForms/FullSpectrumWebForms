@@ -1,13 +1,13 @@
-﻿using FSW.Core;
-using FSW.Utility;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
+using FSW.Core;
+using FSW.Utility;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace FSW.Controls.Html
 {
@@ -102,10 +102,10 @@ namespace FSW.Controls.Html
 
             public override EditorBase Clone()
             {
-                return CloneInto( new DatePickerEditor()
+                return CloneInto(new DatePickerEditor()
                 {
                     DisplayFormat = DisplayFormat
-                } );
+                });
             }
 
             public override object ParseNewInputValue(DataGridColumn colDef, object value)
@@ -128,10 +128,10 @@ namespace FSW.Controls.Html
 
             public override EditorBase Clone()
             {
-                return CloneInto( new TimeSpanHoursEditor()
+                return CloneInto(new TimeSpanHoursEditor()
                 {
                     Format = Format
-                } );
+                });
             }
 
             public override object ParseNewInputValue(DataGridColumn colDef, object value)
@@ -215,6 +215,12 @@ namespace FSW.Controls.Html
                     Max = Max,
                     Precision = Precision
                 });
+            }
+            public override object ParseNewInputValue(DataGridColumn colDef, object value)
+            {
+                if (value is string valueStr)
+                    value = "0" + valueStr;
+                return base.ParseNewInputValue(colDef, value);
             }
         }
         public class IntEditor : EditorBase
