@@ -25,7 +25,7 @@ namespace FSW.Controls.Html
         {
             base.InitializeProperties();
 
-            Size = "1";
+            Size = 1;
             Text = "";
         }
     }
