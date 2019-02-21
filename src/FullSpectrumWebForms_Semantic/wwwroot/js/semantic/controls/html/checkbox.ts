@@ -67,7 +67,7 @@
         }
         onStateChangedFromServer(property: core.controlProperty<string[]>, args: { old: string[], new: string[] }) {
             if (this.Checked)
-                this.checkElement.attr('checked', 'checked');
+                this.checkElement.prop('checked', 'checked');
             else
                 this.checkElement.removeAttr('checked');
         }

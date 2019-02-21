@@ -55,7 +55,7 @@ var controls;
             }
             onStateChangedFromServer(property, args) {
                 if (this.Checked)
-                    this.checkElement.attr('checked', 'checked');
+                    this.checkElement.prop('checked', 'checked');
                 else
                     this.checkElement.removeAttr('checked');
             }
