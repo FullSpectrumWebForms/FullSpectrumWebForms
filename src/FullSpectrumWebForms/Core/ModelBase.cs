@@ -1,4 +1,5 @@
 ﻿using FSW.Core;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +15,16 @@ namespace FSW.Core
 
         public string CurrentPageTypePath { get; private set; }
 
+
         public void OnGet()
         {
             HttpContext.Request.Cookies.TryGetValue("FSWSessionId", out string fswSessionId);
             HttpContext.Request.Cookies.TryGetValue("FSWSessionAuth", out string fswSessionAuth);
 
-            var res = FSW.ModelBase.RegisterFSWPage(new T(), fswSessionId, fswSessionAuth, out string newFSWSessionId, out string newFSWSessionAuth);
+
+            T page;
+            var res = FSW.ModelBase.RegisterFSWPage(page = new T(), fswSessionId, fswSessionAuth, out string newFSWSessionId, out string newFSWSessionAuth);
+            page.IPAddress = Request.HttpContext.Connection.RemoteIpAddress;
 
             CurrentPageID = res.id.ToString();
             CurrentPageAuth = res.auth;

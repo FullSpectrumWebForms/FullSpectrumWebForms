@@ -20,6 +20,8 @@ namespace FSW.Core
         public string ID { get; private set; }
         public string PageAuth { get; internal set; }
 
+        public System.Net.IPAddress IPAddress { get; internal set; }
+
         public Func<Exception, Task> OverrideErrorHandle { get; set; }
 
         public Session Session { get; internal set; }
