@@ -10,6 +10,28 @@ namespace controls {
         set IsMobile(value: boolean) {
             this.setPropertyValue<this>("IsMobile", value);
         }
+
+        queryGeoCoordinate() {
+            let that = this;
+
+            let def = $.Deferred();
+
+            navigator.geolocation.getCurrentPosition(position =>
+            {
+                def.resolve({
+                    Latitude: position.coords.latitude,
+                    Longitude: position.coords.longitude,
+                    Altitude: position.coords.altitude,
+                    Accuracy: position.coords.accuracy,
+                    Speed: position.coords.speed,
+                    Heading: position.coords.heading,
+                });
+            }, function (err) {
+                    def.resolve(null);
+            });
+
+            return def;
+        }
         
         initialize(type: string, index: number, id: string, properties: { property: string, value: any }[]) {
             super.initialize(type, index, id, properties);

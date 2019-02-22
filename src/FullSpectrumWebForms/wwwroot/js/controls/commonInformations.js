@@ -8,6 +8,23 @@ var controls;
         set IsMobile(value) {
             this.setPropertyValue("IsMobile", value);
         }
+        queryGeoCoordinate() {
+            let that = this;
+            let def = $.Deferred();
+            navigator.geolocation.getCurrentPosition(position => {
+                def.resolve({
+                    Latitude: position.coords.latitude,
+                    Longitude: position.coords.longitude,
+                    Altitude: position.coords.altitude,
+                    Accuracy: position.coords.accuracy,
+                    Speed: position.coords.speed,
+                    Heading: position.coords.heading,
+                });
+            }, function (err) {
+                def.resolve(null);
+            });
+            return def;
+        }
         initialize(type, index, id, properties) {
             super.initialize(type, index, id, properties);
             var detector = new MobileDetect(window.navigator.userAgent);
