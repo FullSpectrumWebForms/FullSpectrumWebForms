@@ -11,6 +11,10 @@ var controls;
         queryGeoCoordinate() {
             let that = this;
             let def = $.Deferred();
+            if (!navigator.geolocation) {
+                def.resolve(null);
+                return def;
+            }
             navigator.geolocation.getCurrentPosition(position => {
                 def.resolve({
                     Latitude: position.coords.latitude,

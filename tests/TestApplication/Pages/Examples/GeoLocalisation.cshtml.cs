@@ -9,7 +9,7 @@ using FSW.Controls;
 
 namespace TestApplication.Pages
 {
-    public class GeoLocalisation: FSW.Core.FSWPage
+    public class GeoLocalisationPage: FSW.Core.FSWPage
     {
         Button BT_QueryLocalisation = new Button();
         Span SP_GeoLocalisation = new Span();

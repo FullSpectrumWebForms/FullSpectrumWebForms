@@ -72,12 +72,7 @@ namespace FSW.Controls.Html
         // it will search inside the control parent ( kinda $(parent).find( control.CustomSelector ); )
         public string CustomSelector
         {
-            get
-            {
-                if (TryGetProperty(PropertyName(), out string value))
-                    return value;
-                return null;
-            }
+            get => TryGetProperty(PropertyName(), out string value) ? value : null;
             set => SetProperty(PropertyName(), value);
         }
 
