@@ -879,7 +879,8 @@
                 this.treeTable.grid.invalidateRow(rowInfo.Row);
             }
             this.treeTable.grid.render();
-            this.treeTable.grid.resizeCanvas();
+            if (this.element.is(":visible"))
+                this.treeTable.grid.resizeCanvas();
         }
         RefreshDatasFromServer(parameters: { Datas: { [name: string]: any }[] }) {
             let datas: gen.treeTableData[] = [];
@@ -905,7 +906,8 @@
                 this.treeTable.grid.resetActiveCell();
                 this.treeTable.grid.setActiveCell(cell.row, cell.cell);
             }
-            this.treeTable.grid.resizeCanvas();
+            if (this.element.is(":visible"))
+                this.treeTable.grid.resizeCanvas();
         }
         private buildEditorInfo(name: string, editor: any, colInternal: Slick.Column<gen.treeTableData>) {
             if (!name)

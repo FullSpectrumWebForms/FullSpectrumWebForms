@@ -737,7 +737,8 @@ var controls;
                         this.treeTable.grid.invalidateRow(rowInfo.Row);
                     }
                     this.treeTable.grid.render();
-                    this.treeTable.grid.resizeCanvas();
+                    if (this.element.is(":visible"))
+                        this.treeTable.grid.resizeCanvas();
                 }
                 RefreshDatasFromServer(parameters) {
                     let datas = [];
@@ -761,7 +762,8 @@ var controls;
                         this.treeTable.grid.resetActiveCell();
                         this.treeTable.grid.setActiveCell(cell.row, cell.cell);
                     }
-                    this.treeTable.grid.resizeCanvas();
+                    if (this.element.is(":visible"))
+                        this.treeTable.grid.resizeCanvas();
                 }
                 buildEditorInfo(name, editor, colInternal) {
                     if (!name)

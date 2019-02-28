@@ -17,6 +17,7 @@ namespace TestApplication.Pages.Examples.Semantic
             base.OnPageLoad();
 
             CB_Test.OnAjaxRequest = GetComboDatas;
+            CB_Test.AllowEmptyQuery = true;
 
             CB_Test.Placeholder = "Choose something";
             CB_Test.AllowNull = true;
