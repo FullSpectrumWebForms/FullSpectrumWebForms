@@ -1,13 +1,13 @@
-﻿using System;
+﻿using FSW.Core;
+using FSW.Utility;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
-using FSW.Core;
-using FSW.Utility;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace FSW.Controls.Html
 {
@@ -144,6 +144,25 @@ namespace FSW.Controls.Html
         public class TimeSpanHoursEditorAttribute : Attribute
         {
             public bool Format = true;
+        }
+        public class ButtonEditor : EditorBase
+        {
+            public string Text;
+            public string TextDisabled;
+
+            public override EditorBase Clone()
+            {
+                return CloneInto(new ButtonEditor()
+                {
+                    Text = Text,
+                    TextDisabled = TextDisabled
+                });
+            }
+        }
+        public class ButtonEditorAttribute : Attribute
+        {
+            public string Text;
+            public string TextDisabled;
         }
         public class TimeSpanEditor : EditorBase
         {
@@ -461,6 +480,9 @@ namespace FSW.Controls.Html
         public delegate void OnCellChangedHandler(DataGridColumn col, int row, DataType item, object newValue);
         public event OnCellChangedHandler OnCellChanged;
 
+        public delegate void OnButtonCellClickedHandler(DataGridColumn col, int row, DataType item);
+        public event OnButtonCellClickedHandler OnButtonCellClicked;
+
         private event OnActiveCellChangedHandler OnActiveCellChanged_;
         public delegate void OnActiveCellChangedHandler(DataGridColumn col, int row, DataType item);
         public event OnActiveCellChangedHandler OnActiveCellChanged
@@ -624,6 +646,21 @@ namespace FSW.Controls.Html
             OnActiveCellChanged_?.Invoke(colDef, row, item);
             return null;
         }
+
+        [CoreEvent]
+        protected void OnButtonCellClickedFromClient(int row, string col)
+        {
+            if (row >= Datas.Count)
+                throw new Exception($"Invalid row {row} in control {Id}");
+
+            var colDef = Columns[col];
+            if (colDef == null)
+                throw new Exception($"Invalid col {col} in control {Id}");
+            var item = Datas[row];
+
+            OnButtonCellClicked?.Invoke(colDef, row, item);
+        }
+
         [CoreEvent]
         protected object OnCellChangedFromClient(int row, string col, object value = null)
         {
@@ -739,7 +776,19 @@ namespace FSW.Controls.Html
                 };
             }
             else if (type.IsEquivalentTo(typeof(bool)))
-                col.Editor = new DataGridColumn.BoolEditor();
+            {
+                var attributes = fieldInfo?.GetCustomAttributes(typeof(DataGridColumn.ButtonEditorAttribute), true);
+                if (attributes != null && attributes.Length != 0)
+                {
+                    var attribute = attributes[0] as DataGridColumn.ButtonEditorAttribute;
+                    col.Editor = new DataGridColumn.ButtonEditor();
+                    var buttonEditor = col.Editor as DataGridColumn.ButtonEditor;
+                    buttonEditor.Text = attribute.Text;
+                    buttonEditor.TextDisabled = attribute.TextDisabled;
+                }
+                else
+                    col.Editor = new DataGridColumn.BoolEditor();
+            }
             else if (type.IsEquivalentTo(typeof(TimeSpan)))
             {
 

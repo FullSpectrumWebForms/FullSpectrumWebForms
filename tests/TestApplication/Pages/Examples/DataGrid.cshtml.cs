@@ -251,6 +251,9 @@ namespace TestApplication.Pages.Examples
             // it will only show "22.12"
             [DataGridColumn.FloatEditor(-15, 15, Precision = 2)]
             public float Col4;
+
+            [DataGridColumn.ButtonEditor(Text = "Click me", TextDisabled = "No...")]
+            public bool Col5; // true to allow edit, false to disable and show the "TextDisabled" text instead
         }
         public DataGrid<Item3> Grid_Editing_Advanced = new DataGrid<Item3>();
         public void Init_Editing_Advanced()
@@ -259,20 +262,23 @@ namespace TestApplication.Pages.Examples
             {
                 new Item3()
                 {
-                    Col1 = new KeyValuePair<string, string>("test","Test string 1"),
+                    Col1 = new KeyValuePair<string, string>("test", "Test string 1"),
                     Col2 = "test 2",
                     Col3 = 10,
-                    Col4 = 22.22f
+                    Col4 = 22.22f ,
+                    Col5 = false
                 },
                 new Item3()
                 {
-                    Col1 = new KeyValuePair<string, string>("test 3","Test string 3"),
+                    Col1 = new KeyValuePair<string, string>("test 3", "Test string 3"),
                     Col2 = "test 4",
                     Col3 = 20,
-                    Col4 = 55.55f
+                    Col4 = 55.55f,
+                    Col5 = true
                 }
             };
-
+            Grid_Editing_Advanced.ShowSearchHeader = true;
+            Grid_Editing_Advanced.OnButtonCellClicked += Grid_Editing_Advanced_OnButtonCellClicked;
             // this will activate the editing on every columns with their default editor
             // the editors depends on the data type
             Grid_Editing_Advanced.AllowEdit = true;
@@ -294,6 +300,11 @@ namespace TestApplication.Pages.Examples
             Grid_Editing_Advanced.Columns.Set(Grid_Editing_Advanced.Columns.ToDictionary(x => x.Key, x => x.Value));
 
             Grid_Editing_Advanced.OnCellChanged += Grid_Basic3_OnCellChanged;
+        }
+
+        private void Grid_Editing_Advanced_OnButtonCellClicked(DataGridColumn col, int row, Item3 item)
+        {
+            MessageBox.Success("Success", $"Col {col.Name} was clicked on row {row}");
         }
 
         private Dictionary<string, string> TestDictionary = new Dictionary<string, string>

@@ -72,6 +72,53 @@ namespace Slick.Editors {
         this.init();
     }
 
+    export function ButtonEditor(args) {
+
+        this.init = function () {
+            setTimeout(function () {
+                args.commitChanges();
+            }, 1);
+        };
+
+        this.setValue = function (val) {
+
+        };
+
+        this.destroy = function () {
+
+        };
+
+        this.focus = function () {
+
+        };
+
+        this.loadValue = function (item) {
+
+        };
+
+        this.serializeValue = function () {
+
+        };
+
+        this.applyValue = function (item, state) {
+
+        };
+
+        this.isValueChanged = function () {
+            return false;
+        };
+
+        this.validate = function () {
+            return {
+                valid: true,
+                msg: null
+            };
+        };
+
+        this.init();
+    }
+
+
     export interface Select2EditorOptions {
         UseLargeDropDown?: boolean;
     }

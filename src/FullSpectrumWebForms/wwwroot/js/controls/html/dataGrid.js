@@ -7,9 +7,12 @@ var controls;
             let editors;
             (function (editors) {
                 class baseEditor {
-                    setup(col, tree) {
+                    get tree() {
+                        return this.grid.treeTable;
+                    }
+                    setup(col, grid) {
                         this.col = col;
-                        this.tree = tree;
+                        this.grid = grid;
                     }
                     onBeforeEditCell(e, data) {
                         return this.AllowEdit;
@@ -23,8 +26,8 @@ var controls;
                 }
                 editors.baseEditor = baseEditor;
                 class TextEditor extends baseEditor {
-                    setup(col, tree) {
-                        super.setup(col, tree);
+                    setup(col, grid) {
+                        super.setup(col, grid);
                         col.editor = Slick.Editors.CustomTextEditor;
                     }
                     validateValueCellChange(value, args) {
@@ -36,8 +39,8 @@ var controls;
                 }
                 editors.TextEditor = TextEditor;
                 class TimeSpanEditor extends baseEditor {
-                    setup(col, tree) {
-                        super.setup(col, tree);
+                    setup(col, grid) {
+                        super.setup(col, grid);
                         col.editor = Slick.Editors.CustomTimePickerEditor(this);
                         col.formatter = this.formatter.bind(this);
                     }
@@ -80,8 +83,8 @@ var controls;
                 }
                 editors.TimeSpanEditor = TimeSpanEditor;
                 class TimeSpanHoursEditor extends baseEditor {
-                    setup(col, tree) {
-                        super.setup(col, tree);
+                    setup(col, grid) {
+                        super.setup(col, grid);
                         col.editor = Slick.Editors.timeSpanHoursEditor;
                         col.formatter = this.formatter.bind(this);
                     }
@@ -139,8 +142,8 @@ var controls;
                 }
                 editors.TimeSpanHoursEditor = TimeSpanHoursEditor;
                 class DatePickerEditor extends baseEditor {
-                    setup(col, tree) {
-                        super.setup(col, tree);
+                    setup(col, grid) {
+                        super.setup(col, grid);
                         col.editor = Slick.Editors.PikadayEditor;
                         col.formatter = this.formatter.bind(this);
                     }
@@ -152,11 +155,11 @@ var controls;
                 }
                 editors.DatePickerEditor = DatePickerEditor;
                 class BoolEditor extends baseEditor {
-                    setup(col, tree) {
-                        super.setup(col, tree);
+                    setup(col, grid) {
+                        super.setup(col, grid);
                         col.editor = Slick.Editors.CustomCheckboxEditor;
                         col.formatter = this.formatter.bind(this);
-                        tree.grid.onClick.subscribe(this.onCellClicked.bind(this));
+                        this.tree.grid.onClick.subscribe(this.onCellClicked.bind(this));
                     }
                     onCellClicked(e, data) {
                         if (this.tree.grid.getColumns()[data.cell].id == this.col.id && e.target.type == 'checkbox') {
@@ -183,9 +186,46 @@ var controls;
                     }
                 }
                 editors.BoolEditor = BoolEditor;
+                class ButtonEditor extends baseEditor {
+                    setup(col, grid) {
+                        super.setup(col, grid);
+                        col.editor = Slick.Editors.ButtonEditor;
+                        col.formatter = this.formatter.bind(this);
+                        this.tree.grid.onClick.subscribe(this.onCellClicked.bind(this));
+                    }
+                    onBeforeEditCell(e, data) {
+                        return super.onBeforeEditCell(e, data) && this.tree.getDataItem(data.item, data.column);
+                    }
+                    onCellClicked(e, data) {
+                        if (this.tree.grid.getColumns()[data.cell].id == this.col.id && e.target.type == 'button') {
+                            this.tree.grid.gotoCell(data.row, data.cell, true);
+                            var editor = this.tree.grid.getCellEditor();
+                            if (editor)
+                                this.tree.grid.getEditController().cancelCurrentEdit();
+                            this.grid.customControlEvent('OnButtonCellClickedFromClient', {
+                                row: this.grid.treeTable.dataView.getIdxById(this.grid.treeTable.dataView.getItem(data.row).id),
+                                col: data.grid.getColumns()[data.cell].id
+                            });
+                        }
+                    }
+                    formatter(row, cell, value, columnDef, dataContext) {
+                        var allowEdit = this.AllowEdit && value;
+                        if (allowEdit) {
+                            let realRow = this.tree.dataView.getIdxById(this.tree.grid.getDataItem(row).id);
+                            var meta = this.control.MetaDatas[realRow];
+                            if (meta && meta.ReadOnly == true)
+                                allowEdit = false;
+                        }
+                        if (allowEdit)
+                            return '<input type="button" value="' + this.Text + '" />';
+                        else
+                            return this.TextDisabled || '';
+                    }
+                }
+                editors.ButtonEditor = ButtonEditor;
                 class FloatEditor extends baseEditor {
-                    setup(col, tree) {
-                        super.setup(col, tree);
+                    setup(col, grid) {
+                        super.setup(col, grid);
                         col.editor = Slick.Editors.CustomTextEditor;
                         col.formatter = this.formatter.bind(this);
                     }
@@ -239,8 +279,8 @@ var controls;
                 }
                 editors.FloatEditor = FloatEditor;
                 class IntEditor extends baseEditor {
-                    setup(col, tree) {
-                        super.setup(col, tree);
+                    setup(col, grid) {
+                        super.setup(col, grid);
                         col.editor = Slick.Editors.CustomTextEditor;
                         col.formatter = this.formatter.bind(this);
                     }
@@ -292,8 +332,8 @@ var controls;
                 }
                 editors.IntEditor = IntEditor;
                 class ComboBoxEditor extends baseEditor {
-                    setup(col, tree) {
-                        super.setup(col, tree);
+                    setup(col, grid) {
+                        super.setup(col, grid);
                         col.editor = Slick.Editors.Select2({
                             width: '100%',
                             placeholder: {
@@ -344,8 +384,8 @@ var controls;
                 }
                 editors.ComboBoxEditor = ComboBoxEditor;
                 class ComboBoxAjaxEditor extends baseEditor {
-                    setup(col, tree) {
-                        super.setup(col, tree);
+                    setup(col, grid) {
+                        super.setup(col, grid);
                         let that = this;
                         col.editor = Slick.Editors.Select2({
                             width: '95%',
@@ -544,7 +584,7 @@ var controls;
                         if (existingInternalCol)
                             formatter = existingInternalCol.formatter;
                         if (colMeta.EditorInfo) {
-                            colMeta.EditorInfo.setup(meta, this.treeTable);
+                            colMeta.EditorInfo.setup(meta, this);
                             formatter = meta.formatter;
                         }
                         meta.formatter = this.getFormatter(enableTreeTableView, colMeta.Append, colMeta.Prepend, colMeta.Popup == undefined ? this.Columns[colIds[i]].Popup : colMeta.Popup, formatter);
@@ -731,7 +771,7 @@ var controls;
                     for (let i = 0; i < keys.length; ++i)
                         editorInfo[keys[i]] = editor[keys[i]];
                     editorInfo.control = this;
-                    editorInfo.setup(colInternal, this.treeTable);
+                    editorInfo.setup(colInternal, this);
                     colInternal.validator = this.validateValueCellChange.bind(this);
                     return editorInfo;
                 }

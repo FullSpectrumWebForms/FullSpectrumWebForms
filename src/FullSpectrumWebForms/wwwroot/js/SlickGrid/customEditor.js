@@ -63,6 +63,36 @@ var Slick;
             this.init();
         }
         Editors.CustomCheckboxEditor = CustomCheckboxEditor;
+        function ButtonEditor(args) {
+            this.init = function () {
+                setTimeout(function () {
+                    args.commitChanges();
+                }, 1);
+            };
+            this.setValue = function (val) {
+            };
+            this.destroy = function () {
+            };
+            this.focus = function () {
+            };
+            this.loadValue = function (item) {
+            };
+            this.serializeValue = function () {
+            };
+            this.applyValue = function (item, state) {
+            };
+            this.isValueChanged = function () {
+                return false;
+            };
+            this.validate = function () {
+                return {
+                    valid: true,
+                    msg: null
+                };
+            };
+            this.init();
+        }
+        Editors.ButtonEditor = ButtonEditor;
         var fixSelect2MissingTab = function (event) {
             var $selected_id_field = $(event.target);
             var selectHighlighted = function (e) {
