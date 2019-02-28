@@ -265,7 +265,7 @@ namespace TestApplication.Pages.Examples
                     Col1 = new KeyValuePair<string, string>("test", "Test string 1"),
                     Col2 = "test 2",
                     Col3 = 10,
-                    Col4 = 22.22f ,
+                    Col4 = 22.22f,
                     Col5 = false
                 },
                 new Item3()
