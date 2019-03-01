@@ -8,6 +8,11 @@ var controls;
         set IsMobile(value) {
             this.setPropertyValue("IsMobile", value);
         }
+        performLifeCycle() {
+            let def = $.Deferred();
+            def.resolve(true);
+            return def;
+        }
         queryGeoCoordinate() {
             let that = this;
             let def = $.Deferred();

@@ -11,6 +11,12 @@ namespace controls {
             this.setPropertyValue<this>("IsMobile", value);
         }
 
+        performLifeCycle() {
+            let def = $.Deferred();
+            def.resolve(true);
+            return def;
+        }
+
         queryGeoCoordinate() {
             let that = this;
 

@@ -48,6 +48,11 @@ namespace FSW.Controls
             });
         }
 
+        public Task PerformLifeCycle()
+        {
+            return CallCustomClientEvent<bool>("performLifeCycle");
+        }
+
         public override void InitializeProperties()
         {
             IsMobile = null;
