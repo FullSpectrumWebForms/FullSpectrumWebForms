@@ -72,7 +72,6 @@ namespace FSW.Controls
         private void FileDownloader_OnControlRemoved(ControlBase control)
         {
             Page.UnregisterGenericRequest("FileDownloader_" + Id);
-            Page.UnregisterGenericFileUploadRequest("FileDownloader_" + Id);
         }
 
         private Task<IActionResult> OnFileDownloadRequest(Dictionary<string, string> parameters)
