@@ -22,6 +22,8 @@ namespace FSW.Controls
             set => SetProperty(PropertyName(), value);
         }
 
+
+
         public Task<GeoCoordinate> QueryGeoCoordinate()
         {
             var taskCompletion = new TaskCompletionSource<GeoCoordinate>();
@@ -48,6 +50,39 @@ namespace FSW.Controls
             });
         }
 
+        public void SetCookie(string name, string value)
+        {
+            CallCustomClientEvent("setCookie", new
+            {
+                name,
+                value
+            });
+        }
+
+        public Task<string> QueryCookie(string name)
+        {
+            var taskCompletion = new TaskCompletionSource<string>();
+            Page.RegisterHostedService(() =>
+            {
+                Task<string> task;
+                using (Page.ServerSideLock)
+                    task = CallCustomClientEvent<string>("queryCookie", name);
+
+                task.Wait();
+                taskCompletion.SetResult(task.Result);
+            });
+            return taskCompletion.Task;
+        }
+
+        public void QueryCookie(string name, Action<string> callback)
+        {
+            var task = QueryCookie(name);
+            task.ContinueWith(x =>
+            {
+                callback(x.Result);
+            });
+        }
+
         public Task PerformLifeCycle()
         {
             return CallCustomClientEvent<bool>("performLifeCycle");
@@ -56,6 +91,7 @@ namespace FSW.Controls
         public override void InitializeProperties()
         {
             IsMobile = null;
+
         }
 
     }

@@ -260,7 +260,9 @@ namespace FSW.Core
 
                 AwaitingAnswerEvents[id] = (obj) =>
                 {
-                    if (obj.HasValues)
+                    if (obj == null)
+                        callback(default(T));
+                    else if (obj.HasValues)
                         callback(obj.Value.ToObject<T>());
                     else
                         callback(obj.ToObject<T>());
@@ -279,7 +281,7 @@ namespace FSW.Core
         }
 
         [CoreEvent]
-        protected void OnCustomClientEventAnswerReceivedFromClient(int id, Newtonsoft.Json.Linq.JProperty answer)
+        protected void OnCustomClientEventAnswerReceivedFromClient(int id, Newtonsoft.Json.Linq.JProperty answer = null)
         {
             if (AwaitingAnswerEvents.TryGetValue(id, out var callback))
                 callback(answer);

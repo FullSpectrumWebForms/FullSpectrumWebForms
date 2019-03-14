@@ -39,6 +39,14 @@ var controls;
             var detector = new MobileDetect(window.navigator.userAgent);
             this.IsMobile = detector.mobile() != null;
         }
+        queryCookie(name) {
+            let def = $.Deferred();
+            def.resolve(Cookies.get(name));
+            return def;
+        }
+        setCookie(parameters) {
+            Cookies.set(parameters.name, parameters.value);
+        }
     }
     controls.commonInformations = commonInformations;
 })(controls || (controls = {}));

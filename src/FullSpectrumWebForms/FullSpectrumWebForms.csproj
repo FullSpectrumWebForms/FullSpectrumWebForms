@@ -3,7 +3,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>FSW</PackageId>
-    <Version>2.0.14.9</Version>
+    <Version>2.0.15.3</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
     <PackageTags>FSW</PackageTags>
@@ -69,11 +69,19 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Content Remove="wwwroot\js\core\controlBase.js" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <Folder Include="wwwroot\css\jqueryContextMenu\" />
     <Folder Include="wwwroot\js\jqueryTimepicker\" />
     <Folder Include="wwwroot\js\moment\" />
     <Folder Include="wwwroot\js\jquery\" />
     <Folder Include="wwwroot\js\mobileDetect\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="wwwroot\js\core\*.js" />
   </ItemGroup>
 
   <ItemGroup>

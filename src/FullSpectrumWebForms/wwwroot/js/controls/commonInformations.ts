@@ -50,6 +50,18 @@ namespace controls {
 
             this.IsMobile = detector.mobile() != null;
         }
+
+        queryCookie(name: string) {
+            let def = $.Deferred();
+
+            def.resolve(Cookies.get(name));
+
+            return def;
+        }
+
+        setCookie(parameters: { name: string, value: string }) {
+            Cookies.set(parameters.name, parameters.value);
+        }
     }
 }
 core.controlTypes['CommonInformations'] = () => new controls.commonInformations();
