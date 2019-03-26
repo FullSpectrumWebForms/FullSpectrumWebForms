@@ -22,6 +22,7 @@ namespace FSW.Controls
         {
 
         }
+
         public void UpdateParameter(string parameterName, string value, bool clearEverythingElse = false)
         {
             UpdateParameters(new Dictionary<string, string>
@@ -29,6 +30,7 @@ namespace FSW.Controls
                 [parameterName] = value
             }, !clearEverythingElse);
         }
+
         public void UpdateParameters(Dictionary<string, string> parameters, bool mergeWithPreviousParameters = true)
         {
             var copyOfOldParameters = mergeWithPreviousParameters ? Parameters.ToDictionary(x => x.Key, x => x.Value) : new Dictionary<string, string>();
@@ -36,6 +38,7 @@ namespace FSW.Controls
                 copyOfOldParameters[parameter.Key] = parameter.Value;
             UpdateUrlWithoutReloading(Url, copyOfOldParameters);
         }
+
         public void UpdateUrlWithoutReloading(string url, Dictionary<string, string> parameters = null)
         {
             Url = url;
@@ -47,9 +50,14 @@ namespace FSW.Controls
                 parameters
             });
         }
-        public void UpdateUrlAndReload(string url)
+
+        public void UpdateUrlAndReload(string url, Dictionary<string, string> parameters = null)
         {
-            CallCustomClientEvent("redirect", url);
+            CallCustomClientEvent("redirect", new
+            {
+                url,
+                parameters
+            });
         }
     }
 }
