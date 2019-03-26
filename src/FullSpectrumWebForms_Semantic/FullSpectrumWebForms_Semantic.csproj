@@ -3,7 +3,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>FSW.Semantic</PackageId>
-    <Version>2.0.0.9</Version>
+    <Version>2.0.1.1</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
     <IsPackable>true</IsPackable>
@@ -69,6 +69,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Azure|AnyCPU'">
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\js\semantic\controls\extensions\modal.ts" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FullSpectrumWebForms\FullSpectrumWebForms.csproj" />
