@@ -16,7 +16,8 @@
       "wwwroot/js/semantic/controls/html/prompt.js",
       "wwwroot/js/semantic/controls/html/iconTextButton.js",
       "wwwroot/js/semantic/controls/html/comboBox.js",
-      "wwwroot/js/semantic/controls/extensions/transition.js"
+      "wwwroot/js/semantic/controls/extensions/transition.js",
+      "wwwroot/js/semantic/controls/extensions/modal.js"
     ],
     // Optionally specify minification options
     "minify": {
