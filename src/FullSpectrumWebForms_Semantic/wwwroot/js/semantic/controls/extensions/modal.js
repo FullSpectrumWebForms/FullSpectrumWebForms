@@ -5,6 +5,7 @@ var controls;
     (function (extensions) {
         class modal extends core.controlExtension {
             show() {
+                this.control.element.modal('setting', 'closable', false);
                 this.control.element.modal('show');
             }
             hide() {

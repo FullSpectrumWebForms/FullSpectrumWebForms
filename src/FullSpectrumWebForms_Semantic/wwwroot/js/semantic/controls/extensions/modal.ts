@@ -5,6 +5,7 @@ namespace controls.extensions {
     export class modal extends core.controlExtension  {
 
         show() {
+            ((this.control as html.htmlControlBase).element as any).modal('setting', 'closable', false);
             ((this.control as html.htmlControlBase).element as any).modal('show');
         }
 
