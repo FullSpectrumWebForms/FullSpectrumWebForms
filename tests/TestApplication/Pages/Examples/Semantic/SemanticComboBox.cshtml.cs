@@ -11,6 +11,7 @@ namespace TestApplication.Pages.Examples.Semantic
     public class SemanticComboBoxPage : FSW.Core.FSWPage
     {
         public FSW.Semantic.Controls.Html.ComboBox_Ajax CB_Test = new FSW.Semantic.Controls.Html.ComboBox_Ajax();
+        public FSW.Semantic.Controls.Html.ComboBox CB_Test2 = new FSW.Semantic.Controls.Html.ComboBox();
 
         public override void OnPageLoad()
         {
@@ -23,7 +24,19 @@ namespace TestApplication.Pages.Examples.Semantic
             CB_Test.AllowNull = true;
             CB_Test.IsMultiple = true;
             CB_Test.OnSelectedIdsAndValuesChanged += CB_Test_OnSelectedIdsAndValuesChanged;
+
+            CB_Test2.AvailableChoices = GetComboDatas("t");
+            CB_Test2.AllowTag = true;
+            CB_Test2.IsMultiple = true;
+            CB_Test2.OnSelectedIdsChanged += CB_Test2_OnSelectedIdsChanged;
+
         }
+
+        private void CB_Test2_OnSelectedIdsChanged(FSW.Semantic.Controls.Html.ComboBox sender, string[] oldIds, string[] newIds)
+        {
+            MessageBox.Success("yes2!", string.Join(", ", newIds));
+        }
+
 
         private void CB_Test_OnSelectedIdsAndValuesChanged(FSW.Semantic.Controls.Html.ComboBox_Ajax sender, Dictionary<string, string> oldId, Dictionary<string, string> newId)
         {

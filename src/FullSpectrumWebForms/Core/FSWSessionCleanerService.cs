@@ -13,8 +13,6 @@ using System.Threading.Tasks;
 
 namespace FSW.Core
 {
-
-
     public class FSWSessionCleanerService : BackgroundService
     {
         private readonly ILogger<FSWSessionCleanerService> _logger;

@@ -11,6 +11,10 @@ var controls;
             get IsMultiple() {
                 return this.getPropertyValue("IsMultiple");
             }
+            // ------------------------------------------------------------------------   AllowTag
+            get AllowTag() {
+                return this.getPropertyValue("AllowTag");
+            }
             // ------------------------------------------------------------------------   AvailableChoices
             get AvailableChoices() {
                 return this.getPropertyValue("AvailableChoices");
@@ -41,13 +45,17 @@ var controls;
             }
             callOnInitProperties() {
                 super.callOnInitProperties();
+                let that = this;
                 this.element.dropdown({
                     action: this.onSelectedValueChangedFromClient.bind(this),
+                    onAdd: function (value, text) { that.onSelectedValueChangedFromClient(text, value, that.element, true); },
                     ignoreCase: true,
                     clearable: this.AllowNull,
+                    allowAdditions: this.AllowTag,
                     fullTextSearch: true,
                     placeholder: this.Placeholder,
-                    values: this.getValues()
+                    values: this.getValues(),
+                    useLabels: this.IsMultiple && this.AllowTag
                 });
                 this.onSelectedIdChangedFromServer();
                 this.onSelectedIdsChangedFromServer();
@@ -81,13 +89,24 @@ var controls;
                 }
             }
             onItemDeletedFromMultipleComboBox(id) {
-                this.SelectedIds = this.SelectedIds.filter(x => x != id);
-            }
-            onSelectedValueChangedFromClient(text, value, element) {
-                this.element.dropdown('hide');
-                this.element.dropdown('set selected', value);
                 if (this.IsMultiple)
-                    this.SelectedIds = [value].concat(this.SelectedIds);
+                    this.SelectedIds = this.SelectedIds.filter(x => x != id);
+                else
+                    this.SelectedId = null;
+            }
+            onSelectedValueChangedFromClient(text, value, element, doNotSet) {
+                let that = this;
+                this.element.dropdown('hide');
+                if (!doNotSet)
+                    this.element.dropdown('set selected', value);
+                if (this.IsMultiple) {
+                    const distinct = (value, index, self) => {
+                        return self.indexOf(value) === index;
+                    };
+                    let newArr = [value].concat(this.SelectedIds).filter(distinct);
+                    if (!(newArr.length === that.SelectedIds.length && newArr.sort().every(function (value, index) { return value === that.SelectedIds.sort()[index]; })))
+                        this.SelectedIds = newArr;
+                }
                 else {
                     if (this.SelectedId != value && !(this.SelectedId == undefined && value == ''))
                         this.SelectedId = value == '' ? null : value;

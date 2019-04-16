@@ -56,6 +56,15 @@ namespace FSW.Semantic.Controls.Html
         }
 
         /// <summary>
+        /// Allow the use to clear the selected value
+        /// </summary>
+        public bool AllowTag
+        {
+            get => GetProperty<bool>(PropertyName());
+            set => SetProperty(PropertyName(), value);
+        }
+
+        /// <summary>
         /// Cannot be used with IsMultiple ComboBox
         /// </summary>
         public string SelectedId
