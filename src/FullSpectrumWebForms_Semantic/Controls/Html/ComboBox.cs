@@ -112,6 +112,7 @@ namespace FSW.Semantic.Controls.Html
             AvailableChoices_ = new Utility.ControlPropertyDictionary<string>(this, nameof(AvailableChoices));
             SelectedIds_ = new Utility.ControlPropertyList<string>(this, nameof(SelectedIds));
             SelectedId = null;
+            AllowTag = false;
 
 
             GetPropertyInternal(nameof(SelectedId)).OnNewValueFromClient += OnSelectedIdChangedFromClient;
