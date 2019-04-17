@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FSW.Core
 {
-    public class CommunicationHub: Hub
+    public class CommunicationHub : Hub
     {
         public static readonly int MaxJsonLength = 1024 * 1024 * 64;
         public static IHubContext<CommunicationHub> Hub;
@@ -23,7 +23,7 @@ namespace FSW.Core
         public static Dictionary<string, FSWPage> Connections = new Dictionary<string, FSWPage>();
         public static Dictionary<int, FSWPage> PageAwaitingConnections = new Dictionary<int, FSWPage>();
 
-        private static Dictionary<Guid, StaticHostedServiceBase> StaticHostedServices = new Dictionary<Guid, StaticHostedServiceBase>();
+        private static System.Collections.Concurrent.ConcurrentDictionary<Guid, StaticHostedServiceBase> StaticHostedServices = new System.Collections.Concurrent.ConcurrentDictionary<Guid, StaticHostedServiceBase>();
 
         public FSWPage CurrentPage => GetPage(ConnectionId);
 
@@ -35,7 +35,8 @@ namespace FSW.Core
 
         public static void RegisterStaticHostedService(Type pageType, StaticHostedServiceBase service)
         {
-            StaticHostedServices.Add(pageType.GUID, service);
+            if (!StaticHostedServices.TryAdd(pageType.GUID, service))
+                throw new Exception("Unable to add pageType to hosted services");
         }
         public Task OnNewConnection()
         {
@@ -69,8 +70,8 @@ namespace FSW.Core
                     page.InvokePageUnload();
 
                 var guid = page.GetType().GUID;
-                if (StaticHostedServices.ContainsKey(guid))
-                    StaticHostedServices[guid].RemoveConnection(page);
+                if (StaticHostedServices.TryGetValue(guid, out var service))
+                    service.RemoveConnection(page);
             }
 
         }
@@ -278,8 +279,9 @@ namespace FSW.Core
 
             // then process the StaticHostedServices
             var guid = page.GetType().GUID;
-            if (StaticHostedServices.ContainsKey(guid))
-                StaticHostedServices[guid].AddNewConnection(page);
+
+            if (StaticHostedServices.TryGetValue(guid, out var service))
+                service.AddNewConnection(page);
 
             page.FSWPage_InitializedEvent.Set();
 
@@ -299,7 +301,7 @@ namespace FSW.Core
 
 
         #region signal R methods
-        
+
 
         #endregion
 
