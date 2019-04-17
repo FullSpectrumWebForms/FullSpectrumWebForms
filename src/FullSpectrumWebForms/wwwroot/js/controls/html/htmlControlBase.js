@@ -305,6 +305,12 @@ var controls;
                 }
                 this.lastContextMenu = BuildRightClickMenu(this.RightClickMenu);
             }
+            scrollToControl(parameters) {
+                this.element[0].scrollIntoView({
+                    block: 'end',
+                    behavior: parameters.Smooth ? 'smooth' : 'auto'
+                });
+            }
         }
         html.htmlControlBase = htmlControlBase;
     })(html = controls.html || (controls.html = {}));

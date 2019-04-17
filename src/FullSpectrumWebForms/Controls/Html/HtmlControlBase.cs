@@ -384,5 +384,13 @@ namespace FSW.Controls.Html
             PopupContent = null;
         }
 
+        public void ScrollToControl( bool smooth = true )
+        {
+            CallCustomClientEvent("scrollToControl", new
+            {
+                Smooth = smooth
+            });
+        }
+
     }
 }

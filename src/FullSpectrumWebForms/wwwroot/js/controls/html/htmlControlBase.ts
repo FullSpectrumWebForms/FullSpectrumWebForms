@@ -348,6 +348,13 @@ namespace controls.html {
             }
             this.lastContextMenu = BuildRightClickMenu(this.RightClickMenu);
         }
+
+        scrollToControl(parameters: { Smooth: boolean }) {
+            this.element[0].scrollIntoView({
+                block: 'end',
+                behavior: parameters.Smooth ? 'smooth' : 'auto'
+            });
+        }
     }
 }
 
