@@ -320,7 +320,7 @@ var controls;
             }
             scrollToControl(parameters) {
                 this.element[0].scrollIntoView({
-                    block: 'end',
+                    block: parameters.ScrollTarget.toLocaleLowerCase(),
                     behavior: parameters.Smooth ? 'smooth' : 'auto'
                 });
             }

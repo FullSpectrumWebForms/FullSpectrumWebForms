@@ -375,6 +375,7 @@ namespace FSW.Controls.Html
                     value.GenerateRightClickMenuItem();
             }
         }
+
         [CoreEvent]
         protected void OnRightClickMenuClickedFromClient(int id)
         {
@@ -382,6 +383,7 @@ namespace FSW.Controls.Html
             if (item?.OnClick != null)
                 item.OnClick();
         }
+
         public override void InitializeProperties()
         {
             CssProperties_ = new Utility.ControlPropertyDictionary<string>(this, nameof(CssProperties));
@@ -394,11 +396,16 @@ namespace FSW.Controls.Html
             PopupShowDelay = null;
         }
 
-        public void ScrollToControl( bool smooth = true )
+        public enum ScrollTarget
+        {
+            End, Start
+        }
+        public void ScrollToControl( bool smooth = true, ScrollTarget scrollTarget = ScrollTarget.End)
         {
             CallCustomClientEvent("scrollToControl", new
             {
-                Smooth = smooth
+                Smooth = smooth,
+                ScrollTarget = scrollTarget.ToString()
             });
         }
 

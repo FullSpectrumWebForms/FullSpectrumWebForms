@@ -362,9 +362,9 @@ namespace controls.html {
             this.lastContextMenu = BuildRightClickMenu(this.RightClickMenu);
         }
 
-        scrollToControl(parameters: { Smooth: boolean }) {
+        scrollToControl(parameters: { Smooth: boolean, ScrollTarget: string }) {
             this.element[0].scrollIntoView({
-                block: 'end',
+                block: parameters.ScrollTarget.toLocaleLowerCase() as any,
                 behavior: parameters.Smooth ? 'smooth' : 'auto'
             });
         }
