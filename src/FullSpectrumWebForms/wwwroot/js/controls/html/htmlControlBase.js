@@ -90,6 +90,13 @@ var controls;
             set PopupTitle(value) {
                 this.setPropertyValue("PopupTitle", value);
             }
+            // ------------------------------------------------------------------------   PopupShowDelay
+            get PopupShowDelay() {
+                return this.getPropertyValue("PopupShowDelay");
+            }
+            set PopupShowDelay(value) {
+                this.setPropertyValue("PopupShowDelay", value);
+            }
             // ------------------------------------------------------------------------   PopupContent
             get PopupContent() {
                 return this.getPropertyValue("PopupContent");
@@ -171,6 +178,8 @@ var controls;
                 this.getProperty("Classes").onChangedFromClient.register(this.onClassesChanged.bind(this));
                 this.getProperty("PopupTitle").onChangedFromServer.register(this.onPopupChanged.bind(this), true);
                 this.getProperty("PopupTitle").onChangedFromClient.register(this.onPopupChanged.bind(this));
+                this.getProperty("PopupShowDelay").onChangedFromServer.register(this.onPopupChanged.bind(this), true);
+                this.getProperty("PopupShowDelay").onChangedFromClient.register(this.onPopupChanged.bind(this));
                 this.getProperty("PopupContent").onChangedFromServer.register(this.onPopupChanged.bind(this), true);
                 this.getProperty("PopupContent").onChangedFromClient.register(this.onPopupChanged.bind(this));
                 this.getProperty("InternalStyles").onChangedFromServer.register(this.onInternalStylesChanged.bind(this), true);
@@ -275,6 +284,10 @@ var controls;
                     this.element.popup({
                         title: this.PopupTitle,
                         content: this.PopupContent,
+                        delay: {
+                            show: this.PopupShowDelay || 250,
+                            hide: 0
+                        }
                     });
                 }
                 else if (this.element.popup)

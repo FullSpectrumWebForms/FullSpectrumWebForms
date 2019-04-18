@@ -355,6 +355,15 @@ namespace FSW.Controls.Html
             get => GetProperty<string>(PropertyName());
             set => SetProperty(PropertyName(), value);
         }
+        public TimeSpan? PopupShowDelay
+        {
+            get
+            {
+                var v = GetProperty<int?>(PropertyName());
+                return v != null ? (TimeSpan?)TimeSpan.FromMilliseconds(v.Value) : null;
+            }
+            set => SetProperty(PropertyName(), (int?)value?.TotalMilliseconds);
+        }
 
         public RightClickMenuOptions RightClickMenu
         {
@@ -382,6 +391,7 @@ namespace FSW.Controls.Html
             RightClickMenu = null;
             PopupTitle = null;
             PopupContent = null;
+            PopupShowDelay = null;
         }
 
         public void ScrollToControl( bool smooth = true )

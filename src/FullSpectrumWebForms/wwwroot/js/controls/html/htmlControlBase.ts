@@ -99,6 +99,13 @@ namespace controls.html {
         set PopupTitle(value: string) {
             this.setPropertyValue<this>("PopupTitle", value);
         }
+        // ------------------------------------------------------------------------   PopupShowDelay
+        get PopupShowDelay(): number {
+            return this.getPropertyValue<this, number>("PopupShowDelay");
+        }
+        set PopupShowDelay(value: number) {
+            this.setPropertyValue<this>("PopupShowDelay", value);
+        }
         // ------------------------------------------------------------------------   PopupContent
         get PopupContent(): string {
             return this.getPropertyValue<this, string>("PopupContent");
@@ -193,6 +200,8 @@ namespace controls.html {
 
             this.getProperty<this, any>("PopupTitle").onChangedFromServer.register(this.onPopupChanged.bind(this), true);
             this.getProperty<this, any>("PopupTitle").onChangedFromClient.register(this.onPopupChanged.bind(this));
+            this.getProperty<this, any>("PopupShowDelay").onChangedFromServer.register(this.onPopupChanged.bind(this), true);
+            this.getProperty<this, any>("PopupShowDelay").onChangedFromClient.register(this.onPopupChanged.bind(this));
             this.getProperty<this, any>("PopupContent").onChangedFromServer.register(this.onPopupChanged.bind(this), true);
             this.getProperty<this, any>("PopupContent").onChangedFromClient.register(this.onPopupChanged.bind(this));
 
@@ -314,6 +323,10 @@ namespace controls.html {
                 (this.element as any).popup({
                     title: this.PopupTitle,
                     content: this.PopupContent,
+                    delay: {
+                        show: this.PopupShowDelay || 250,
+                        hide: 0
+                    }
                 });
             }
             else if ((this.element as any).popup)
