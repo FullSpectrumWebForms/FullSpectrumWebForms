@@ -691,6 +691,7 @@
                     continue;// anyway, let's protect it juuuust in case
 
                 let meta: any = $.extend({}, colMeta.colInternal);
+                meta.id = colIds[i];
 
                 if (colMeta.Editor && colMeta.EditorInfo === undefined)
                     colMeta.EditorInfo = this.buildEditorInfo(colMeta.Editor.EditorName, colMeta.Editor, colMeta.colInternal = {});

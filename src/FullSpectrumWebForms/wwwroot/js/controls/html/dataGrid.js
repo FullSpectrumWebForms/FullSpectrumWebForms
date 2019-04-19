@@ -577,6 +577,7 @@ var controls;
                         if (!colMeta) // shouldn't happen, if it does, the programmer who's fault it is, is kinda stupid...
                             continue; // anyway, let's protect it juuuust in case
                         let meta = $.extend({}, colMeta.colInternal);
+                        meta.id = colIds[i];
                         if (colMeta.Editor && colMeta.EditorInfo === undefined)
                             colMeta.EditorInfo = this.buildEditorInfo(colMeta.Editor.EditorName, colMeta.Editor, colMeta.colInternal = {});
                         let formatter;
