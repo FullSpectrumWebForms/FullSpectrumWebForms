@@ -194,7 +194,7 @@ var controls;
                         this.tree.grid.onClick.subscribe(this.onCellClicked.bind(this));
                     }
                     onBeforeEditCell(e, data) {
-                        return super.onBeforeEditCell(e, data) && this.tree.getDataItem(data.item, data.column);
+                        return super.onBeforeEditCell(e, data) && (this.tree.getDataItem(data.item, data.column) || this.IgnoreValue);
                     }
                     onCellClicked(e, data) {
                         if (this.tree.grid.getColumns()[data.cell].id == this.col.id && e.target.type == 'button') {

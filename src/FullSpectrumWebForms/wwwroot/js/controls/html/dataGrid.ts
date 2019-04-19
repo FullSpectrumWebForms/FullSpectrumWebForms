@@ -224,7 +224,7 @@
                 this.tree.grid.onClick.subscribe(this.onCellClicked.bind(this));
             }
             onBeforeEditCell(e: Slick.EventData, data: Slick.OnBeforeEditCellEventArgs<gen.treeTableData>) {
-                return super.onBeforeEditCell(e, data) && this.tree.getDataItem(data.item, data.column);
+                return super.onBeforeEditCell(e, data) && (this.tree.getDataItem(data.item, data.column) || this.IgnoreValue);
             }
             onCellClicked(e: DOMEvent, data: Slick.OnClickEventArgs<gen.treeTableData>) {
                 if (this.tree.grid.getColumns()[data.cell].id == this.col.id && (e.target as any).type == 'button') {
