@@ -214,6 +214,7 @@
         export class ButtonEditor extends baseEditor {
             Text: string;
             TextDisabled: string;
+            IgnoreValue: boolean;
 
             setup(col: Slick.Column<gen.treeTableData>, grid: dataGrid) {
                 super.setup(col, grid);
@@ -239,7 +240,7 @@
                 }
             }
             formatter(row: number, cell: number, value: any, columnDef: Slick.Column<any>, dataContext: Slick.SlickData) {
-                var allowEdit = this.AllowEdit && value;
+                var allowEdit = this.AllowEdit && (value || this.IgnoreValue);
                 if (allowEdit) {
                     let realRow = this.tree.dataView.getIdxById(this.tree.grid.getDataItem(row).id);
                     var meta = this.control.MetaDatas[realRow];

@@ -149,6 +149,7 @@ namespace FSW.Controls.Html
         {
             public string Text;
             public string TextDisabled;
+            public bool IgnoreValue;
 
             public override EditorBase Clone()
             {
@@ -163,6 +164,7 @@ namespace FSW.Controls.Html
         {
             public string Text;
             public string TextDisabled;
+            public bool IgnoreValue;
         }
         public class TimeSpanEditor : EditorBase
         {
@@ -785,6 +787,7 @@ namespace FSW.Controls.Html
                     var buttonEditor = col.Editor as DataGridColumn.ButtonEditor;
                     buttonEditor.Text = attribute.Text;
                     buttonEditor.TextDisabled = attribute.TextDisabled;
+                    buttonEditor.IgnoreValue = attribute.IgnoreValue;
                 }
                 else
                     col.Editor = new DataGridColumn.BoolEditor();

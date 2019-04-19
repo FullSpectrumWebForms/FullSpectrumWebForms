@@ -138,6 +138,7 @@ namespace FSW.Semantic.Controls.ServerSide
         {
             return Items_.IndexOf(item);
         }
+
         public int FindItemIndex(HtmlControlBase control)
         {
             for (var index = 0; index != Items_.Count; ++index)
@@ -147,6 +148,7 @@ namespace FSW.Semantic.Controls.ServerSide
             }
             return -1;
         }
+
         public int FindItemIndex(T item)
         {
             for (var index = 0; index != Items_.Count; ++index)
@@ -156,10 +158,12 @@ namespace FSW.Semantic.Controls.ServerSide
             }
             return -1;
         }
+
         public ListViewItem GetItem(int index)
         {
             return Items_[index];
         }
+
         public void RemoveItemFromIndex(int index)
         {
             var item = Items_[index];
@@ -171,6 +175,7 @@ namespace FSW.Semantic.Controls.ServerSide
             else if (index < SelectedIndex)
                 --SelectedIndex_;
         }
+
         public int ItemCount => Items_.Count;
 
         private void OnItemClickedFromClient(HtmlControlBase control)
@@ -240,21 +245,25 @@ namespace FSW.Semantic.Controls.ServerSide
             ClearAndSkipItemSelectedEvent();
             SelectedItem = null;
         }
+
         private void ClearAndSkipItemSelectedEvent()
         {
             Items_.Clear();
             Children.Clear();
         }
+
         public void UpdateItem(T item)
         {
             UpdateItemFromIndex(Items.IndexOf(item));
         }
+
         public void UpdateItem(ListViewItem item)
         {
             item.Container.Children.Clear();
 
             OnGenerateItem?.Invoke(item.Container, item.Data);
         }
+
         public void UpdateItemFromIndex(int index)
         {
             var item = Items_[index];

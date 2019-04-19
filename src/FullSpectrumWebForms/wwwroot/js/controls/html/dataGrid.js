@@ -209,7 +209,7 @@ var controls;
                         }
                     }
                     formatter(row, cell, value, columnDef, dataContext) {
-                        var allowEdit = this.AllowEdit && value;
+                        var allowEdit = this.AllowEdit && (value || this.IgnoreValue);
                         if (allowEdit) {
                             let realRow = this.tree.dataView.getIdxById(this.tree.grid.getDataItem(row).id);
                             var meta = this.control.MetaDatas[realRow];
