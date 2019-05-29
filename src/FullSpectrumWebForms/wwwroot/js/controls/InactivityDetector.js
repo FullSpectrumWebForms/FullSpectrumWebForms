@@ -22,10 +22,16 @@ var controls;
         initialize(type, index, id, properties) {
             super.initialize(type, index, id, properties);
             this.activityTrigger();
-            window.addEventListener('click', this.activityTrigger.bind(this), false);
-            window.addEventListener('mousemove', this.activityTrigger.bind(this), false);
-            window.addEventListener('keyup', this.activityTrigger.bind(this), false);
+            this.activityTriggerCallback = this.activityTrigger.bind(this);
+            window.addEventListener('click', this.activityTriggerCallback, false);
+            window.addEventListener('mousemove', this.activityTriggerCallback, false);
+            window.addEventListener('keyup', this.activityTriggerCallback, false);
             this.waitInactivity();
+        }
+        removeControl() {
+            window.removeEventListener('click', this.activityTriggerCallback, false);
+            window.removeEventListener('mousemove', this.activityTriggerCallback, false);
+            window.removeEventListener('keyup', this.activityTriggerCallback, false);
         }
         activityTrigger() {
             this.lastActivity = moment();
@@ -36,6 +42,8 @@ var controls;
             }
         }
         waitInactivity() {
+            if (this.wasRemoved)
+                return;
             let delayBeforeNextInactivity = this.lastActivity.clone().add(this.MaxInactivityDelay, 'seconds').diff(moment(), 'ms');
             if (delayBeforeNextInactivity < 0) {
                 this.isInactive = true;
