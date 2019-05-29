@@ -27,7 +27,16 @@ namespace FSW.Core
         {
             _logger.LogDebug($"FSWSessionCleanerService is starting.");
 
-            stoppingToken.Register(() => _logger.LogDebug($" FSWSessionCleanerService background task is stopping."));
+            stoppingToken.Register(() =>
+            {
+                try
+                {
+                    _logger.LogDebug($" FSWSessionCleanerService background task is stopping.");
+                }
+                catch (Exception)
+                {
+                }
+            });
 
             while (!stoppingToken.IsCancellationRequested)
             {
