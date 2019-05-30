@@ -26,6 +26,17 @@ var controls;
             }
             window.location.replace(data.url);
         }
+        openNewTab(data) {
+            if (data.parameters) {
+                let keys = Object.keys(data.parameters);
+                let params = [];
+                for (let i = 0; i < keys.length; ++i)
+                    params.push(encodeURIComponent(keys[i]) + '=' + encodeURIComponent(data.parameters[keys[i]]));
+                if (params.length != 0)
+                    data.url += '?' + params.join('&');
+            }
+            window.open(data.url);
+        }
     }
     controls.urlManager = urlManager;
 })(controls || (controls = {}));

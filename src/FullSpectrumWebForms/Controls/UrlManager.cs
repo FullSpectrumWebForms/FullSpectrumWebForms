@@ -59,5 +59,14 @@ namespace FSW.Controls
                 parameters
             });
         }
+
+        public void OpenNewTab(string url, Dictionary<string, string> parameters = null)
+        {
+            CallCustomClientEvent("openNewTab", new
+            {
+                url,
+                parameters
+            });
+        }
     }
 }
