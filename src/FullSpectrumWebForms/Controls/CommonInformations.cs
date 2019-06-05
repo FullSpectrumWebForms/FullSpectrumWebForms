@@ -88,6 +88,22 @@ namespace FSW.Controls
             return CallCustomClientEvent<bool>("performLifeCycle");
         }
 
+        public void ConsoleLog(string message)
+        {
+            CallCustomClientEvent("consoleLog", new
+            {
+                message
+            });
+        }
+
+        public void ConsoleError(string message)
+        {
+            CallCustomClientEvent("ConsoleError", new
+            {
+                message
+            });
+        }
+
         public override void InitializeProperties()
         {
             IsMobile = null;
