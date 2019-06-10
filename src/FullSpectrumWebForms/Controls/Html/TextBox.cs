@@ -39,12 +39,24 @@ namespace FSW.Controls.Html
         public bool Disabled
         {
             get => Attributes.ContainsKey("disabled");
-            set => Attributes["disabled"] = "disabled";
+            set
+            {
+                if (value && !Disabled)
+                    Attributes["disabled"] = "disabled";
+                else if (!value)
+                    Attributes.Remove("disabled");
+            }
         }
         public bool ReadOnly
         {
             get => Attributes.ContainsKey("readonly");
-            set => Attributes["readonly"] = "readonly";
+            set
+            {
+                if (value && !ReadOnly)
+                    Attributes["readonly"] = "readonly";
+                else if (!value)
+                    Attributes.Remove("readonly");
+            }
         }
 
         public override void InitializeProperties()
