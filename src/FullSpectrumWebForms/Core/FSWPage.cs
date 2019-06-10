@@ -222,9 +222,22 @@ namespace FSW.Core
                     {
                         action();
                     }
-                    catch (Exception ex)
+                    catch (Exception e)
                     {
-                        CommunicationHub.SendError(Page, ex);
+                        try
+                        {
+                            if (Page.OverrideErrorHandle != null)
+                            {
+                                using (Page.ServerSideLock)
+                                    Page.OverrideErrorHandle(e);
+                            }
+                            else
+                                CommunicationHub.SendError(Page, e);
+                        }
+                        catch (Exception e2)
+                        {
+                            CommunicationHub.SendError(Page, e);
+                        }
                     }
 
                     lock (ServicesToRun)
@@ -298,7 +311,20 @@ namespace FSW.Core
                     }
                     catch (Exception e)
                     {
-                        CommunicationHub.SendError(this, e);
+                        try
+                        {
+                            if (OverrideErrorHandle != null)
+                            {
+                                using (ServerSideLock)
+                                    OverrideErrorHandle(e);
+                            }
+                            else
+                                CommunicationHub.SendError(this, e);
+                        }
+                        catch (Exception e2)
+                        {
+                            CommunicationHub.SendError(this, e);
+                        }
                     }
                 }
                 while (!BackgroundServiceReset.WaitOne(callbackInterval));
