@@ -39,7 +39,13 @@ namespace FSW.Controls.Html
         public bool Disabled
         {
             get => Attributes.ContainsKey("disabled");
-            set => Attributes["disabled"] = "disabled";
+            set
+            {
+                if (value && !Disabled)
+                    Attributes["disabled"] = "disabled";
+                else if (!value)
+                    Attributes.Remove("disabled"); // ou RemoveKey.. pus sur
+            }
         }
         public bool ReadOnly
         {
