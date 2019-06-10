@@ -44,13 +44,19 @@ namespace FSW.Controls.Html
                 if (value && !Disabled)
                     Attributes["disabled"] = "disabled";
                 else if (!value)
-                    Attributes.Remove("disabled"); // ou RemoveKey.. pus sur
+                    Attributes.Remove("disabled");
             }
         }
         public bool ReadOnly
         {
             get => Attributes.ContainsKey("readonly");
-            set => Attributes["readonly"] = "readonly";
+            set
+            {
+                if (value && !ReadOnly)
+                    Attributes["readonly"] = "readonly";
+                else if (!value)
+                    Attributes.Remove("disabled");
+            }
         }
 
         public override void InitializeProperties()
