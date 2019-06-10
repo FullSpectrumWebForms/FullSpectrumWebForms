@@ -55,7 +55,7 @@ namespace FSW.Controls.Html
                 if (value && !ReadOnly)
                     Attributes["readonly"] = "readonly";
                 else if (!value)
-                    Attributes.Remove("disabled");
+                    Attributes.Remove("readonly");
             }
         }
 
