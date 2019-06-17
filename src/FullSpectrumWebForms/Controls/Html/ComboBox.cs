@@ -7,21 +7,22 @@ using System.Web;
 
 namespace FSW.Controls.Html
 {
-    public class ComboBox : HtmlControlBase
+    public class ComboBoxBase : HtmlControlBase
     {
-        public ComboBox(FSWPage page = null) : base(page)
+        public ComboBoxBase(FSWPage page = null) : base(page)
         {
         }
+
         /// <summary>
         /// Means that multiple values can be selected at the same time
         /// It changes the way selected values are handled
-        /// See <see cref="SelectedId"/> and <see cref="SelectedIds"/>
         /// </summary>
         public bool IsMultiple
         {
             get => GetProperty<bool>(PropertyName());
             set => SetProperty(PropertyName(), value);
         }
+
         /// <summary>
         /// Enables the user to enter any value in the ComboBox
         /// You do not and should not provide any AvaiableChoices
@@ -31,20 +32,48 @@ namespace FSW.Controls.Html
             get => GetProperty<bool>(PropertyName());
             set => SetProperty(PropertyName(), value);
         }
-
+        
         /// <summary>
-        /// This is used only when the ComboBox is not ajax
-        /// </summary>
-        public Utility.ControlPropertyDictionary<string> AvailableChoices { get; private set; }
-
-        /// <summary>
-        /// Allow the use to clear the selected value
-        /// </summary>
+         /// Allow the use to clear the selected value
+         /// </summary>
         public bool AllowNull
         {
             get => GetProperty<bool>(PropertyName());
             set => SetProperty(PropertyName(), value);
         }
+
+        /// <summary>
+        /// Text to put in a ComboBox when there is no selected value
+        /// </summary>
+        public string Placeholder
+        {
+            get => GetProperty<string>(PropertyName());
+            set => SetProperty(PropertyName(), value);
+        }
+
+        public override void InitializeProperties()
+        {
+            base.InitializeProperties();
+
+            IsMultiple = false;
+            AllowNull = false;
+            IsTags = false;
+            Placeholder = "";
+            Width = "100%";
+            Classes.Add("input-control");
+        }
+    }
+    public class ComboBox : ComboBoxBase
+    {
+        public ComboBox(FSWPage page = null) : base(page)
+        {
+        }
+        
+
+        /// <summary>
+        /// This is used only when the ComboBox is not ajax
+        /// </summary>
+        public Utility.ControlPropertyDictionary<string> AvailableChoices { get; private set; }
 
         /// <summary>
         /// Cannot be used with IsMultiple ComboBox
@@ -59,15 +88,7 @@ namespace FSW.Controls.Html
         /// </summary>
         public Utility.ControlPropertyList<string> SelectedIds { get; private set; }
 
-        /// <summary>
-        /// Text to put in a ComboBox when there is no selected value
-        /// </summary>
-        public string Placeholder
-        {
-            get => GetProperty<string>(PropertyName());
-            set => SetProperty(PropertyName(), value);
-        }
-
+        
         public delegate void OnSelectedIdChangedHandler(ComboBox sender, string oldId, string newId);
         public event OnSelectedIdChangedHandler OnSelectedIdChanged;
 
@@ -91,12 +112,6 @@ namespace FSW.Controls.Html
             AvailableChoices = new Utility.ControlPropertyDictionary<string>(this, nameof(AvailableChoices));
             SelectedIds = new Utility.ControlPropertyList<string>(this, nameof(SelectedIds));
             SelectedId = null;
-            IsMultiple = false;
-            AllowNull = false;
-            IsTags = false;
-            Placeholder = "";
-            Width = "100%";
-            Classes.Add("input-control");
 
             GetPropertyInternal(nameof(SelectedId)).OnNewValueFromClient += OnSelectedIdChangedFromClient;
             GetPropertyInternal(nameof(SelectedIds)).OnNewValueFromClient += OnSelectedIdsChangedFromClient;

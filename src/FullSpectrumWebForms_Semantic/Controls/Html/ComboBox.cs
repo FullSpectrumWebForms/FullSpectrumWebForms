@@ -132,8 +132,8 @@ namespace FSW.Semantic.Controls.Html
         {
             OnSelectedIdChanged?.Invoke(this, (string)lastValue, (string)newValue);
         }
-
     }
+
     public class ComboBox_Ajax : HtmlControlBase
     {
         public override string ControlType => $"{nameof(Semantic)}.{nameof(ComboBox_Ajax)}";
