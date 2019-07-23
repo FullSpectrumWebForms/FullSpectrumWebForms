@@ -275,7 +275,7 @@ namespace FSW.Core
 
 
         private HostedServicesContainer ServicesContainer;
-        public void RegisterHostedService(Func<Task> callback, HostedServicePriority priority = HostedServicePriority.Medium)
+        public void RegisterAsyncHostedService(Func<Task> callback, HostedServicePriority priority = HostedServicePriority.Medium)
         {
             RegisterHostedService(() =>
             {
