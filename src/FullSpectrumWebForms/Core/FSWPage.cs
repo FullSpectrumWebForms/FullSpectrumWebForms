@@ -329,7 +329,7 @@ namespace FSW.Core
                             else
                                 CommunicationHub.SendError(this, e);
                         }
-                        catch (Exception e2)
+                        catch (Exception)
                         {
                             CommunicationHub.SendError(this, e);
                         }
