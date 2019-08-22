@@ -12,6 +12,8 @@ namespace FSW.Core
     {
         internal List<string> Files = new List<string>();
 
+        internal List<Type> LibToLoadAfter = new List<Type>();
+
         internal string Version;
         internal protected string Name;
 
@@ -33,9 +35,16 @@ namespace FSW.Core
         {
             Files.AddRange(path);
         }
-        
+
+        public void ForceCurrentLibToLoadBeforeThis<T>() where T : StartupBase
+        {
+            LibToLoadAfter.Add(typeof(T));
+        }
+
         public abstract void ConfigureMvc(IMvcBuilder mvc);
+
         public abstract void ConfigureServices(IServiceCollection services);
+
         public abstract void Configure(IApplicationBuilder app, IHostingEnvironment env);
 
     }

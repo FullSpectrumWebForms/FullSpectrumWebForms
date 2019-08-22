@@ -42,16 +42,25 @@ namespace FSW.Semantic.Controls.Html
             Classes.AddRange(new List<string> { "ui", "tiny", "modal" });
         }
 
-        public async Task<PromptAnswer> Show(string title, string message, bool allowCancel)
+        public Task<PromptAnswer> Show(string title, string message, bool allowCancel)
         {
-            var res = await CallCustomClientEvent<string>("showPrompt", new 
+            var source = new TaskCompletionSource<PromptAnswer>();
+
+            var ev = CallCustomClientEvent<string>("showPrompt", new
             {
                 title,
                 message,
                 allowCancel
             });
+            new System.Threading.Thread(() =>
+            {
+                ev.Wait();
 
-            return (PromptAnswer)Enum.Parse(typeof(PromptAnswer), res, true);
+                new System.Threading.Thread(() => source.SetResult((PromptAnswer)Enum.Parse(typeof(PromptAnswer), ev.Result, true))).Start();
+
+            }).Start();
+
+            return source.Task;
         }
     }
 }

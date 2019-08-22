@@ -106,11 +106,11 @@ interface JQuery {
 namespace gen_utility {
     export namespace select2 {
         export type _select2_type = JQuery | string | HTMLSelectElement | HTMLElement;
-        export function _getSelect2(select2): JQuery {
+        export function _getSelect2(select2: any): JQuery {
             if (typeof select2 === "string")
                 return $((select2.charAt(0) === '#' ? '' : '#') + select2);
             else if (select2 instanceof jQuery)
-                return select2;
+                return select2 as any;
             return $(select2);
         };
         export function getSelectedValuesAndIds(select2_: _select2_type): { id: string, value: string }[] {

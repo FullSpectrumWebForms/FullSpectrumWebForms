@@ -16,6 +16,7 @@ namespace controls {
 
         callDownload(parameters: { url: string }) {
 
+
             if (this.iframe)
                 this.iframe.attr('src', parameters.url);
             else

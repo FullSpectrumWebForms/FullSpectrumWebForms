@@ -275,6 +275,14 @@ namespace FSW.Core
 
 
         private HostedServicesContainer ServicesContainer;
+        public void RegisterAsyncHostedService(Func<Task> callback, HostedServicePriority priority = HostedServicePriority.Medium)
+        {
+            RegisterHostedService(() =>
+            {
+                callback().Wait();
+            }, priority);
+        }
+
         public void RegisterHostedService(Action callback, HostedServicePriority priority = HostedServicePriority.Medium)
         {
             ServicesContainer.AddHostedService(callback, priority);
@@ -321,7 +329,7 @@ namespace FSW.Core
                             else
                                 CommunicationHub.SendError(this, e);
                         }
-                        catch (Exception e2)
+                        catch (Exception)
                         {
                             CommunicationHub.SendError(this, e);
                         }

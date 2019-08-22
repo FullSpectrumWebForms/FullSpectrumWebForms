@@ -191,7 +191,6 @@ var controls;
                         super.setup(col, grid);
                         col.editor = Slick.Editors.ButtonEditor;
                         col.formatter = this.formatter.bind(this);
-                        this.tree.grid.onClick.subscribe(this.onCellClicked.bind(this));
                     }
                     onBeforeEditCell(e, data) {
                         return super.onBeforeEditCell(e, data) && (this.tree.getDataItem(data.item, data.column) || this.IgnoreValue);
@@ -677,10 +676,30 @@ var controls;
                     });
                     this.treeTable._create();
                     this.treeTable.grid.onActiveCellChanged.subscribe(this.onActiveCellChangedFromClient.bind(this));
+                    this.treeTable.grid.onClick.subscribe(this.onCellClicked.bind(this));
                     this.internalElement.css('overflow-y', null);
                     this.treeTable.grid.onBeforeEditCell.subscribe(this.onBeforeEditCell.bind(this));
                     this.treeTable.grid.onCellChange.subscribe(this.onCellChange.bind(this));
                     this.treeTable.grid.onKeyDown.subscribe(this.onKeyDown.bind(this));
+                }
+                onCellClicked(e, data) {
+                    // check click for buttons and checkbox
+                    let rowMeta = this.MetaDatas[data.row];
+                    if (rowMeta && rowMeta.Columns) {
+                        let colMeta = rowMeta.Columns[this.treeTable.grid.getColumns()[data.cell].id];
+                        if (colMeta && colMeta.EditorInfo) {
+                            let cellClicked = colMeta.EditorInfo.onCellClicked;
+                            if (cellClicked)
+                                cellClicked.bind(colMeta.EditorInfo)(e, data);
+                            return;
+                        }
+                    }
+                    let col = this.Columns[this.treeTable.grid.getColumns()[data.cell].id];
+                    if (col && col.EditorInfo) {
+                        let cellClicked = col.EditorInfo.onCellClicked;
+                        if (cellClicked)
+                            cellClicked.bind(col.EditorInfo)(e, data);
+                    }
                 }
                 onKeyDown(e, data) {
                     if (!this.AutoEnterEdit)

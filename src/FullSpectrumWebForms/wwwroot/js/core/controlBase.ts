@@ -27,25 +27,25 @@ namespace core {
         properties: { [name: string]: controlProperty<any> } = {};
 
         tryGetPropertyValue<T2, T>(name: keyof T2) {
-            let prop = this.properties[name];
+            let prop = this.properties[name as string];
             if (!prop)
                 return null;
             return prop.value as T;
         }
         getPropertyValue<T2, T>(name: keyof T2) {
-            let prop = this.properties[name];
+            let prop = this.properties[name as string];
             if (!prop)
                 throw "Property not found:" + name + " in control:" + this.id;
             return prop.value as T;
         }
         setPropertyValue<T>(name: keyof T, value: any) {
-            let prop = this.properties[name];
+            let prop = this.properties[name as string];
             if (!prop)
                 throw "Property not found:" + name + " in control:" + this.id;
             prop.updateValue(value)
         }
         getProperty<T2, T>(name: keyof T2) {
-            let prop = this.properties[name];
+            let prop = this.properties[name as string];
             if (!prop)
                 throw "Property not found:" + name + " in control:" + this.id;
             return prop as controlProperty<T>;

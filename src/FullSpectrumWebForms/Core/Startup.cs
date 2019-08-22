@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FSW.Core
 {
@@ -73,6 +74,29 @@ namespace FSW.Core
 
             foreach (var loadedStartupBase in LoadedStartupBases)
                 loadedStartupBase.Configure(app, env);
+
+
+            var done = new List<StartupBase>();
+            while (true)
+            {
+                var startupBase = LoadedStartupBases.FirstOrDefault(x => x.LibToLoadAfter?.Count > 0 && !done.Contains(x));
+
+                if (startupBase == null)
+                    break;
+
+                done.Add(startupBase);
+                var num = LoadedStartupBases.IndexOf(startupBase);
+                foreach (var item in startupBase.LibToLoadAfter.Select(x => LoadedStartupBases.First(y => y.GetType() == x)))
+                {
+                    var num2 = LoadedStartupBases.IndexOf(item);
+                    if (num2 < num)
+                    {
+                        done.Clear();
+                        LoadedStartupBases.RemoveAt(num2);
+                        LoadedStartupBases.Insert(num, item);
+                    }
+                }
+            }
         }
 
 
