@@ -8,7 +8,7 @@
     <Company>N/A</Company>
     <PackageTags>FSW</PackageTags>
     <PackageProjectUrl>https://github.com/FullSpectrumWebForms/FullSpectrumWebForms</PackageProjectUrl>
-    <TypeScriptToolsVersion>3.4</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>3.6</TypeScriptToolsVersion>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -4,7 +4,7 @@
     <WebStackScaffolding_DependencyDialogWidth>600</WebStackScaffolding_DependencyDialogWidth>
     <ShowAllFiles>false</ShowAllFiles>
     <NameOfLastUsedPublishProfile>Polinet - Web Deploy</NameOfLastUsedPublishProfile>
-    <ToolsVersionPromptShown>2.8</ToolsVersionPromptShown>
+    <ToolsVersionPromptShown>3.4</ToolsVersionPromptShown>
     <ActiveDebugProfile>IIS Express</ActiveDebugProfile>
   </PropertyGroup>
 </Project>
