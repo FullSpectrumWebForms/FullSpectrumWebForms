@@ -275,21 +275,47 @@ namespace FSW.Core
 
 
         private HostedServicesContainer ServicesContainer;
-        public void RegisterAsyncHostedService(Func<Task> callback, HostedServicePriority priority = HostedServicePriority.Medium)
+        public Task RegisterAsyncHostedService(Func<Task> callback, HostedServicePriority priority = HostedServicePriority.Medium)
         {
+            var taskCompletionSource = new TaskCompletionSource<bool>();
             RegisterHostedService(() =>
             {
-                callback().Wait();
+                try
+                {
+                    callback().Wait();
+                }
+                catch (Exception ex)
+                {
+                    taskCompletionSource.SetException(ex);
+                    return;
+                }
+
+                taskCompletionSource.SetResult(true);
             }, priority);
+
+            return taskCompletionSource.Task;
         }
 
-        public void RegisterAsyncHostedService(Func<AsyncServerSideLockSource, Task> callback, HostedServicePriority priority = HostedServicePriority.Medium)
+        public Task RegisterAsyncHostedService(Func<AsyncServerSideLockSource, Task> callback, HostedServicePriority priority = HostedServicePriority.Medium)
         {
+            var taskCompletionSource = new TaskCompletionSource<bool>();
             RegisterHostedService(() =>
             {
-                using (var source = new AsyncServerSideLockSource(Page, null, false, false, false, false))
-                    callback(source).Wait();
+                try
+                {
+                    using (var source = new AsyncServerSideLockSource(Page, null, false, false, false, false))
+                        callback(source).Wait();
+                }
+                catch (Exception ex)
+                {
+                    taskCompletionSource.SetException(ex);
+                    return;
+                }
+
+                taskCompletionSource.SetResult(true);
             }, priority);
+
+            return taskCompletionSource.Task;
         }
 
         public void RegisterHostedService(Action callback, HostedServicePriority priority = HostedServicePriority.Medium)
