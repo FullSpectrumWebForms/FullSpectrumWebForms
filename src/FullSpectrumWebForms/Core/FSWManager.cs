@@ -15,7 +15,7 @@ namespace FSW.Core
             Page = page;
         }
 
-        public readonly object _lock = new object();
+        public readonly Nito.AsyncEx.AsyncReaderWriterLock _lock = new Nito.AsyncEx.AsyncReaderWriterLock();
 
         public Dictionary<string, ControlBase> Controls = new Dictionary<string, ControlBase>();
         public List<KeyValuePair<int, ControlBase>> PendingNewControls = new List<KeyValuePair<int, ControlBase>>();

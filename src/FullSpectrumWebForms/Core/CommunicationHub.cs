@@ -66,7 +66,7 @@ namespace FSW.Core
 
             if (page != null)
             {
-                lock (page.Manager._lock)
+                using (page.Manager._lock.WriterLock())
                     page.InvokePageUnload();
 
                 var guid = page.GetType().GUID;
@@ -89,7 +89,7 @@ namespace FSW.Core
             {
                 try
                 {
-                    lock (page.Manager._lock)
+                    using (page.Manager._lock.WriterLock())
                     {
                         page.Manager.OnPropertiesChangedFromClient(changedProperties);
                         return ProcessPropertyChange(page.Manager);
@@ -121,7 +121,7 @@ namespace FSW.Core
                 var page = CurrentPage;
                 try
                 {
-                    lock (page.Manager._lock)
+                    using (page.Manager._lock.WriterLock())
                     {
                         res = page.Manager.CustomControlEvent(controlId, eventName, parameters);
 
@@ -163,7 +163,7 @@ namespace FSW.Core
                 var page = CurrentPage;
                 try
                 {
-                    lock (page.Manager._lock)
+                    using (page.Manager._lock.WriterLock())
                     {
                         res = page.Manager.CustomControlExtensionEvent(controlId, extension, eventName, parameters);
 
@@ -268,7 +268,7 @@ namespace FSW.Core
 
             InitializationCoreServerAnswer res;
             var manager = page.Manager;
-            lock (manager._lock)
+            using (page.Manager._lock.WriterLock())
                 res = manager.InitializePageFromClient(ConnectionId, url, urlParameters);
             res.SessionId = sessionId;
             res.SessionAuth = sessionAuth;
