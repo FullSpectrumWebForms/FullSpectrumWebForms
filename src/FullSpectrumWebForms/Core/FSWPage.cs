@@ -296,14 +296,14 @@ namespace FSW.Core
             return taskCompletionSource.Task;
         }
 
-        public Task RegisterAsyncHostedService(Func<AsyncServerSideLockSource, Task> callback, HostedServicePriority priority = HostedServicePriority.Medium)
+        public Task RegisterAsyncHostedService(Func<AsyncServerSideLock, Task> callback, HostedServicePriority priority = HostedServicePriority.Medium)
         {
             var taskCompletionSource = new TaskCompletionSource<bool>();
             RegisterHostedService(() =>
             {
                 try
                 {
-                    using (var source = new AsyncServerSideLockSource(Page, null, false, false, false, false))
+                    using (var source = new AsyncServerSideLock(Page, null, false, false, false, false))
                         callback(source).Wait();
                 }
                 catch (Exception ex)
@@ -438,88 +438,5 @@ namespace FSW.Core
             }
         }
 
-        public class AsyncServerSideLockSource : IDisposable
-        {
-            private readonly FSWPage Page;
-            private readonly bool InitialLockState;
-            private readonly bool TakeLock;
-            private readonly bool ReadOnly;
-            private readonly AsyncServerSideLockSource ParentSource;
-            private readonly bool PreventUnlock;
-
-            private IDisposable Lock;
-
-            internal AsyncServerSideLockSource(FSWPage page, AsyncServerSideLockSource parentSource, bool initialLockState, bool takeLock, bool readOnly, bool preventUnlock)
-            {
-                Page = page;
-                InitialLockState = initialLockState;
-                TakeLock = takeLock;
-                ReadOnly = readOnly;
-                ParentSource = parentSource;
-                PreventUnlock = preventUnlock && InitialLockState; // only allow preventing the unlock if we're indeed locked
-            }
-            internal async Task Initialize()
-            {
-                if (TakeLock)
-                {
-                    if (!InitialLockState)
-                    {
-                        var pageLock = new PageLock(Page);
-                        Lock = pageLock;
-                        await pageLock.AsyncAcquireLock(ReadOnly).ConfigureAwait(false);
-                    }
-                }
-                else if (!PreventUnlock && InitialLockState)// unlock only if it's not already unlocked or if we're not being prevented from unlocking it
-                {
-                    if (ParentSource != null)
-                    {
-                        ParentSource.Lock.Dispose();
-                        ParentSource.Lock = null;
-                    }
-                }
-            }
-
-            /// <param name="readOnly">if unspecified ( null ), keep the parent ReadOnly state</param>
-            public async Task<AsyncServerSideLockSource> UnlockedSection(bool? readOnly = null)
-            {
-                var source = new AsyncServerSideLockSource(Page, this, TakeLock, false, readOnly ?? ReadOnly, PreventUnlock);
-                await source.Initialize().ConfigureAwait(false);
-                return source;
-            }
-
-            /// <param name="readOnly">if unspecified ( null ), keep the parent ReadOnly state</param>
-            public async Task<AsyncServerSideLockSource> LockedSection(bool? readOnly = null)
-            {
-                var source = new AsyncServerSideLockSource(Page, this, TakeLock, true, readOnly ?? ReadOnly, PreventUnlock);
-                await source.Initialize().ConfigureAwait(false);
-                return source;
-            }
-
-            private bool IsDisposed = false;
-
-            public void Dispose()
-            {
-                DisposeAsync().Wait();
-            }
-
-            public async Task DisposeAsync()
-            {
-                if (IsDisposed)
-                    return;
-
-                IsDisposed = true;
-
-                if (Lock != null)
-                    Lock.Dispose();
-
-                if (!TakeLock && !PreventUnlock && ParentSource?.TakeLock == true)
-                {
-                    var source = new AsyncServerSideLockSource(Page, ParentSource.ParentSource, false, true, ParentSource.ReadOnly, false);
-                    await source.Initialize();
-                    ParentSource.Lock = source;
-                }
-
-            }
-        }
     }
 }
