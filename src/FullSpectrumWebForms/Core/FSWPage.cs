@@ -296,15 +296,21 @@ namespace FSW.Core
             return taskCompletionSource.Task;
         }
 
-        public Task RegisterAsyncHostedService(Func<AsyncServerSideLock, Task> callback, HostedServicePriority priority = HostedServicePriority.Medium)
+        public Task RegisterAsyncHostedService(Func<AsyncLocks.IUnlockedAsyncServer, Task> callback, HostedServicePriority priority = HostedServicePriority.Medium)
         {
             var taskCompletionSource = new TaskCompletionSource<bool>();
             RegisterHostedService(() =>
             {
                 try
                 {
-                    using (var source = new AsyncServerSideLock(Page, null, false, false, false, false))
+                    var source = new AsyncLocks.UnlockedAsyncServer(this);
+                    try
+                    {
                         callback(source).Wait();
+                    }
+                    finally
+                    {
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -413,12 +419,12 @@ namespace FSW.Core
                 Page = page;
             }
 
-            internal async Task AsyncAcquireLock(bool isReadOnly)
+            internal async Task AsyncAcquireLock(bool isReadOnly, System.Threading.CancellationToken  cancellationToken = default)
             {
                 if (IsReadOnly)
-                    Lock = await Page.Manager._lock.ReaderLockAsync().ConfigureAwait(false);
+                    Lock = await Page.Manager._lock.ReaderLockAsync(cancellationToken).ConfigureAwait(false);
                 else
-                    Lock = await Page.Manager._lock.WriterLockAsync().ConfigureAwait(false);
+                    Lock = await Page.Manager._lock.WriterLockAsync(cancellationToken).ConfigureAwait(false);
             }
 
             public void Dispose()
