@@ -12,16 +12,22 @@ namespace FSW.Core.AsyncLocks
     }
     public interface IRequireAsyncLock : IRequireAsyncReadOnlyLock
     {
-        Task<IDisposable> EnterLock(CancellationToken token = default);
+        Task<IAsyncLock> EnterLock(CancellationToken token = default);
     }
     public interface IRequireAnyLock
     {
-        Task<IDisposable> EnterLock(CancellationToken token = default);
+        Task<IDisposable> EnterAnyLock(CancellationToken token = default);
     }
     public interface IUnlockedAsyncServer : IRequireAsyncReadOnlyLock, IRequireAsyncLock, IRequireAnyLock
     {
         IRequireAnyLock AsReadOnlyLock();
         IRequireAnyLock AsLock();
+
+        Task Synchronize();
+    }
+    public interface IAsyncLock: IDisposable
+    {
+        void DemoteToReadOnlyLock();
     }
 
     internal class UnlockedAsyncServer : IUnlockedAsyncServer
@@ -36,17 +42,36 @@ namespace FSW.Core.AsyncLocks
                 ReadOnly = readOnly;
             }
 
-            public Task<IDisposable> EnterLock(CancellationToken token = default)
+            public async Task<IDisposable> EnterAnyLock(CancellationToken token = default)
             {
                 if (ReadOnly)
-                    return UnlockedAsyncServer.EnterReadOnlyLock(token);
+                    return await UnlockedAsyncServer.EnterReadOnlyLock(token);
                 else
-                    return UnlockedAsyncServer.EnterLock(token);
+                    return await UnlockedAsyncServer.EnterLock(token);
+            }
+        }
+        private class AsyncServerLock : IAsyncLock
+        {
+            private readonly FSWPage.PageLock PageLock;
+
+            public AsyncServerLock(FSWPage.PageLock pageLock)
+            {
+                PageLock = pageLock;
+            }
+
+            public void DemoteToReadOnlyLock()
+            {
+                PageLock.IsReadOnly = true;
+            }
+
+            public void Dispose()
+            {
+                PageLock.Dispose();
             }
         }
         private readonly FSWPage Page;
 
-        internal bool GotAsyncLocked { get; private set; } = false;
+        internal bool GotAnyLocked { get; private set; } = false;
 
         internal UnlockedAsyncServer(FSWPage page)
         {
@@ -63,21 +88,35 @@ namespace FSW.Core.AsyncLocks
             return new ForcedAsyncLock(this, true);
         }
 
-        public async Task<IDisposable> EnterLock(CancellationToken token = default)
-        {
-            var pageLock = new FSWPage.PageLock(Page);
-            await pageLock.AsyncAcquireLock(false, token);
-
-            GotAsyncLocked = true;
-
-            return pageLock;
-        }
 
         public async Task<IDisposable> EnterReadOnlyLock(CancellationToken token = default)
         {
             var pageLock = new FSWPage.PageLock(Page);
             await pageLock.AsyncAcquireLock(true, token);
             return pageLock;
+        }
+
+        public async Task<IAsyncLock> EnterLock(CancellationToken token = default)
+        {
+            var pageLock = new FSWPage.PageLock(Page);
+            await pageLock.AsyncAcquireLock(false, token);
+
+            GotAnyLocked = false;
+
+            return new AsyncServerLock(pageLock);
+        }
+
+        public Task<IDisposable> EnterAnyLock(CancellationToken token = default)
+        {
+            GotAnyLocked = true;
+
+            return EnterReadOnlyLock(token);
+        }
+
+        public async Task Synchronize()
+        {
+            using (await EnterLock()) // this will send the infos to the client
+            { }
         }
     }
 

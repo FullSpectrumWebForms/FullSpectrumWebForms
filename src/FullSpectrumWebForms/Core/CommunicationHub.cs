@@ -52,7 +52,7 @@ namespace FSW.Core
             }
             return null;
         }
-        public void OnConnectionClosed(Exception exception)
+        public async Task OnConnectionClosed(Exception exception)
         {
             FSWPage page = null;
             lock (Connections)
@@ -66,8 +66,7 @@ namespace FSW.Core
 
             if (page != null)
             {
-                using (page.Manager._lock.WriterLock())
-                    page.InvokePageUnload();
+                await page.InvokePageUnloadAsyncAndSync();
 
                 var guid = page.GetType().GUID;
                 if (StaticHostedServices.TryGetValue(guid, out var service))
@@ -192,6 +191,7 @@ namespace FSW.Core
                 throw;
             }
         }
+
         // will run a checkup for modifications on the controls in the current page
         public static Task ProcessPropertyChange(FSWManager manager, bool skipIfEmpty = false)
         {
@@ -210,8 +210,9 @@ namespace FSW.Core
                     return manager.Page.OverrideErrorHandle(e);
             }
         }
-        // used to generate a polinet page on the fly when there are auth error or invalid connection ids
-        internal (int PageId, FSWPage Page, string SessionId, string SessionAuth) GeneratePolinetPage(string typePath, string sessionId, string sessionAuth)
+
+        // used to generate a FSW page on the fly when there are auth error or invalid connection ids
+        internal (int PageId, FSWPage Page, string SessionId, string SessionAuth) GenerateFSWPage(string typePath, string sessionId, string sessionAuth)
         {
             var type = Type.GetType(typePath);
             if (type == null)
@@ -221,6 +222,7 @@ namespace FSW.Core
             var pageId = ModelBase.RegisterFSWPage(page, sessionId, sessionAuth, out var newSessionId, out var newSessionAuth).id;
             return (pageId, page, newSessionId, newSessionAuth);
         }
+
         public Task InitializeCore(JObject data)
         {
             var pageId = data["pageId"].ToObject<int?>() ?? 0;
@@ -236,14 +238,14 @@ namespace FSW.Core
             {
                 if (!PageAwaitingConnections.ContainsKey(pageId))
                 {
-                    var generatedPageInfos = GeneratePolinetPage(typePath, sessionId, sessionAuth);
-                    page = generatedPageInfos.Page;
+                    var (PageId, page_, SessionId, SessionAuth) = GenerateFSWPage(typePath, sessionId, sessionAuth);
+                    page = page_;
                     if (page == null)
                         return SendAsync_ID(ConnectionId, "error", "typePath invalid");
-                    sessionId = generatedPageInfos.SessionId;
-                    sessionAuth = generatedPageInfos.SessionAuth;
+                    sessionId = SessionId;
+                    sessionAuth = SessionAuth;
                     pageIdAuth = page.PageAuth;
-                    pageId = generatedPageInfos.PageId;
+                    pageId = PageId;
                 }
                 else
                 {
@@ -303,18 +305,15 @@ namespace FSW.Core
         #region signal R methods
 
 
-        #endregion
-
-
         public override Task OnConnectedAsync()
         {
             var t = OnNewConnection();
             return t ?? base.OnConnectedAsync();
         }
-        public override Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception exception)
         {
-            OnConnectionClosed(exception);
-            return base.OnDisconnectedAsync(exception);
+            await OnConnectionClosed(exception);
+            await base.OnDisconnectedAsync(exception);
         }
 
         public static Task SendAsync_ID(string connectionId, string key, string message)
@@ -322,5 +321,6 @@ namespace FSW.Core
             return Hub.Clients.Client(connectionId).SendAsync(key, message);
         }
 
+        #endregion
     }
 }

@@ -61,7 +61,9 @@ namespace FSW.Core
 
         }
 
+        [Obsolete("ServerSideLock is deprecated. Try using asynchronous locks. See FSW.Core.AsyncServerLock and async hosted services")]
         public PageLock ServerSideLock => new PageLock(this, false);
+        [Obsolete("ReadOnlyServerSideLock is deprecated. Try using asynchronous locks. See FSW.Core.AsyncServerLock and async hosted services")]
         public PageLock ReadOnlyServerSideLock => new PageLock(this, true);
 
         public virtual void OnPageLoad()
@@ -85,13 +87,24 @@ namespace FSW.Core
             UrlManager.UpdateUrlAndReload(url);
         }
 
-        internal void InvokePageUnload()
+        internal async Task InvokePageUnloadAsyncAndSync()
         {
             Session.RemovePage(this);
-            OnPageUnload?.Invoke();
+            if (OnPageUnload != null)
+            {
+                using(await Manager._lock.WriterLockAsync())
+                    OnPageUnload?.Invoke();
+            }
+
+            var task = OnPageUnloadAsync?.Invoke();
+            if (task != null)
+                await task;
         }
         public delegate void OnPageUnloadHandler();
+        [Obsolete("Deprecated. Consider using OnPageUnloadAsync")]
         public event OnPageUnloadHandler OnPageUnload;
+        public delegate Task OnPageUnloadAsyncHandler();
+        public event OnPageUnloadAsyncHandler OnPageUnloadAsync;
 
 
 
@@ -234,7 +247,7 @@ namespace FSW.Core
                             else
                                 CommunicationHub.SendError(Page, e);
                         }
-                        catch (Exception e2)
+                        catch (Exception)
                         {
                             CommunicationHub.SendError(Page, e);
                         }
@@ -275,26 +288,6 @@ namespace FSW.Core
 
 
         private HostedServicesContainer ServicesContainer;
-        public Task RegisterAsyncHostedService(Func<Task> callback, HostedServicePriority priority = HostedServicePriority.Medium)
-        {
-            var taskCompletionSource = new TaskCompletionSource<bool>();
-            RegisterHostedService(() =>
-            {
-                try
-                {
-                    callback().Wait();
-                }
-                catch (Exception ex)
-                {
-                    taskCompletionSource.SetException(ex);
-                    return;
-                }
-
-                taskCompletionSource.SetResult(true);
-            }, priority);
-
-            return taskCompletionSource.Task;
-        }
 
         public Task RegisterAsyncHostedService(Func<AsyncLocks.IUnlockedAsyncServer, Task> callback, HostedServicePriority priority = HostedServicePriority.Medium)
         {
@@ -304,13 +297,7 @@ namespace FSW.Core
                 try
                 {
                     var source = new AsyncLocks.UnlockedAsyncServer(this);
-                    try
-                    {
-                        callback(source).Wait();
-                    }
-                    finally
-                    {
-                    }
+                    callback(source).Wait();
                 }
                 catch (Exception ex)
                 {
@@ -419,7 +406,7 @@ namespace FSW.Core
                 Page = page;
             }
 
-            internal async Task AsyncAcquireLock(bool isReadOnly, System.Threading.CancellationToken  cancellationToken = default)
+            internal async Task AsyncAcquireLock(bool isReadOnly, System.Threading.CancellationToken cancellationToken = default)
             {
                 if (IsReadOnly)
                     Lock = await Page.Manager._lock.ReaderLockAsync(cancellationToken).ConfigureAwait(false);
