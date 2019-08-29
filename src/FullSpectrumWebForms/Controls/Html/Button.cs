@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FSW.Controls.Html
 {
@@ -11,15 +12,13 @@ namespace FSW.Controls.Html
     }
     public class Button : HtmlControlBase
     {
-
         public Button(FSWPage page = null) : base(page)
         {
         }
+
         /// <summary>
         /// Set our get value of a button and clicked event
         /// </summary>
-        /// 
-
         public string Text
         {
             get => GetProperty<string>(PropertyName());
@@ -42,21 +41,34 @@ namespace FSW.Controls.Html
 
 
         public delegate void OnButtonClickedHandler(Button button);
+        [Obsolete("OnButtonClicked is deprecated. Try using OnButtonClickedAsync")]
         public event OnButtonClickedHandler OnButtonClicked;
+
+        public delegate Task OnButtonClickedAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Button button);
+        public event OnButtonClickedAsyncHandler OnButtonClickedAsync;
 
         public override void InitializeProperties()
         {
             base.InitializeProperties();
 
-            OnClicked += Button_OnClicked;
+            OnClickedAsync += Button_OnClickedAsync;
 
             Text = "";
         }
 
-        private void Button_OnClicked(HtmlControlBase control)
+        private async Task Button_OnClickedAsync(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control)
         {
-            if (State != State.Disabled )
+            State state;
+            using (await (unlockedAsyncServer as Core.AsyncLocks.UnlockedAsyncServer).EnterNonExclusiveReadOnlyLock())
+                state = State;
+            if (state != State.Disabled)
+            {
                 OnButtonClicked?.Invoke(this);
+
+                var task = OnButtonClickedAsync?.Invoke(unlockedAsyncServer, this);
+                if (task != null)
+                    await task;
+            }
         }
     }
 }

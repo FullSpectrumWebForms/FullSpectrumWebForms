@@ -92,7 +92,7 @@ namespace FSW.Core
             Session.RemovePage(this);
             if (OnPageUnload != null)
             {
-                using(await Manager._lock.WriterLockAsync())
+                using (await Manager._lock.WriterLockAsync())
                     OnPageUnload?.Invoke();
             }
 
@@ -373,32 +373,16 @@ namespace FSW.Core
         public class PageLock : IDisposable
         {
             private readonly FSWPage Page;
-            private bool IsReadOnly_;
-            public bool IsReadOnly
-            {
-                get => IsReadOnly_;
-                set
-                {
-                    if (IsReadOnly_ == value)
-                        return;
-                    if (IsReadOnly_ && !value)
-                    {
-                        Lock.Dispose();
-                        Lock = Page.Manager._lock.WriterLock();
-                    }
-                    IsReadOnly_ = value;
-                }
-            }
+
+            public bool IsReadOnly { get; set; }
+
             private IDisposable Lock;
 
             internal PageLock(FSWPage page, bool isReadOnly)
             {
                 Page = page;
-                IsReadOnly_ = isReadOnly;
-                if (IsReadOnly)
-                    Lock = Page.Manager._lock.ReaderLock();
-                else
-                    Lock = Page.Manager._lock.WriterLock();
+                IsReadOnly = isReadOnly;
+                Lock = Page.Manager._lock.WriterLock();
             }
 
             internal PageLock(FSWPage page)
@@ -406,9 +390,9 @@ namespace FSW.Core
                 Page = page;
             }
 
-            internal async Task AsyncAcquireLock(bool isReadOnly, System.Threading.CancellationToken cancellationToken = default)
+            internal async Task AsyncAcquireLock(bool isReadOnly, System.Threading.CancellationToken cancellationToken = default, bool trueReadOnly = false)
             {
-                if (IsReadOnly)
+                if (trueReadOnly)
                     Lock = await Page.Manager._lock.ReaderLockAsync(cancellationToken).ConfigureAwait(false);
                 else
                     Lock = await Page.Manager._lock.WriterLockAsync(cancellationToken).ConfigureAwait(false);

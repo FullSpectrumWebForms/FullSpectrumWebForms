@@ -32,13 +32,12 @@ namespace FSW.Controls.Html
             Classes.Add("input-control");
             Classes.Add("textarea");
 
-            GetPropertyInternal(nameof(Text)).OnNewValue += TextBox_OnNewValue;
+            GetPropertyInternal(nameof(Text)).OnNewValueFromClient += TextBox_OnNewValue;
         }
 
-        private void TextBox_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
+        private void TextBox_OnNewValue(Property property, object lastValue, object newValue)
         {
-            if( source == Property.UpdateSource.Client )
-                OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue);
+            OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue);
         }
     }
 }

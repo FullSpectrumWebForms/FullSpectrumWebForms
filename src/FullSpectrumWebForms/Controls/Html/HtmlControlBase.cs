@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FSW.Controls.Html
 {
@@ -23,7 +24,7 @@ namespace FSW.Controls.Html
                 [JsonIgnore]
                 public object Tag;
                 [JsonIgnore]
-                public Action OnClick;
+                public Func<Core.AsyncLocks.IUnlockedAsyncServer, Task> OnClick;
 
                 public List<Item> Items = new List<Item>();
             }
@@ -112,6 +113,7 @@ namespace FSW.Controls.Html
 
         public delegate void OnClickedHandler(HtmlControlBase control);
         private event OnClickedHandler OnClicked_;
+        [Obsolete("OnClicked is deprecated. Try using OnClickedAsync")]
         public event OnClickedHandler OnClicked
         {
             add
@@ -122,20 +124,46 @@ namespace FSW.Controls.Html
             remove
             {
                 OnClicked_ -= value;
-                if( OnClicked_.GetInvocationList().Length == 0 )
+                if (OnClicked_.GetInvocationList().Length == 0 && OnClickedAsync_.GetInvocationList().Length == 0)
+                    SetProperty("GenerateClickEvents", false);
+            }
+        }
+        public delegate Task OnClickedAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control);
+        private event OnClickedAsyncHandler OnClickedAsync_;
+
+        public event OnClickedAsyncHandler OnClickedAsync
+        {
+            add
+            {
+                OnClickedAsync_ += value;
+                SetProperty("GenerateClickEvents", true);
+            }
+            remove
+            {
+                OnClickedAsync_ -= value;
+                if (OnClicked_.GetInvocationList().Length == 0 && OnClickedAsync_.GetInvocationList().Length == 0)
                     SetProperty("GenerateClickEvents", false);
             }
         }
 
-        [CoreEvent]
-        protected void OnClickedFromClient()
+        [AsyncCoreEvent]
+        protected async Task OnClickedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
         {
-            OnClicked_?.Invoke(this);
+            if (OnClicked_?.GetInvocationList().Length > 0)
+            {
+                using (await unlockedAsyncServer.EnterLock())
+                    OnClicked_?.Invoke(this);
+            }
+
+            var task = OnClickedAsync_?.Invoke(unlockedAsyncServer, this);
+            if (task != null)
+                await task;
         }
 
 
         public delegate void OnDoubleClickedHandler(HtmlControlBase control);
         private event OnDoubleClickedHandler OnDoubleClicked_;
+        [Obsolete("OnDoubleClicked is deprecated. Try using OnDoubleClickedAsync")]
         public event OnDoubleClickedHandler OnDoubleClicked
         {
             add
@@ -146,83 +174,108 @@ namespace FSW.Controls.Html
             remove
             {
                 OnDoubleClicked_ -= value;
-                if (OnDoubleClicked_.GetInvocationList().Length == 0)
+                if (OnDoubleClicked_.GetInvocationList().Length == 0 || OnDoubleClickedAsync_.GetInvocationList().Length == 0)
                     SetProperty(nameof(OnDoubleClicked), false);
             }
         }
 
-        [CoreEvent]
-        protected void OnDoubleClickedFromClient()
-        {
-            OnDoubleClicked_?.Invoke(this);
-        }
-
-
-        public delegate void OnFocusInHandler(HtmlControlBase control);
-        private event OnFocusInHandler OnFocusIn_;
-        public event OnFocusInHandler OnFocusIn
+        public delegate Task OnDoubleClickedAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control);
+        private event OnDoubleClickedAsyncHandler OnDoubleClickedAsync_;
+        public event OnDoubleClickedAsyncHandler OnDoubleClickedAsync
         {
             add
             {
-                OnFocusIn_ += value;
-                SetProperty(nameof(OnFocusIn), true);
+                OnDoubleClickedAsync_ += value;
+                SetProperty(nameof(OnDoubleClicked), true);
             }
             remove
             {
-                OnFocusIn_ -= value;
-                if (OnFocusIn_.GetInvocationList().Length == 0)
-                    SetProperty(nameof(OnFocusIn), false);
+                OnDoubleClickedAsync_ -= value;
+                if (OnDoubleClicked_.GetInvocationList().Length == 0 || OnDoubleClickedAsync_.GetInvocationList().Length == 0)
+                    SetProperty(nameof(OnDoubleClicked), false);
             }
         }
-        [CoreEvent]
-        protected void OnFocusInFromClient()
+
+        [AsyncCoreEvent]
+        protected async Task OnDoubleClickedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
         {
-            OnFocusIn_?.Invoke(this);
+            if (OnDoubleClicked_?.GetInvocationList().Length > 0)
+            {
+                using (await unlockedAsyncServer.EnterLock())
+                    OnDoubleClicked_?.Invoke(this);
+            }
+
+            var task = OnDoubleClickedAsync_?.Invoke(unlockedAsyncServer, this);
+            if (task != null)
+                await task;
         }
 
-        public delegate void OnFocusOutHandler(HtmlControlBase control);
-        private event OnFocusOutHandler OnFocusOut_;
-        public event OnFocusOutHandler OnFocusOut
+
+        public delegate Task OnFocusInAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control);
+        private event OnFocusInAsyncHandler OnFocusInAsync_;
+        public event OnFocusInAsyncHandler OnFocusInAsync
         {
             add
             {
-                OnFocusOut_ += value;
-                SetProperty(nameof(OnFocusOut), true);
+                OnFocusInAsync_ += value;
+                SetProperty("OnFocusIn", true);
             }
             remove
             {
-                OnFocusOut_ -= value;
-                if (OnFocusOut_.GetInvocationList().Length == 0)
-                    SetProperty(nameof(OnFocusOut), false);
+                OnFocusInAsync_ -= value;
+                if (OnFocusInAsync_.GetInvocationList().Length == 0)
+                    SetProperty("OnFocusIn", false);
             }
         }
-        [CoreEvent]
-        protected void OnFocusOutFromClient()
+        [AsyncCoreEvent]
+        protected Task OnFocusInFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
         {
-            OnFocusOut_?.Invoke(this);
+            return OnFocusInAsync_?.Invoke(unlockedAsyncServer, this) ?? Task.CompletedTask;
         }
 
-        public delegate void OnContextMenuHandler(HtmlControlBase control);
-        private event OnContextMenuHandler OnContextMenu_;
-        public event OnContextMenuHandler OnContextMenu
+        public delegate Task OnFocusOutAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control);
+        private event OnFocusOutAsyncHandler OnFocusOutAsync_;
+        public event OnFocusOutAsyncHandler OnFocusOutAsync
         {
             add
             {
-                OnContextMenu_ += value;
-                SetProperty(nameof(OnContextMenu), true);
+                OnFocusOutAsync_ += value;
+                SetProperty("OnFocusOut", true);
             }
             remove
             {
-                OnContextMenu_ -= value;
-                if (OnContextMenu_.GetInvocationList().Length == 0)
-                    SetProperty(nameof(OnContextMenu), false);
+                OnFocusOutAsync_ -= value;
+                if (OnFocusOutAsync_.GetInvocationList().Length == 0)
+                    SetProperty("OnFocusOut", false);
+            }
+        }
+        [AsyncCoreEvent]
+        protected Task OnFocusOutFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
+        {
+            return OnFocusOutAsync_?.Invoke(unlockedAsyncServer, this) ?? Task.CompletedTask;
+        }
+
+        public delegate Task OnContextMenuAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control);
+        private event OnContextMenuAsyncHandler OnContextMenuAsync_;
+        public event OnContextMenuAsyncHandler OnContextMenuAsync
+        {
+            add
+            {
+                OnContextMenuAsync_ += value;
+                SetProperty("OnContextMenu", true);
+            }
+            remove
+            {
+                OnContextMenuAsync_ -= value;
+                if (OnContextMenuAsync_.GetInvocationList().Length == 0)
+                    SetProperty("OnContextMenu", false);
             }
         }
 
-        [CoreEvent]
-        protected void OnContextMenuFromClient()
+        [AsyncCoreEvent]
+        protected Task OnContextMenuFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
         {
-            OnContextMenu_?.Invoke(this);
+            return OnContextMenuAsync_?.Invoke(unlockedAsyncServer, this) ?? Task.CompletedTask; ;
         }
 
         public void Focus()
@@ -376,12 +429,15 @@ namespace FSW.Controls.Html
             }
         }
 
-        [CoreEvent]
-        protected void OnRightClickMenuClickedFromClient(int id)
+        [AsyncCoreEvent]
+        protected async Task OnRightClickMenuClickedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, int id)
         {
-            var item = RightClickMenu.FindItemById(id);
+            RightClickMenuOptions.Item item;
+            using (await unlockedAsyncServer.EnterReadOnlyLock())
+                item = RightClickMenu.FindItemById(id);
+
             if (item?.OnClick != null)
-                item.OnClick();
+                await item.OnClick(unlockedAsyncServer);
         }
 
         public override void InitializeProperties()
@@ -400,7 +456,7 @@ namespace FSW.Controls.Html
         {
             End, Start
         }
-        public void ScrollToControl( bool smooth = true, ScrollTarget scrollTarget = ScrollTarget.End)
+        public void ScrollToControl(bool smooth = true, ScrollTarget scrollTarget = ScrollTarget.End)
         {
             CallCustomClientEvent("scrollToControl", new
             {

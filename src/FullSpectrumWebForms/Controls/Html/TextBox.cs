@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FSW.Controls.Html
@@ -34,7 +35,11 @@ namespace FSW.Controls.Html
         public event OnTextChangedHandler OnTextChanged;
 
         public delegate void OnEnterPressedHandler(TextBox sender);
+        [Obsolete("OnEnterPressed is deprecated. Consider using OnEnterPressedAsync")]
         public event OnEnterPressedHandler OnEnterPressed;
+
+        public delegate Task OnEnterPressedAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, TextBox sender);
+        public event OnEnterPressedAsyncHandler OnEnterPressedAsync;
 
         public bool Disabled
         {
@@ -66,19 +71,26 @@ namespace FSW.Controls.Html
             Classes.Add("input-control");
             Classes.Add("text");
 
-            GetPropertyInternal(nameof(Text)).OnNewValue += TextBox_OnNewValue;
+            GetPropertyInternal(nameof(Text)).OnNewValueFromClient += TextBox_OnNewValue;
         }
 
-        [CoreEvent]
-        public void OnEnterPressedFromClient()
+        [AsyncCoreEvent]
+        public async Task OnEnterPressedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
         {
-            OnEnterPressed?.Invoke(this);
+            if (OnEnterPressed != null)
+            {
+                using (await unlockedAsyncServer.EnterLock())
+                    OnEnterPressed?.Invoke(this);
+            }
+
+            var task = OnEnterPressedAsync?.Invoke(unlockedAsyncServer, this);
+            if (task != null)
+                await task;
         }
 
-        private void TextBox_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
+        private void TextBox_OnNewValue(Property property, object lastValue, object newValue)
         {
-            if (source == Property.UpdateSource.Client)
-                OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue);
+            OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue);
         }
     }
 }

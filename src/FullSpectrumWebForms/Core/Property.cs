@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FSW.Core
 {
@@ -60,16 +61,12 @@ namespace FSW.Core
             Client, Server
         }
         public delegate void OnNewValueEvent(Property property, object lastValue, object newValue, UpdateSource source);
-        /// <summary>
-        /// Called when the value is updated 
-        /// </summary>
-        public event OnNewValueEvent OnNewValue;
 
-        public delegate void OnNewValueFromClientEvent(Property property, object lastValue, object newValue);
+        public delegate Task OnNewValueFromClientEvent(AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue);
         /// <summary>
         /// Called when the value is updated from the client
         /// </summary>
-        public event OnNewValueFromClientEvent OnNewValueFromClient;
+        public event OnNewValueFromClientEvent OnNewValueFromClientAsync;
         /// <summary>
         /// Instantly called when the <see cref="Value"/> is modified from server side,
         /// or call just before the <see cref="OnNewValue"/> is called if modified from client side
@@ -86,7 +83,6 @@ namespace FSW.Core
         /// </summary>
         public void UpdateValue()
         {
-            OnNewValue?.Invoke(this, LastValue, Value, UpdateSource.Server);
             LastValue = Value;
             HasValueChanged = true;
         }
@@ -100,19 +96,21 @@ namespace FSW.Core
                 return value_.ToDictionary(x => x.Key, x => (string)x.Value);
             return value;
         }
+
         /// <summary>
         /// Set the new <see cref="Value"/> then Raise <see cref="OnInstantNewValue"/>, and then <see cref="OnNewValue"/>
         /// This is called when the client update the value
         /// </summary>
-        public void UpdateValue(object newValue)
+        public async Task UpdateValue(AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, object newValue)
         {
             if (ParseValueFromClient != null)
                 newValue = ParseValueFromClient(newValue);
 
             Value_ = newValue;
             OnInstantNewValue?.Invoke(this, LastValue, newValue, UpdateSource.Client);
-            OnNewValue?.Invoke(this, LastValue, newValue, UpdateSource.Client);
-            OnNewValueFromClient?.Invoke(this, LastValue, newValue);
+
+            await OnNewValueFromClientAsync?.Invoke(unlockedAsyncServer, this, LastValue, newValue);
+
             LastValue = newValue;
         }
 

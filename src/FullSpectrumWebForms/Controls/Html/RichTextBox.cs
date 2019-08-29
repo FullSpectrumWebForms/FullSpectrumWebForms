@@ -6,7 +6,7 @@ using System.Web;
 
 namespace FSW.Controls.Html
 {
-    public class RichTextBox: HtmlControlBase
+    public class RichTextBox : HtmlControlBase
     {
         public RichTextBox(FSWPage page = null) : base(page)
         {
@@ -46,20 +46,18 @@ namespace FSW.Controls.Html
             Classes.Add("ql-container");
             Classes.Add("ql-snow");
 
-            GetPropertyInternal(nameof(Text)).OnNewValue += Text_OnNewValue;
-            GetPropertyInternal(nameof(Contents)).OnNewValue += Contents_OnNewValue;
+            GetPropertyInternal(nameof(Text)).OnNewValueFromClient += Text_OnNewValue;
+            GetPropertyInternal(nameof(Contents)).OnNewValueFromClient += Contents_OnNewValue;
         }
 
-        private void Text_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
+        private void Text_OnNewValue(Property property, object lastValue, object newValue)
         {
-            if (source == Property.UpdateSource.Client)
-                OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue);
+            OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue);
         }
 
-        private void Contents_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
+        private void Contents_OnNewValue(Property property, object lastValue, object newValue)
         {
-            if (source == Property.UpdateSource.Client)
-                OnContentsChanged?.Invoke(this, (string)lastValue, (string)newValue);
+            OnContentsChanged?.Invoke(this, (string)lastValue, (string)newValue);
         }
     }
 }

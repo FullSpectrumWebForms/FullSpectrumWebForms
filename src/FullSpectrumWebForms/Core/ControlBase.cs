@@ -326,13 +326,6 @@ namespace FSW.Core
         }
         internal bool IsInitializing { get; private set; }
         public abstract void InitializeProperties();
-        internal void UpdatePropertyValueFromClient(string propertyName, object newValue)
-        {
-            if (Properties.TryGetValue(propertyName, out var value))
-                value.UpdateValue(newValue);
-            else
-                throw new ArgumentException($"Property not found:{propertyName} in control:{Id.ToString()}");
-        }
 
         virtual protected internal void ControlInitialized()
         {

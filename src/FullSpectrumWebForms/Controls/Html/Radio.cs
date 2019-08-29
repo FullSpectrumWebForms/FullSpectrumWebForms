@@ -62,13 +62,12 @@ namespace FSW.Controls.Html
             Classes.Add("input-control");
             Classes.Add("radio");
 
-            GetPropertyInternal(nameof(Checked)).OnNewValue += TextBox_OnNewValue;
+            GetPropertyInternal(nameof(Checked)).OnNewValueFromClient += TextBox_OnNewValue;
         }
 
-        private void TextBox_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
+        private void TextBox_OnNewValue(Property property, object lastValue, object newValue)
         {
-            if (source == Property.UpdateSource.Client)
-                OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue);
+            OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue);
         }
     }
 }

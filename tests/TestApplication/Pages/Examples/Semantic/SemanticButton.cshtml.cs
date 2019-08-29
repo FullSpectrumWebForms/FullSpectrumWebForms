@@ -20,20 +20,31 @@ namespace TestApplication.Pages.Examples.Semantic
 
             BT_Test.Text = "Test Text";
             BT_Test.Icon = "heart";
-            BT_Test.OnClicked += BT_Test_OnClicked;
-            
-            //BT_Test.IconPositionRight = true;
+            BT_Test.OnClickedAsync += BT_Test_OnClickedAsync;
+
 
             BT_TestPrimary.Text = "Accept";
+            BT_TestPrimary.OnClickedAsync += BT_TestPrimary_OnClickedAsync;
             BT_TestSecondary.Text = "Cancel";
 
             BT_TestLabel.Text = "LabelText";
             BT_TestLabel.Icon = "heart";
         }
 
-        private void BT_Test_OnClicked(FSW.Controls.Html.HtmlControlBase control)
+        private async Task BT_TestPrimary_OnClickedAsync(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, FSW.Controls.Html.HtmlControlBase control)
         {
-            BT_Test.Text = "You clicked me !";
+            await Task.Delay(TimeSpan.FromSeconds(0.2));
+
+            using (await unlockedAsyncServer.EnterLock())
+                BT_TestPrimary.Text = "You clicked me !";
+        }
+
+        private async Task BT_Test_OnClickedAsync(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, FSW.Controls.Html.HtmlControlBase control)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(2));
+
+            using (await unlockedAsyncServer.EnterLock())
+                BT_Test.Text = "You clicked me !";
         }
     }
 }

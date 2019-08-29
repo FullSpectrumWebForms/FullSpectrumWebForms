@@ -14,13 +14,16 @@ namespace TestApplication.Pages.Examples
         {
             base.OnPageLoad();
 
-            BT_test.OnClicked += BT_test_OnClicked;
+            BT_test.OnClickedAsync += BT_test_OnClickedAsync; ;
             BT_test.Text = "Button test";
         }
 
-        private void BT_test_OnClicked(FSW.Controls.Html.HtmlControlBase control)
+        private async Task BT_test_OnClickedAsync(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, FSW.Controls.Html.HtmlControlBase control)
         {
-            BT_test.Text = "You clicked me !";
+            await Task.Delay(TimeSpan.FromSeconds(5));
+
+            using (await unlockedAsyncServer.EnterAnyLock())
+                BT_test.Text = "You clicked me !";
         }
     }
 }

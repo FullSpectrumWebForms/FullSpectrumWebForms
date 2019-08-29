@@ -115,7 +115,7 @@ namespace FSW.Core
 
             // if there are parameters for this method
             object[] parametersParsed = null;
-            AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer = null;
+            AsyncLocks.UnlockedAsyncServer unlockedAsyncServer = null;
             if (parameters != null)
             {
                 // get the theorical paraemeters name
@@ -127,7 +127,7 @@ namespace FSW.Core
                 // so if the client did not sent that parameter, it will be marked as missing
                 for (var i = 0; i < parametersParsed.Length; ++i)
                 {
-                    if (methodParameters[i].ParameterType == typeof(AsyncLocks.IUnlockedAsyncServer))
+                    if (methodParameters[i].ParameterType == typeof(AsyncLocks.IUnlockedAsyncServer) || methodParameters[i].ParameterType == typeof(AsyncLocks.UnlockedAsyncServer))
                     {
                         unlockedAsyncServer = new AsyncLocks.UnlockedAsyncServer(Page);
                         parametersParsed[i] = unlockedAsyncServer;
@@ -168,20 +168,35 @@ namespace FSW.Core
 
                     res = resultProperty.GetValue(task);
                 }
+                else
+                    res = null;
             }
 
-            using (await _lock.WriterLockAsync())
+            CoreServerAnswer changes;
+            if (unlockedAsyncServer != null && unlockedAsyncServer.GotAnyLocked)
             {
-                //process the property change in response to the event
-                var changes = ProcessPropertyChange(false);
-
-                //  return the changed properties and the return value of the method
-                return new CustomControlEventResult()
+                using (await _lock.WriterLockAsync())
                 {
-                    result = res, // response of the method call
-                    properties = changes
+                    //process the property change in response to the event
+                    changes = ProcessPropertyChange(false);
+                }
+            }
+            else
+            {
+                changes = new CoreServerAnswer
+                {
+                    ChangedProperties = null,
+                    CustomEvents = null,
+                    NewControls = null
                 };
             }
+
+            //  return the changed properties and the return value of the method
+            return new CustomControlEventResult()
+            {
+                result = res, // response of the method call
+                properties = changes
+            };
 
         }
         /// <summary>
@@ -324,27 +339,43 @@ namespace FSW.Core
         /// Called from the client side when a property has changed
         /// </summary>
         /// <returns>The changed property from the server</returns>
-        internal void OnPropertiesChangedFromClient(List<ExistingControlProperty> newValues)
+        internal async Task OnPropertiesChangedFromClient(List<ExistingControlProperty> newValues)
         {
-            // for each properties that changed from the client
-            foreach (var value in newValues)
+            List<(Property Property, object Value)> properties = new List<(Property, object)>();
+            var unlockedAsyncServer = new AsyncLocks.UnlockedAsyncServer(Page);
+            using (await unlockedAsyncServer.EnterNonExclusiveReadOnlyLock())
             {
-                foreach (var prop in value.properties)
+                // for each properties that changed from the client
+                foreach (var value in newValues)
                 {
-                    // get the control associated with that property                            and update its value
-                    ControlBase c = null;
-                    try
+                    foreach (var prop in value.properties)
                     {
-                        c = GetControl<ControlBase>(value.id);
-                    }
-                    catch (KeyNotFoundException)
-                    {
-                    }
-                    if (c != null)
-                        c.UpdatePropertyValueFromClient(prop.property, prop.value);
+                        // get the control associated with that property                            and update its value
+                        ControlBase c = null;
+                        try
+                        {
+                            c = GetControl<ControlBase>(value.id);
+                        }
+                        catch (KeyNotFoundException)
+                        {
+                        }
 
+                        if (c != null)
+                        {
+                            if (c.Properties.TryGetValue(prop.property, out var property))
+                                properties.Add((property, prop.value));
+                            else
+                                throw new ArgumentException($"Property not found:{prop.property} in control:{value.id.ToString()}");
+                        }
+                    }
                 }
             }
+
+            var allTasks = new Task[properties.Count];
+            for (var i = 0; i < allTasks.Length; ++i)
+                allTasks[i] = properties[i].Property.UpdateValue(unlockedAsyncServer, properties[i].Value);
+
+            await Task.WhenAll(allTasks);
         }
 
         /// <summary>

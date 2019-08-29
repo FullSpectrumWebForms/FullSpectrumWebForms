@@ -35,13 +35,12 @@ namespace FSW.Controls.Html
             Date = null;
             Classes.Add("input-control");
 
-            GetPropertyInternal(nameof(Date)).OnNewValue += DatePicker_OnNewValue;
+            GetPropertyInternal(nameof(Date)).OnNewValueFromClient += DatePicker_OnNewValue;
         }
 
-        private void DatePicker_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
+        private void DatePicker_OnNewValue(Property property, object lastValue, object newValue)
         {
-            if (source == Property.UpdateSource.Client)
-                OnDateChanged?.Invoke(this);
+            OnDateChanged?.Invoke(this);
         }
     }
 }

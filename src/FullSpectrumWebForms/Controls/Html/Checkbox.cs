@@ -17,8 +17,8 @@ namespace FSW.Controls.Html
             get => GetProperty<bool>(PropertyName());
             set => SetProperty(PropertyName(), value);
         }
-        
-        
+
+
         public delegate void OnStateChangedHandler(Checkbox sender);
         public event OnStateChangedHandler OnCheckedChanged;
 
@@ -28,14 +28,13 @@ namespace FSW.Controls.Html
 
             Checked = false;
 
-            GetPropertyInternal(nameof(Checked)).OnNewValue += ComboBoxState_OnNewValue;
+            GetPropertyInternal(nameof(Checked)).OnNewValueFromClient += ComboBoxState_OnNewValue;
         }
 
-        private void ComboBoxState_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
+        private void ComboBoxState_OnNewValue(Property property, object lastValue, object newValue)
         {
-            if (source == Property.UpdateSource.Client)
-                OnCheckedChanged?.Invoke(this);
+            OnCheckedChanged?.Invoke(this);
         }
-        
+
     }
 }

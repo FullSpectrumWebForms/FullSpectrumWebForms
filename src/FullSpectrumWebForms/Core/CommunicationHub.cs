@@ -88,11 +88,9 @@ namespace FSW.Core
             {
                 try
                 {
+                    await page.Manager.OnPropertiesChangedFromClient(changedProperties);
                     using (await page.Manager._lock.WriterLockAsync())
-                    {
-                        page.Manager.OnPropertiesChangedFromClient(changedProperties);
                         await ProcessPropertyChange(page.Manager);
-                    }
                 }
                 catch (Exception e)
                 {

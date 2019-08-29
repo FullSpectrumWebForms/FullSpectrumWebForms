@@ -8,15 +8,15 @@ namespace FSW.Core.AsyncLocks
 {
     public interface IRequireAsyncReadOnlyLock
     {
-        Task<IDisposable> EnterReadOnlyLock(CancellationToken token = default);
+        Nito.AsyncEx.AwaitableDisposable<IDisposable> EnterReadOnlyLock(CancellationToken token = default);
     }
     public interface IRequireAsyncLock : IRequireAsyncReadOnlyLock
     {
-        Task<IAsyncLock> EnterLock(CancellationToken token = default);
+        Nito.AsyncEx.AwaitableDisposable<IAsyncLock> EnterLock(CancellationToken token = default);
     }
     public interface IRequireAnyLock
     {
-        Task<IDisposable> EnterAnyLock(CancellationToken token = default);
+        Nito.AsyncEx.AwaitableDisposable<IDisposable> EnterAnyLock(CancellationToken token = default);
     }
     public interface IUnlockedAsyncServer : IRequireAsyncReadOnlyLock, IRequireAsyncLock, IRequireAnyLock
     {
@@ -25,7 +25,7 @@ namespace FSW.Core.AsyncLocks
 
         Task Synchronize();
     }
-    public interface IAsyncLock: IDisposable
+    public interface IAsyncLock : IDisposable
     {
         void DemoteToReadOnlyLock();
     }
@@ -42,12 +42,16 @@ namespace FSW.Core.AsyncLocks
                 ReadOnly = readOnly;
             }
 
-            public async Task<IDisposable> EnterAnyLock(CancellationToken token = default)
+            private async Task<IDisposable> EnterAnyLock_(CancellationToken token)
             {
                 if (ReadOnly)
                     return await UnlockedAsyncServer.EnterReadOnlyLock(token);
                 else
                     return await UnlockedAsyncServer.EnterLock(token);
+            }
+            public Nito.AsyncEx.AwaitableDisposable<IDisposable> EnterAnyLock(CancellationToken token = default)
+            {
+                return new Nito.AsyncEx.AwaitableDisposable<IDisposable>(EnterAnyLock_(token));
             }
         }
         private class AsyncServerLock : IAsyncLock
@@ -88,15 +92,29 @@ namespace FSW.Core.AsyncLocks
             return new ForcedAsyncLock(this, true);
         }
 
+        private async Task<IDisposable> EnterNonExclusiveReadOnlyLock_(CancellationToken token = default)
+        {
+            var pageLock = new FSWPage.PageLock(Page);
+            await pageLock.AsyncAcquireLock(true, token, true);
+            return pageLock;
+        }
+        public Nito.AsyncEx.AwaitableDisposable<IDisposable> EnterNonExclusiveReadOnlyLock(CancellationToken token = default)
+        {
+            return new Nito.AsyncEx.AwaitableDisposable<IDisposable>(EnterNonExclusiveReadOnlyLock(token));
+        }
 
-        public async Task<IDisposable> EnterReadOnlyLock(CancellationToken token = default)
+        private async Task<IDisposable> EnterReadOnlyLock_(CancellationToken token = default)
         {
             var pageLock = new FSWPage.PageLock(Page);
             await pageLock.AsyncAcquireLock(true, token);
             return pageLock;
         }
+        public Nito.AsyncEx.AwaitableDisposable<IDisposable> EnterReadOnlyLock(CancellationToken token = default)
+        {
+            return new Nito.AsyncEx.AwaitableDisposable<IDisposable>(EnterReadOnlyLock_(token));
+        }
 
-        public async Task<IAsyncLock> EnterLock(CancellationToken token = default)
+        public async Task<IAsyncLock> EnterLock_(CancellationToken token = default)
         {
             var pageLock = new FSWPage.PageLock(Page);
             await pageLock.AsyncAcquireLock(false, token);
@@ -105,8 +123,12 @@ namespace FSW.Core.AsyncLocks
 
             return new AsyncServerLock(pageLock);
         }
+        public Nito.AsyncEx.AwaitableDisposable<IAsyncLock> EnterLock(CancellationToken token = default)
+        {
+            return new Nito.AsyncEx.AwaitableDisposable<IAsyncLock>(EnterLock_(token));
+        }
 
-        public Task<IDisposable> EnterAnyLock(CancellationToken token = default)
+        public Nito.AsyncEx.AwaitableDisposable<IDisposable> EnterAnyLock(CancellationToken token = default)
         {
             GotAnyLocked = true;
 
