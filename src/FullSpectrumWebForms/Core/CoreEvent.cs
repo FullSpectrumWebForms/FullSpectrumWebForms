@@ -5,7 +5,11 @@ using System.Web;
 
 namespace FSW.Core
 {
-    public class CoreEventAttribute: Attribute
+    [Obsolete("Consider using AsyncCoreEventAttribute")]
+    public class CoreEventAttribute : Attribute
+    {
+    }
+    public class AsyncCoreEventAttribute : Attribute
     {
     }
 }

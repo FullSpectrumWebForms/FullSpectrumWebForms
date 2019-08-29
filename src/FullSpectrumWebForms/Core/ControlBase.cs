@@ -33,7 +33,7 @@ namespace FSW.Core
         }
 
         /// <summary>
-        /// General use value. You can pute whatever you want here
+        /// General use value. You can put whatever you want here
         /// It is "forbidden" to use this inside a control. Leave it to the user
         /// Leave it I said. Don't ... Just, don't
         /// </summary>

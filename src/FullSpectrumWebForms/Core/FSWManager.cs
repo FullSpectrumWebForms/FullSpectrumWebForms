@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
-
-// TODO: implement a lock system for an entire page
 
 namespace FSW.Core
 {
@@ -94,24 +93,29 @@ namespace FSW.Core
         /// <summary>
         /// Called from the client side to call custom method in a control, Ex. ticks event for the timer control
         /// </summary>
-        internal CustomControlEventResult CustomControlEvent(string controlId, string eventName, Newtonsoft.Json.Linq.JToken parameters)
+        internal async Task<CustomControlEventResult> CustomControlEvent(string controlId, string eventName, Newtonsoft.Json.Linq.JToken parameters)
         {
             // get the control associated with the event in the required page
             var control = Page.Manager.GetControl(controlId);
 
             // try to get the method with the name "eventName"
-            var t = control.GetType();
-            var m = t.GetMethod(eventName, System.Reflection.BindingFlags.FlattenHierarchy | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+            var controlType = control.GetType();
+            var m = controlType.GetMethod(eventName, System.Reflection.BindingFlags.FlattenHierarchy | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
             if (m == null)
-                throw new Exception($"Unable to get method '{eventName}' in type '{t}'");
+                throw new Exception($"Unable to get method '{eventName}' in type '{controlType}'");
 
             // check if the method have the "CoreEventAttribute", if not then for security reason, just rage-quit
             var attr = m.GetCustomAttributes(typeof(CoreEventAttribute), true)?.FirstOrDefault() as CoreEventAttribute;
-            if (attr == null)
-                throw new Exception($"Unable to get method '{eventName}' in type '{t}'. Access denied");
+            var attrAsync = m.GetCustomAttributes(typeof(AsyncCoreEventAttribute), true)?.FirstOrDefault() as AsyncCoreEventAttribute;
+            if ((attr == null && attrAsync == null) || (attr != null && attrAsync != null))// one of them must be set but not both
+                throw new Exception($"Unable to get method '{eventName}' in type '{controlType}'. Access denied");
+
+            if (attrAsync != null && !typeof(Task).IsAssignableFrom(m.ReturnType))
+                throw new Exception("Async functions must return a Task");
 
             // if there are parameters for this method
             object[] parametersParsed = null;
+            AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer = null;
             if (parameters != null)
             {
                 // get the theorical paraemeters name
@@ -122,7 +126,15 @@ namespace FSW.Core
                 // initialize them all to missing
                 // so if the client did not sent that parameter, it will be marked as missing
                 for (var i = 0; i < parametersParsed.Length; ++i)
-                    parametersParsed[i] = Type.Missing;
+                {
+                    if (methodParameters[i].ParameterType == typeof(AsyncLocks.IUnlockedAsyncServer))
+                    {
+                        unlockedAsyncServer = new AsyncLocks.UnlockedAsyncServer(Page);
+                        parametersParsed[i] = unlockedAsyncServer;
+                    }
+                    else
+                        parametersParsed[i] = Type.Missing;
+                }
                 // for all the received parameters ( from the client ( duh ) )
                 foreach (var item in parameters)
                 {
@@ -142,17 +154,35 @@ namespace FSW.Core
                     parametersParsed[paramIndex] = value;
                 }
             }
+
             // the actual call of the method/event
             var res = m.Invoke(control, parametersParsed);
-
-            //process the property change in response to the event
-            var changes = ProcessPropertyChange(false);
-            //  return the changed properties and the return value of the method
-            return new CustomControlEventResult()
+            if (res is Task task)
             {
-                result = res, // response of the method call
-                properties = changes
-            };
+                await task;
+
+                var taskResultType = task.GetType();
+                if (taskResultType.IsGenericType && taskResultType.GetGenericTypeDefinition() == typeof(Task<>))
+                {
+                    var resultProperty = taskResultType.GetProperty(nameof(Task<bool>.Result));
+
+                    res = resultProperty.GetValue(task);
+                }
+            }
+
+            using (await _lock.WriterLockAsync())
+            {
+                //process the property change in response to the event
+                var changes = ProcessPropertyChange(false);
+
+                //  return the changed properties and the return value of the method
+                return new CustomControlEventResult()
+                {
+                    result = res, // response of the method call
+                    properties = changes
+                };
+            }
+
         }
         /// <summary>
         /// Called from the client side to call custom method in a control, Ex. ticks event for the timer control
@@ -220,7 +250,7 @@ namespace FSW.Core
                 properties = changes
             };
         }
-        public delegate void OnBeforeServerUnlockedHandler (FSWPage page);
+        public delegate void OnBeforeServerUnlockedHandler(FSWPage page);
         public event OnBeforeServerUnlockedHandler OnBeforeServerUnlocked;
 
         /// <summary>

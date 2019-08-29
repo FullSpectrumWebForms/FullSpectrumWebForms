@@ -79,7 +79,7 @@ namespace FSW.Core
         {
             SendAsync_ID(page.ID, "error", exception.ToString());
         }
-        public Task PropertyUpdateFromClient(JObject data)
+        public async Task PropertyUpdateFromClient(JObject data)
         {
             var changedProperties = data["changedProperties"].ToObject<List<ExistingControlProperty>>();
 
@@ -88,10 +88,10 @@ namespace FSW.Core
             {
                 try
                 {
-                    using (page.Manager._lock.WriterLock())
+                    using (await page.Manager._lock.WriterLockAsync())
                     {
                         page.Manager.OnPropertiesChangedFromClient(changedProperties);
-                        return ProcessPropertyChange(page.Manager);
+                        await ProcessPropertyChange(page.Manager);
                     }
                 }
                 catch (Exception e)
@@ -99,16 +99,16 @@ namespace FSW.Core
                     if (page.OverrideErrorHandle is null)
                         throw;
                     else
-                        return page.OverrideErrorHandle(e);
+                        await page.OverrideErrorHandle(e);
                 }
             }
             catch (Exception e)
             {
-                SendAsync_ID(CurrentPage.ID, "error", e.ToString());
+                await SendAsync_ID(CurrentPage.ID, "error", e.ToString());
                 throw;
             }
         }
-        public Task CustomControlEvent(JObject data)
+        public async Task CustomControlEvent(JObject data)
         {
             var controlId = data["controlId"].ToObject<string>();
             var parameters = data["parameters"];
@@ -120,12 +120,9 @@ namespace FSW.Core
                 var page = CurrentPage;
                 try
                 {
-                    using (page.Manager._lock.WriterLock())
-                    {
-                        res = page.Manager.CustomControlEvent(controlId, eventName, parameters);
+                    res = await page.Manager.CustomControlEvent(controlId, eventName, parameters);
 
-                        return SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
-                    }
+                    await SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
                 }
                 catch (Exception e)
                 {
@@ -133,19 +130,18 @@ namespace FSW.Core
                         throw;
                     else
                     {
-                        return page.OverrideErrorHandle(e).ContinueWith((r) =>
+                        await page.OverrideErrorHandle(e);
+
+                        await SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(new FSWManager.CustomControlEventResult()
                         {
-                            return SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(new FSWManager.CustomControlEventResult()
-                            {
-                                properties = new CoreServerAnswer()
-                            }));
-                        });
+                            properties = new CoreServerAnswer()
+                        }));
                     }
                 }
             }
             catch (Exception e)
             {
-                SendAsync_ID(CurrentPage.ID, "error", e.ToString());
+                await SendAsync_ID(CurrentPage.ID, "error", e.ToString());
                 throw;
             }
         }
@@ -198,7 +194,7 @@ namespace FSW.Core
             try
             {
                 var res = manager.ProcessPropertyChange(false);
-                if (res.IsEmpty)
+                if (res.IsEmpty && skipIfEmpty)
                     return Task.CompletedTask;
                 return SendAsync_ID(manager.Page.ID, "propertyUpdateFromServer", JsonConvert.SerializeObject(res));
             }
