@@ -137,15 +137,18 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
                     Placeholder = "Search...",
                     InstantFeedback = TimeSpan.FromMilliseconds(50)
                 };
-                searchBox.OnTextChanged += (sender, previous, newText) =>
+                searchBox.OnTextChangedAsync += async (unlockedServer, sender, previous, newText) =>
                 {
-                    newText = newText.ToLower();
-                    foreach (var item in listView.Items.DataEnumerator)
+                    using (await unlockedServer.EnterAnyLock())
                     {
-                        if (item.Data.Name.ToLower().Contains(newText))
-                            item.Container.Visible = VisibleState.Block;
-                        else
-                            item.Container.Visible = VisibleState.None;
+                        newText = newText.ToLower();
+                        foreach (var item in listView.Items.DataEnumerator)
+                        {
+                            if (item.Data.Name.ToLower().Contains(newText))
+                                item.Container.Visible = VisibleState.Block;
+                            else
+                                item.Container.Visible = VisibleState.None;
+                        }
                     }
                 };
 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FSW.Controls.Html;
+using FSW.Core.AsyncLocks;
 
 namespace TestApplication.Pages
 {
@@ -17,11 +18,12 @@ namespace TestApplication.Pages
         {
             base.OnPageLoad();
 
-            TB_Test.OnTextChanged += TB_Test_OnTextChanged;
+            TB_Test.OnTextChangedAsync += TB_Test_OnTextChanged;
         }
-        private void TB_Test_OnTextChanged(TextBox sender, string previousText, string newText)
+        private async Task TB_Test_OnTextChanged(IUnlockedAsyncServer unlockedAsyncServer, TextBox sender, string previousText, string newText)
         {
-            LB_Test.Text = "You entered:" + newText;
+            using( await unlockedAsyncServer.EnterAnyLock())
+                LB_Test.Text = "You entered:" + newText;
         }
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Threading.Tasks;
 
 namespace FSW.Controls.Html
 {
@@ -136,8 +137,10 @@ namespace FSW.Controls.Html
 
         public delegate List<CalendarEvent> OnRefreshRequestHandler(DateTime rangeStart, DateTime rangeEnd);
         public event OnRefreshRequestHandler OnRefreshRequest;
-        public delegate void OnCurrentViewChangedHandler();
-        public event OnCurrentViewChangedHandler OnCurrentViewChanged;
+
+        public delegate Task OnCurrentViewChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer);
+        public event OnCurrentViewChangedHandler OnCurrentViewChangedAsync;
+
         public delegate bool OnValidateEventDropHandler(CalendarEvent eventMoved, DateTime newStart, DateTime? newEnd, bool isAllDay, string resourceId);
         public event OnValidateEventDropHandler OnValidateEventDrop;
         public delegate void OnEventDropHandler(CalendarEvent eventMoved);
@@ -234,12 +237,12 @@ namespace FSW.Controls.Html
             });
 
             // ---------------------------------------------------------------------------------------- Events
-            GetPropertyInternal(nameof(CurrentView)).OnNewValueFromClient += Calendar_OnNewValueFromClient;
+            GetPropertyInternal(nameof(CurrentView)).OnNewValueFromClientAsync += Calendar_OnNewValueFromClientAsync;
         }
 
-        private void Calendar_OnNewValueFromClient(Property property, object lastValue, object newValue)
+        private Task Calendar_OnNewValueFromClientAsync(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
         {
-            OnCurrentViewChanged?.Invoke();
+            return OnCurrentViewChangedAsync?.Invoke(unlockedAsyncServer) ?? Task.CompletedTask;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace TestApplication.Pages.Examples
         {
             base.OnPageLoad();
 
-            BT_test.OnClickedAsync += BT_test_OnClickedAsync; ;
+            BT_test.OnClickedAsync += BT_test_OnClickedAsync;
             BT_test.Text = "Button test";
         }
 

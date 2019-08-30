@@ -92,10 +92,11 @@ namespace UnitTests
                         Text = "test"
                     });
 
-                    tb.OnTextChanged += (obj, oldValue, newValue) =>
+                    tb.OnTextChangedAsync += (unlockedServer, obj, oldValue, newValue) =>
                     {
                         Assert.Equal(tb, obj);
                         waitingTask.TrySetResult(null);
+                        return Task.CompletedTask;
                     };
                 }
                 using (x.ServerSideLock)
@@ -122,7 +123,7 @@ namespace UnitTests
                         Text = "test"
                     });
 
-                    tb.OnTextChanged += (obj, oldValue, newValue) =>
+                    tb.OnTextChangedAsync += (unlockedServer, obj, oldValue, newValue) =>
                     {
                         Assert.Equal(tb, obj);
                         Assert.Equal(tb.Text, newValue);
@@ -130,6 +131,8 @@ namespace UnitTests
                         Assert.Equal("test2", tb.Text);
 
                         waitingTask.TrySetResult(null);
+
+                        return Task.CompletedTask;
                     };
                 }
 

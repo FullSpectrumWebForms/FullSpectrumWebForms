@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FSW.Controls.Html
@@ -25,7 +26,7 @@ namespace FSW.Controls.Html
         }
 
 
-        public delegate void OnDateChangedHandler(DatePicker sender);
+        public delegate Task OnDateChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DatePicker sender);
         public event OnDateChangedHandler OnDateChanged;
 
         public override void InitializeProperties()
@@ -35,12 +36,12 @@ namespace FSW.Controls.Html
             Date = null;
             Classes.Add("input-control");
 
-            GetPropertyInternal(nameof(Date)).OnNewValueFromClient += DatePicker_OnNewValue;
+            GetPropertyInternal(nameof(Date)).OnNewValueFromClientAsync += DatePicker_OnNewValue;
         }
 
-        private void DatePicker_OnNewValue(Property property, object lastValue, object newValue)
+        private Task DatePicker_OnNewValue(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
         {
-            OnDateChanged?.Invoke(this);
+            return OnDateChanged?.Invoke(unlockedAsyncServer, this) ?? Task.CompletedTask;
         }
     }
 }

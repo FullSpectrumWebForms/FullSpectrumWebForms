@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FSW.Controls.Html
@@ -40,7 +41,7 @@ namespace FSW.Controls.Html
             set => SetProperty(PropertyName(), value);
         }
 
-        public delegate void OnTextChangedHandler(Radio sender, string previousText, string newText);
+        public delegate Task OnTextChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Radio sender, string previousText, string newText);
         public event OnTextChangedHandler OnTextChanged;
 
         public delegate void OnStateChangedHandler(Radio sender);
@@ -62,12 +63,12 @@ namespace FSW.Controls.Html
             Classes.Add("input-control");
             Classes.Add("radio");
 
-            GetPropertyInternal(nameof(Checked)).OnNewValueFromClient += TextBox_OnNewValue;
+            GetPropertyInternal(nameof(Checked)).OnNewValueFromClientAsync += TextBox_OnNewValue;
         }
 
-        private void TextBox_OnNewValue(Property property, object lastValue, object newValue)
+        private Task TextBox_OnNewValue(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
         {
-            OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue);
+            return OnTextChanged?.Invoke(unlockedAsyncServer, this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
         }
     }
 }

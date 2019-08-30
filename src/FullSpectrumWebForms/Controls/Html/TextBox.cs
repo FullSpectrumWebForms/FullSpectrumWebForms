@@ -31,8 +31,8 @@ namespace FSW.Controls.Html
 
         public bool IsEmpty => !string.IsNullOrEmpty(Text);
 
-        public delegate void OnTextChangedHandler(TextBox sender, string previousText, string newText);
-        public event OnTextChangedHandler OnTextChanged;
+        public delegate Task OnTextChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, TextBox sender, string previousText, string newText);
+        public event OnTextChangedHandler OnTextChangedAsync;
 
         public delegate void OnEnterPressedHandler(TextBox sender);
         [Obsolete("OnEnterPressed is deprecated. Consider using OnEnterPressedAsync")]
@@ -71,7 +71,7 @@ namespace FSW.Controls.Html
             Classes.Add("input-control");
             Classes.Add("text");
 
-            GetPropertyInternal(nameof(Text)).OnNewValueFromClient += TextBox_OnNewValue;
+            GetPropertyInternal(nameof(Text)).OnNewValueFromClientAsync += TextBox_OnNewValue;
         }
 
         [AsyncCoreEvent]
@@ -88,9 +88,9 @@ namespace FSW.Controls.Html
                 await task;
         }
 
-        private void TextBox_OnNewValue(Property property, object lastValue, object newValue)
+        private Task TextBox_OnNewValue(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
         {
-            OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue);
+            return OnTextChangedAsync?.Invoke(unlockedAsyncServer, this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
         }
     }
 }

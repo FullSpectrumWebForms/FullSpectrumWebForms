@@ -316,7 +316,7 @@ namespace FSW.Controls.ServerSide
             set => SelectedItems_.Set(value as List<ItemType> ?? value?.ToList());
         }
 
-        public delegate void OnSelectedIdsChangedHandler(SmartComboBox<ItemType> sender, List<ItemType> oldItems, List<ItemType> newItems);
+        public delegate Task OnSelectedIdsChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, SmartComboBox<ItemType> sender, List<ItemType> oldItems, List<ItemType> newItems);
         public event OnSelectedIdsChangedHandler OnSelectedItemsChanged;
 
 
@@ -331,12 +331,12 @@ namespace FSW.Controls.ServerSide
             AvailableChoices_ = new AvailableItemsCollection(this);
             SelectedItems_ = new SelectedItemsCollection(this);
 
-            GetPropertyInternal("SelectedId").OnNewValueFromClient += OnSelectedIdChangedFromClient;
-            GetPropertyInternal("SelectedIds").OnNewValueFromClient += OnSelectedIdsChangedFromClient;
+            GetPropertyInternal("SelectedId").OnNewValueFromClientAsync += OnSelectedIdChangedFromClient;
+            GetPropertyInternal("SelectedIds").OnNewValueFromClientAsync += OnSelectedIdsChangedFromClient;
 
         }
 
-        private void OnSelectedIdsChangedFromClient(Property property, object lastValue, object newValue)
+        private Task OnSelectedIdsChangedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
         {
             if (lastValue is JArray lastValueArray)
                 lastValue = lastValueArray.ToObject<string[]>();
@@ -344,15 +344,15 @@ namespace FSW.Controls.ServerSide
             var oldDatas = SelectedItems_.Datas;
             SelectedItems_.Datas = ((string[])lastValue).Select(x => AvailableChoices[int.Parse(x)]).ToList();
 
-            OnSelectedItemsChanged?.Invoke(this, oldDatas, SelectedItems_.Datas);
+            return OnSelectedItemsChanged?.Invoke(unlockedAsyncServer, this, oldDatas, SelectedItems_.Datas) ?? Task.CompletedTask;
         }
 
-        private void OnSelectedIdChangedFromClient(Property property, object lastValue, object newValue)
+        private Task OnSelectedIdChangedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
         {
             var oldDatas = SelectedItems_.Datas;
             SelectedItems_.Datas = ((string[])lastValue).Select(x => AvailableChoices[int.Parse(x)]).ToList();
 
-            OnSelectedItemsChanged?.Invoke(this, oldDatas, SelectedItems_.Datas);
+            return OnSelectedItemsChanged?.Invoke(unlockedAsyncServer, this, oldDatas, SelectedItems_.Datas) ?? Task.CompletedTask;
         }
     }
 }

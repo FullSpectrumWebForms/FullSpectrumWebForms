@@ -1,11 +1,13 @@
 ﻿using FSW.Controls.Html;
 using FSW.Controls.ServerSide;
+using FSW.Core.AsyncLocks;
 using FSW.Semantic.Controls.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace TestApplication.Pages
 {
@@ -19,13 +21,14 @@ namespace TestApplication.Pages
             base.OnPageLoad();
 
             TB_Test.Text = "saluuut";
-            TB_Test.OnTextChanged += TB_Test_OnTextChanged;
-            
+            TB_Test.OnTextChangedAsync += TB_Test_OnTextChanged;
+
         }
 
-        private void TB_Test_OnTextChanged(TextBox sender, string previousText, string newText)
+        private async Task TB_Test_OnTextChanged(IUnlockedAsyncServer unlockedAsyncServer, TextBox sender, string previousText, string newText)
         {
-            LB_Test.Text = newText;
+            using (await unlockedAsyncServer.EnterAnyLock())
+                LB_Test.Text = newText;
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FSW.Core.AsyncLocks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -50,9 +51,10 @@ namespace TestApplication.Pages.Examples
             CB_Smart.OnSelectedItemsChanged += CB_Smart_OnSelectedItemsChanged;
         }
 
-        private void CB_Smart_OnSelectedItemsChanged(FSW.Controls.ServerSide.SmartComboBox<ComboItem> sender, List<ComboItem> oldItems, List<ComboItem> newItems)
+        private async Task CB_Smart_OnSelectedItemsChanged(IUnlockedAsyncServer unlockedAsyncServer, FSW.Controls.ServerSide.SmartComboBox<ComboItem> sender, List<ComboItem> oldItems, List<ComboItem> newItems)
         {
-            MessageBox.Success("Changed:", string.Join(",", newItems.Select(x => x.MyCustomId + ":" + x.Text)));
+            using( await unlockedAsyncServer.EnterAnyLock())
+                MessageBox.Success("Changed:", string.Join(",", newItems.Select(x => x.MyCustomId + ":" + x.Text)));
         }
     }
 }

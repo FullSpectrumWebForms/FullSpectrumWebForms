@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FSW.Core.AsyncLocks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -14,12 +15,13 @@ namespace TestApplication.Pages.Examples
         {
             base.OnPageLoad();
 
-            CK_Test.OnCheckedChanged += CK_Test_OnStateChanged;
+            CK_Test.OnCheckedChangedAsync += CK_Test_OnStateChanged;
         }
 
-        private void CK_Test_OnStateChanged(FSW.Controls.Html.Checkbox sender)
+        private async Task CK_Test_OnStateChanged(IUnlockedAsyncServer unlockedAsyncServer, FSW.Controls.Html.Checkbox sender)
         {
-            MessageBox.Success("State", CK_Test.Checked ? "Checked!" : "Unchecked!");
+            using (await unlockedAsyncServer.EnterAnyLock())
+                MessageBox.Success("State", CK_Test.Checked ? "Checked!" : "Unchecked!");
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FSW.Controls.Html;
+using FSW.Core.AsyncLocks;
 
 namespace TestApplication.Pages
 {
@@ -22,13 +23,16 @@ namespace TestApplication.Pages
             DIV_Feed.Width = "400px";
             DIV_Feed.CssProperties["border"] = "dashed 1px";
 
-            TB_Feed.OnTextChanged += TB_Feed_OnTextChanged;
+            TB_Feed.OnTextChangedAsync += TB_Feed_OnTextChanged;
         }
 
-        private void TB_Feed_OnTextChanged(TextBox sender, string previousText, string newText)
+        private async Task TB_Feed_OnTextChanged(IUnlockedAsyncServer unlockedAsyncServer, TextBox sender, string previousText, string newText)
         {
-            TB_Feed.Text = "";
-            StaticHostedServicePageSingleton.AddText(newText, this);
+            using (await unlockedAsyncServer.EnterAnyLock())
+            {
+                TB_Feed.Text = "";
+                StaticHostedServicePageSingleton.AddText(newText, this);
+            }
         }
         private void AddText(string text, bool isSender)
         {

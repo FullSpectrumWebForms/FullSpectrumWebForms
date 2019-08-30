@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FSW.Core.AsyncLocks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
@@ -32,15 +33,17 @@ namespace TestApplication.Pages.Examples.Semantic
 
         }
 
-        private void CB_Test2_OnSelectedIdsChanged(FSW.Semantic.Controls.Html.ComboBox sender, string[] oldIds, string[] newIds)
+        private async Task CB_Test2_OnSelectedIdsChanged(IUnlockedAsyncServer unlockedAsyncServer, FSW.Semantic.Controls.Html.ComboBox sender, string[] oldIds, string[] newIds)
         {
-            MessageBox.Success("yes2!", string.Join(", ", newIds));
+            using (await unlockedAsyncServer.EnterAnyLock())
+                MessageBox.Success("yes2!", string.Join(", ", newIds));
         }
 
 
-        private void CB_Test_OnSelectedIdsAndValuesChanged(FSW.Semantic.Controls.Html.ComboBox_Ajax sender, Dictionary<string, string> oldId, Dictionary<string, string> newId)
+        private async Task CB_Test_OnSelectedIdsAndValuesChanged(IUnlockedAsyncServer unlockedAsyncServer, FSW.Semantic.Controls.Html.ComboBox_Ajax sender, Dictionary<string, string> oldId, Dictionary<string, string> newId)
         {
-            MessageBox.Success("yes!", string.Join(", ", newId.Keys));
+            using (await unlockedAsyncServer.EnterAnyLock())
+                MessageBox.Success("yes!", string.Join(", ", newId.Keys));
         }
 
         private Dictionary<string, string> GetComboDatas(string search)

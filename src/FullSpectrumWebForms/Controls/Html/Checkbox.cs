@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FSW.Controls.Html
@@ -19,8 +20,8 @@ namespace FSW.Controls.Html
         }
 
 
-        public delegate void OnStateChangedHandler(Checkbox sender);
-        public event OnStateChangedHandler OnCheckedChanged;
+        public delegate Task OnStateChangedAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Checkbox sender);
+        public event OnStateChangedAsyncHandler OnCheckedChangedAsync;
 
         public override void InitializeProperties()
         {
@@ -28,12 +29,12 @@ namespace FSW.Controls.Html
 
             Checked = false;
 
-            GetPropertyInternal(nameof(Checked)).OnNewValueFromClient += ComboBoxState_OnNewValue;
+            GetPropertyInternal(nameof(Checked)).OnNewValueFromClientAsync += ComboBoxState_OnNewValue;
         }
 
-        private void ComboBoxState_OnNewValue(Property property, object lastValue, object newValue)
+        private Task ComboBoxState_OnNewValue( Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
         {
-            OnCheckedChanged?.Invoke(this);
+            return OnCheckedChangedAsync?.Invoke(unlockedAsyncServer, this) ?? Task.CompletedTask;
         }
 
     }

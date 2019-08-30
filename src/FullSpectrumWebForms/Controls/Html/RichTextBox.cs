@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FSW.Controls.Html
@@ -31,10 +32,10 @@ namespace FSW.Controls.Html
 
 
 
-        public delegate void OnTextChangedHandler(RichTextBox sender, string previousText, string newText);
+        public delegate Task OnTextChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, RichTextBox sender, string previousText, string newText);
         public event OnTextChangedHandler OnTextChanged;
 
-        public delegate void OnContentsChangedHandler(RichTextBox sender, string previousText, string newText);
+        public delegate Task OnContentsChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, RichTextBox sender, string previousText, string newText);
         public event OnContentsChangedHandler OnContentsChanged;
 
         public override void InitializeProperties()
@@ -46,18 +47,18 @@ namespace FSW.Controls.Html
             Classes.Add("ql-container");
             Classes.Add("ql-snow");
 
-            GetPropertyInternal(nameof(Text)).OnNewValueFromClient += Text_OnNewValue;
-            GetPropertyInternal(nameof(Contents)).OnNewValueFromClient += Contents_OnNewValue;
+            GetPropertyInternal(nameof(Text)).OnNewValueFromClientAsync += Text_OnNewValue;
+            GetPropertyInternal(nameof(Contents)).OnNewValueFromClientAsync += Contents_OnNewValue;
         }
 
-        private void Text_OnNewValue(Property property, object lastValue, object newValue)
+        private Task Text_OnNewValue(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
         {
-            OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue);
+            return OnTextChanged?.Invoke(unlockedAsyncServer, this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
         }
 
-        private void Contents_OnNewValue(Property property, object lastValue, object newValue)
+        private Task Contents_OnNewValue(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
         {
-            OnContentsChanged?.Invoke(this, (string)lastValue, (string)newValue);
+            return OnContentsChanged?.Invoke(unlockedAsyncServer, this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
         }
     }
 }
