@@ -100,7 +100,7 @@ namespace FSW.Core.AsyncLocks
         }
         public Nito.AsyncEx.AwaitableDisposable<IDisposable> EnterNonExclusiveReadOnlyLock(CancellationToken token = default)
         {
-            return new Nito.AsyncEx.AwaitableDisposable<IDisposable>(EnterNonExclusiveReadOnlyLock(token));
+            return new Nito.AsyncEx.AwaitableDisposable<IDisposable>(EnterNonExclusiveReadOnlyLock_(token));
         }
 
         private async Task<IDisposable> EnterReadOnlyLock_(CancellationToken token = default)

@@ -173,7 +173,7 @@ namespace FSW.Core
             }
 
             CoreServerAnswer changes;
-            if (unlockedAsyncServer != null && unlockedAsyncServer.GotAnyLocked)
+            if (unlockedAsyncServer?.GotAnyLocked != false)
             {
                 using (await _lock.WriterLockAsync())
                 {
@@ -341,7 +341,7 @@ namespace FSW.Core
         /// <returns>The changed property from the server</returns>
         internal async Task OnPropertiesChangedFromClient(List<ExistingControlProperty> newValues)
         {
-            List<(Property Property, object Value)> properties = new List<(Property, object)>();
+            var properties = new List<KeyValuePair<Property, object>>();
             var unlockedAsyncServer = new AsyncLocks.UnlockedAsyncServer(Page);
             using (await unlockedAsyncServer.EnterNonExclusiveReadOnlyLock())
             {
@@ -363,7 +363,7 @@ namespace FSW.Core
                         if (c != null)
                         {
                             if (c.Properties.TryGetValue(prop.property, out var property))
-                                properties.Add((property, prop.value));
+                                properties.Add(new KeyValuePair<Property, object>(property, prop.value));
                             else
                                 throw new ArgumentException($"Property not found:{prop.property} in control:{value.id.ToString()}");
                         }
@@ -373,7 +373,7 @@ namespace FSW.Core
 
             var allTasks = new Task[properties.Count];
             for (var i = 0; i < allTasks.Length; ++i)
-                allTasks[i] = properties[i].Property.UpdateValue(unlockedAsyncServer, properties[i].Value);
+                allTasks[i] = properties[i].Key.UpdateValue(unlockedAsyncServer, properties[i].Value);
 
             await Task.WhenAll(allTasks);
         }

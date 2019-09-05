@@ -101,7 +101,7 @@ namespace FSW.Core
         /// Set the new <see cref="Value"/> then Raise <see cref="OnInstantNewValue"/>, and then <see cref="OnNewValue"/>
         /// This is called when the client update the value
         /// </summary>
-        public async Task UpdateValue(AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, object newValue)
+        public Task UpdateValue(AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, object newValue)
         {
             if (ParseValueFromClient != null)
                 newValue = ParseValueFromClient(newValue);
@@ -109,9 +109,11 @@ namespace FSW.Core
             Value_ = newValue;
             OnInstantNewValue?.Invoke(this, LastValue, newValue, UpdateSource.Client);
 
-            await OnNewValueFromClientAsync?.Invoke(unlockedAsyncServer, this, LastValue, newValue);
+            var task = OnNewValueFromClientAsync?.Invoke(unlockedAsyncServer, this, LastValue, newValue);
 
             LastValue = newValue;
+
+            return task ?? Task.CompletedTask;
         }
 
     }
