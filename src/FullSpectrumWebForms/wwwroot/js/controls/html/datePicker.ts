@@ -24,7 +24,7 @@
                 field: this.element[0],
                 onSelect: function () {
                     var date = that.elementPikaday.getMoment().startOf('day');
-                    if (!moment(that.Date).startOf('day').isSame(date))// prevent raising useless event from client to server
+                    if (!moment(that.Date).startOf('day').isSame(date) || that.Date == undefined || that.Date == null)// prevent raising useless event from client to server
                         that.Date = date.toISOString();
                 }
             });
@@ -36,8 +36,8 @@
                     return false;
                 }
             });
-
         }
+
         protected initializeHtmlElement(): void {
             this.element = $('<input></input>');
             this.appendElementToParent();
