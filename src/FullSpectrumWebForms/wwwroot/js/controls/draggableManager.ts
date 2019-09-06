@@ -107,7 +107,7 @@ namespace controls {
 
             if (this.OnBeforeDragStart) {
                 let control = $(ev.originalSource).data('htmlControlBase') as controls.html.htmlControlBase;
-                this.customControlEvent('OnBeforeDragStartFromClient', { controlId: control.id }, true).then(function (res) {
+                this.customControlEvent('OnBeforeDragStartFromClient', { controlId: control.id }).then(function (res) {
                     if (!res)
                         ev.cancel();
                     else

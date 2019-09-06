@@ -13,8 +13,8 @@
 
         }
 
-        customControlExtensionEvent(eventName: string, parameters: any, forceSync?: boolean) {
-            return core.manager.sendCustomControlExtensionEvent(this.control.id, this.id, eventName, parameters, forceSync);
+        customControlExtensionEvent(eventName: string, parameters: any) {
+            return core.manager.sendCustomControlExtensionEvent(this.control.id, this.id, eventName, parameters);
         }
 
     }

@@ -107,8 +107,8 @@ var core;
         // if this something else is inside the parent, don't remove if force == false
         removeElementFromUI(force) {
         }
-        customControlEvent(eventName, parameters, forceSync) {
-            return core.manager.sendCustomControlEvent(this.id, eventName, parameters, forceSync);
+        customControlEvent(eventName, parameters) {
+            return core.manager.sendCustomControlEvent(this.id, eventName, parameters);
         }
         registerControlExtension(data) {
             var controlExtension = core.controlExtensionTypes[data.ClientId]();

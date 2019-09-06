@@ -79,7 +79,8 @@ namespace FSW.Core
         {
             SendAsync_ID(page.ID, "error", exception.ToString());
         }
-        public async Task PropertyUpdateFromClient(JObject data)
+
+        public async Task PropertyUpdateFromClient_(JObject data)
         {
             var changedProperties = data["changedProperties"].ToObject<List<ExistingControlProperty>>();
 
@@ -106,7 +107,15 @@ namespace FSW.Core
                 throw;
             }
         }
-        public async Task CustomControlEvent(JObject data)
+        public Task PropertyUpdateFromClient(JObject data)
+        {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            PropertyUpdateFromClient_(data);// don't await, this way we can keep processing this event and receive a new one
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            return Task.CompletedTask;
+        }
+
+        private async Task CustomControlEvent_(JObject data)
         {
             var controlId = data["controlId"].ToObject<string>();
             var parameters = data["parameters"];
@@ -114,11 +123,10 @@ namespace FSW.Core
 
             try
             {
-                FSWManager.CustomControlEventResult res;
                 var page = CurrentPage;
                 try
                 {
-                    res = await page.Manager.CustomControlEvent(controlId, eventName, parameters);
+                    var res = await page.Manager.CustomControlEvent(controlId, eventName, parameters);
 
                     await SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
                 }
@@ -143,7 +151,14 @@ namespace FSW.Core
                 throw;
             }
         }
-        public Task CustomControlExtensionEvent(JObject data)
+        public Task CustomControlEvent(JObject data)
+        {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            CustomControlEvent_(data);// don't await, this way we can keep processing this event and receive a new one
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            return Task.CompletedTask;
+        }
+        private Task CustomControlExtensionEvent_(JObject data)
         {
             var controlId = data["controlId"].ToObject<string>();
             var extension = data["extension"].ToObject<string>();
@@ -184,6 +199,12 @@ namespace FSW.Core
                 SendAsync_ID(CurrentPage.ID, "error", e.ToString());
                 throw;
             }
+        }
+        public Task CustomControlExtensionEvent(JObject data)
+        {
+            CustomControlExtensionEvent_(data);// don't await, this way we can keep processing this event and receive a new one
+
+            return Task.CompletedTask;
         }
 
         // will run a checkup for modifications on the controls in the current page

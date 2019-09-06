@@ -14,7 +14,7 @@ var core;
             this.controls = {};
             this.updateLocked = 0;
             this.pendingPropertyUpdate = {};
-            this.customEventQueue = [];
+            this.customEventQueue = {};
         }
         getControl(id) {
             return this.controls[id];
@@ -241,31 +241,41 @@ var core;
         customEventAnswer(datas) {
             datas = JSON.parse(datas);
             this.propertyUpdateFromServerStep1(datas.properties);
-            let def = this.customEventQueue[0];
-            this.customEventQueue.splice(0, 1);
-            def.resolve(datas.result);
+            let eventQueue = this.customEventQueue[datas.controlId];
+            // make sure the control still exists
+            let control = this.getControl(datas.controlId);
+            if (!control || !eventQueue) { // if it doesn't, delete the event queue and ignore the event itself
+                delete this.customEventQueue[datas.controlId];
+                return;
+            }
+            let res = eventQueue.splice(0, 1);
+            res[0].resolve(datas.result);
         }
-        sendCustomControlEvent(controlId, eventName, parameters, forceSync) {
+        sendCustomControlEvent(controlId, eventName, parameters) {
             let that = this;
-            function doCall() {
+            // generate new event id
+            function sendEvent() {
                 that.connection.send('CustomControlEvent', {
                     controlId: controlId,
                     eventName: eventName,
                     parameters: parameters
                 });
             }
-            ;
             var def = $.Deferred();
-            this.customEventQueue.push(def);
-            if (this.customEventQueue.length == 1)
-                doCall();
+            let controlQueue = this.customEventQueue[controlId];
+            if (controlQueue == undefined)
+                controlQueue = this.customEventQueue[controlId] = [];
+            controlQueue.push(def);
+            // if it's the only event
+            if (controlQueue.length == 1)
+                sendEvent(); // send it to the server
             else
-                this.customEventQueue[this.customEventQueue.length - 2].done(doCall);
+                controlQueue[controlQueue.length - 2].done(sendEvent); // or else wait for the previous event to finish and then send it
             return def;
         }
-        sendCustomControlExtensionEvent(controlId, extension, eventName, parameters, forceSync) {
+        sendCustomControlExtensionEvent(controlId, extension, eventName, parameters) {
             let that = this;
-            function doCall() {
+            function sendEvent() {
                 that.connection.send('CustomControlExtensionEvent', {
                     controlId: controlId,
                     extension: extension,
@@ -275,11 +285,15 @@ var core;
             }
             ;
             var def = $.Deferred();
-            this.customEventQueue.push(def);
-            if (this.customEventQueue.length == 1)
-                doCall();
+            let controlQueue = this.customEventQueue[controlId];
+            if (controlQueue == undefined)
+                controlQueue = this.customEventQueue[controlId] = [];
+            controlQueue.push(def);
+            // if it's the only event
+            if (controlQueue.length == 1)
+                sendEvent(); // send it to the server
             else
-                this.customEventQueue[this.customEventQueue.length - 2].done(doCall);
+                controlQueue[controlQueue.length - 2].done(sendEvent); // or else wait for the previous event to finish and then send it
             return def;
         }
     }

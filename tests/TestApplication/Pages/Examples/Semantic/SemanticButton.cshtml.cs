@@ -41,7 +41,7 @@ namespace TestApplication.Pages.Examples.Semantic
 
         private async Task BT_Test_OnClickedAsync(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, FSW.Controls.Html.HtmlControlBase control)
         {
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            await Task.Delay(TimeSpan.FromSeconds(5));
 
             using (await unlockedAsyncServer.EnterLock())
                 BT_Test.Text = "You clicked me !";

@@ -121,8 +121,8 @@ namespace core {
         removeElementFromUI(force: boolean) {
         }
 
-        customControlEvent(eventName: string, parameters: any, forceSync?: boolean) {
-            return core.manager.sendCustomControlEvent(this.id, eventName, parameters, forceSync);
+        customControlEvent(eventName: string, parameters: any) {
+            return core.manager.sendCustomControlEvent(this.id, eventName, parameters);
         }
 
         extensions: { [clientId: string]: controlExtension } = {};

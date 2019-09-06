@@ -88,7 +88,7 @@ var controls;
             let def = $.Deferred();
             if (this.OnBeforeDragStart) {
                 let control = $(ev.originalSource).data('htmlControlBase');
-                this.customControlEvent('OnBeforeDragStartFromClient', { controlId: control.id }, true).then(function (res) {
+                this.customControlEvent('OnBeforeDragStartFromClient', { controlId: control.id }).then(function (res) {
                     if (!res)
                         ev.cancel();
                     else

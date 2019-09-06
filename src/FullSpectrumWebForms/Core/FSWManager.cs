@@ -87,6 +87,7 @@ namespace FSW.Core
 
         internal class CustomControlEventResult
         {
+            public string controlId;
             public object result;
             public CoreServerAnswer properties;
         }
@@ -194,6 +195,7 @@ namespace FSW.Core
             //  return the changed properties and the return value of the method
             return new CustomControlEventResult()
             {
+                controlId = controlId,
                 result = res, // response of the method call
                 properties = changes
             };
@@ -217,8 +219,7 @@ namespace FSW.Core
                 throw new Exception($"Unable to get method '{eventName}' in type '{t}'");
 
             // check if the method have the "CoreEventAttribute", if not then for security reason, just rage-quit
-            var attr = m.GetCustomAttributes(typeof(CoreEventAttribute), true)?.FirstOrDefault() as CoreEventAttribute;
-            if (attr == null)
+            if (!(m.GetCustomAttributes(typeof(CoreEventAttribute), true)?.FirstOrDefault() is CoreEventAttribute attr))
                 throw new Exception($"Unable to get method '{eventName}' in type '{t}'. Access denied");
 
             // if there are parameters for this method
@@ -261,6 +262,7 @@ namespace FSW.Core
             //  return the changed properties and the return value of the method
             return new CustomControlEventResult()
             {
+                controlId = controlId,
                 result = res, // response of the method call
                 properties = changes
             };
