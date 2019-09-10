@@ -690,6 +690,9 @@ namespace controls.html.dataGrid {
                 if (!colMeta) // shouldn't happen, if it does, the programmer who's fault it is, is kinda stupid...
                     continue;// anyway, let's protect it juuuust in case
 
+                if (!this.Columns[colIds[i]]) // if we're receiving metas for a col that doesn't even exist
+                    continue;
+
                 let meta: any = $.extend({}, colMeta.colInternal);
                 meta.id = colIds[i];
 
