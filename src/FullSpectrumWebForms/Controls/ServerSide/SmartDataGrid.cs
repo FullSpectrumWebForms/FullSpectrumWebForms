@@ -170,10 +170,10 @@ namespace FSW.Controls.ServerSide.DataGrid
                 if (attributes?.Length > 0 || dynamicRequiredCol)
                 {
                     var cssName = Id + "_requiredCol_" + field.Name;
-                    InternalStyles.Add("." + cssName + "_row ." + cssName, new Dictionary<string, string>
+                    InternalStyles["." + cssName + "_row ." + cssName] = new Dictionary<string, string>
                     {
                         ["background-color"] = "red !important"
-                    });
+                    };
 
                     if (Columns.ContainsKey(field.Name))
                         Columns[field.Name].Classes += " " + cssName;
@@ -270,30 +270,30 @@ namespace FSW.Controls.ServerSide.DataGrid
             if (item is DataInterfaces.IDynamicReadOnlyCols readOnlyCols)
             {
                 var cols = readOnlyCols.ReadOnlyCols;
-                if( cols?.Length > 0 )
+                if (cols?.Length > 0)
                 {
                     if (metaData == null)
                         metaData = new DataGridColumn.MetaData();
 
-                    foreach ( var col in cols )
+                    foreach (var col in cols)
                     {
-                         if(!metaData.Columns.TryGetValue(col, out var colMeta))
+                        if (!metaData.Columns.TryGetValue(col, out var colMeta))
                             colMeta = metaData.Columns[col] = new DataGridColumn.MetaDataColumn();
-                         // take the actual editor and clone it, this ensure the client side formatter is the same
+                        // take the actual editor and clone it, this ensure the client side formatter is the same
                         colMeta.Editor = Columns[col].Editor?.Clone();
                         if (colMeta.Editor != null) // if there was an editor ( should be 'cause it's already readonly if there isn't... )
                             colMeta.Editor.AllowEdit = false; // put the cell readonly
                     }
                 }
             }
-            if( item is DataInterfaces.IColspanCols colspan)
+            if (item is DataInterfaces.IColspanCols colspan)
             {
                 var cols = colspan.ColspanCols;
-                if( cols?.Count > 0 )
+                if (cols?.Count > 0)
                 {
                     if (metaData == null)
                         metaData = new DataGridColumn.MetaData();
-                    foreach( var col in cols)
+                    foreach (var col in cols)
                     {
                         if (!metaData.Columns.TryGetValue(col.Key, out var colMeta))
                             colMeta = metaData.Columns[col.Key] = new DataGridColumn.MetaDataColumn();
@@ -498,7 +498,7 @@ namespace FSW.Controls.ServerSide.DataGrid
             }
 
             smartDataGrid.InvokeOnValidateInvalidOrIncompleteRow((DataType)row, out var isInvalidOrIncomplete);
-            
+
             return isInvalidOrIncomplete || ((row as DataInterfaces.IInvalidOrIncompleteRow)?.IsInvalidOrIncomplete ?? false);
         }
     }
