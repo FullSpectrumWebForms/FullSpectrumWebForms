@@ -21,9 +21,7 @@ namespace FSW.Controls
             get => GetProperty<bool?>(PropertyName());
             set => SetProperty(PropertyName(), value);
         }
-
-
-
+        
         public Task<GeoCoordinate> QueryGeoCoordinate()
         {
             var taskCompletion = new TaskCompletionSource<GeoCoordinate>();

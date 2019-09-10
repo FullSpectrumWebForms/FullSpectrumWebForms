@@ -681,6 +681,18 @@ var controls;
                     this.treeTable.grid.onBeforeEditCell.subscribe(this.onBeforeEditCell.bind(this));
                     this.treeTable.grid.onCellChange.subscribe(this.onCellChange.bind(this));
                     this.treeTable.grid.onKeyDown.subscribe(this.onKeyDown.bind(this));
+                    if (ResizeObserver) {
+                        let that = this;
+                        let previousHeight = -2; // initial value to ensure it will be resized initialy
+                        new ResizeObserver(function () {
+                            let height = that.element.height();
+                            if (Math.abs(height - previousHeight) > 2) // moved more than 2 pixel
+                             {
+                                previousHeight = height; // only update previous height when we do resize the canvas
+                                that.treeTable.grid.resizeCanvas();
+                            }
+                        }).observe(that.element[0]);
+                    }
                 }
                 onCellClicked(e, data) {
                     // check click for buttons and checkbox

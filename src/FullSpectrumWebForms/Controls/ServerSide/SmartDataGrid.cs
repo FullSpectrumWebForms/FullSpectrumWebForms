@@ -161,6 +161,8 @@ namespace FSW.Controls.ServerSide.DataGrid
         {
             base.InitializeColumns(forceType);
 
+            RequiredCols.Clear();
+
             var dynamicRequiredCol = typeof(DataType).GetInterface(nameof(DataInterfaces.IDynamicRequiredCols)) != null;
             foreach (var field in typeof(DataType).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance))
             {
