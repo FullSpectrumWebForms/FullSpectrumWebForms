@@ -851,10 +851,13 @@ namespace FSW.Controls.Html
                 var attribute = (DataGridColumn.ColumnInfoAttribute)columnInfoAttribute[0];
                 if (attribute.Name != null)
                     col.Name = attribute.Name;
+
                 if (attribute.Width != 0)
                     col.Width = attribute.Width;
+
                 if (attribute.ReadOnly && col.Editor != null)
                     col.Editor.AllowEdit = !attribute.ReadOnly;
+
                 col.DisplayIndex = attribute.DisplayIndex;
                 col.Classes = attribute.Classes;
                 col.Append = attribute.Append;

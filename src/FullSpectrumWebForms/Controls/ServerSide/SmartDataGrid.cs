@@ -226,11 +226,14 @@ namespace FSW.Controls.ServerSide.DataGrid
 
                 metaData.CssClasses += " invalidRow";
 
-                foreach (var col in RequiredCols)
+                foreach (var requiredCol in RequiredCols)
                 {
-                    var value = item.GetType().GetField(Columns[col.Key].Field).GetValue(item);
-                    if (col.Value.attribute.IsColInvalidOrIncomplete(value))
-                        metaData.CssClasses += " " + col.Value.cssName + "_row";
+                    if (Columns.TryGetValue(requiredCol.Key, out var col))
+                    {
+                        var value = item.GetType().GetField(col.Field).GetValue(item);
+                        if (requiredCol.Value.attribute.IsColInvalidOrIncomplete(value))
+                            metaData.CssClasses += " " + requiredCol.Value.cssName + "_row";
+                    }
                 }
                 if (item is DataInterfaces.IDynamicRequiredCols iDynamicRequiredCol)
                 {
@@ -277,12 +280,15 @@ namespace FSW.Controls.ServerSide.DataGrid
 
                     foreach (var col in cols)
                     {
-                        if (!metaData.Columns.TryGetValue(col, out var colMeta))
-                            colMeta = metaData.Columns[col] = new DataGridColumn.MetaDataColumn();
-                        // take the actual editor and clone it, this ensure the client side formatter is the same
-                        colMeta.Editor = Columns[col].Editor?.Clone();
-                        if (colMeta.Editor != null) // if there was an editor ( should be 'cause it's already readonly if there isn't... )
-                            colMeta.Editor.AllowEdit = false; // put the cell readonly
+                        if (Columns.TryGetValue(col, out var colInfo))
+                        {
+                            if (!metaData.Columns.TryGetValue(col, out var colMeta))
+                                colMeta = metaData.Columns[col] = new DataGridColumn.MetaDataColumn();
+                            // take the actual editor and clone it, this ensure the client side formatter is the same
+                            colMeta.Editor = colInfo.Editor?.Clone();
+                            if (colMeta.Editor != null) // if there was an editor ( should be 'cause it's already readonly if there isn't... )
+                                colMeta.Editor.AllowEdit = false; // put the cell readonly
+                        }
                     }
                 }
             }
