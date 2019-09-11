@@ -159,7 +159,6 @@ var controls;
                         super.setup(col, grid);
                         col.editor = Slick.Editors.CustomCheckboxEditor;
                         col.formatter = this.formatter.bind(this);
-                        this.tree.grid.onClick.subscribe(this.onCellClicked.bind(this));
                     }
                     onCellClicked(e, data) {
                         if (this.tree.grid.getColumns()[data.cell].id == this.col.id && e.target.type == 'checkbox') {
@@ -406,7 +405,8 @@ var controls;
                                         connectionId: core.manager.connectionId,
                                         controlId: that.control.id,
                                         searchString: searchString.term,
-                                        colId: that.col.id
+                                        colId: that.col.id,
+                                        row: that.grid.treeTable.grid.getActiveCell().row
                                     });
                                 },
                                 processResults: function (data) {
@@ -670,7 +670,7 @@ var controls;
                         columns: this.columnsInternal,
                         getItemMetadata: this.getItemMetadata.bind(this),
                         gridOptions: {
-                            editable: this.AllowEdit,
+                            editable: true,
                             autoEdit: this.UseSingleClickEdit,
                             forceFitColumns: this.ForceAutoFit,
                         },

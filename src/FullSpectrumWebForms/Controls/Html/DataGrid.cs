@@ -429,6 +429,8 @@ namespace FSW.Controls.Html
     {
         ControlPropertyDictionary<DataGridColumn> GetColumns();
 
+        IReadOnlyDictionary<string, DataGridColumn.MetaData> MetaDatas { get; }
+
         bool HideExportContextMenu { get; set; }
     }
     public class DataGrid<DataType> : HtmlControlBase, IDataGrid where DataType : DataGridBase
@@ -516,6 +518,7 @@ namespace FSW.Controls.Html
         }
 
         public MetaDatasCollection MetaDatas { get; private set; }
+        IReadOnlyDictionary<string, DataGridColumn.MetaData> IDataGrid.MetaDatas => MetaDatas;
 
         private List<DataType> Datas_;
         public List<DataType> Datas

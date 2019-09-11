@@ -184,7 +184,6 @@ namespace controls.html.dataGrid {
 
                 col.editor = Slick.Editors.CustomCheckboxEditor;
                 col.formatter = this.formatter.bind(this);
-                this.tree.grid.onClick.subscribe(this.onCellClicked.bind(this));
             }
             onCellClicked(e: DOMEvent, data: Slick.OnClickEventArgs<gen.treeTableData>) {
                 if (this.tree.grid.getColumns()[data.cell].id == this.col.id && (e.target as any).type == 'checkbox') {
@@ -447,6 +446,7 @@ namespace controls.html.dataGrid {
             setup(col: Slick.Column<gen.treeTableData>, grid: dataGrid) {
                 super.setup(col, grid);
 
+
                 let that = this;
                 col.editor = Slick.Editors.Select2({
                     width: '95%',
@@ -468,7 +468,8 @@ namespace controls.html.dataGrid {
                                 connectionId: core.manager.connectionId,
                                 controlId: that.control.id,
                                 searchString: searchString.term,
-                                colId: that.col.id
+                                colId: that.col.id,
+                                row: that.grid.treeTable.grid.getActiveCell().row
                             });
                         },
                         processResults: function (data: { [id: string]: string }) {
@@ -804,7 +805,7 @@ namespace controls.html.dataGrid {
                 columns: this.columnsInternal,
                 getItemMetadata: this.getItemMetadata.bind(this),
                 gridOptions: {
-                    editable: this.AllowEdit,
+                    editable: true, // 2019/11/09, always set editable and assume the 'onBeforeEditCell' will prevent editing
                     autoEdit: this.UseSingleClickEdit,
                     forceFitColumns: this.ForceAutoFit,
                 },

@@ -82,12 +82,19 @@ namespace FSW.Core
             var controlId = data["controlId"].ToObject<string>();
             var searchString = data.TryGetValue("searchString", out var searchString_) ? searchString_.ToObject<string>() : null;
             var colId = data["colId"].ToObject<string>();
+            var row = data["row"].ToObject<int>();
             var connectionId = data["connectionId"].ToObject<string>();
 
             var control = CommunicationHub.GetPage(connectionId).Manager.GetControl(controlId);
             if (control is Controls.Html.IDataGrid dataGrid)
             {
                 var col = dataGrid.GetColumns()[colId];
+                if (dataGrid.MetaDatas.TryGetValue(row.ToString(), out var meta) && meta.Columns != null && meta.Columns.TryGetValue(colId, out var metaCol))
+                {
+                    if (metaCol.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor metaEditor)
+                        return JsonConvert.SerializeObject(metaEditor.CallRequest(searchString));
+                }
+
                 if (col?.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor editor)
                     return JsonConvert.SerializeObject(editor.CallRequest(searchString));
             }
