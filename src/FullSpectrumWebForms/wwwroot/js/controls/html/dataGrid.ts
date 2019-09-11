@@ -442,6 +442,7 @@ namespace controls.html.dataGrid {
             IsMultiple: boolean;
             UseLargeDropDown?: boolean;
             ShowKeyInsteadOfValueInCell?: boolean;
+            AllowEmptySearch?: boolean;
 
             setup(col: Slick.Column<gen.treeTableData>, grid: dataGrid) {
                 super.setup(col, grid);
@@ -455,7 +456,7 @@ namespace controls.html.dataGrid {
                         id: "",
                         placeholder: "..."
                     },
-                    minimumInputLength: 2,
+                    minimumInputLength: that.AllowEmptySearch ? 0 : 2,
                     ajax: {
                         type: 'post',
                         contentType: "application/json; charset=utf-8",

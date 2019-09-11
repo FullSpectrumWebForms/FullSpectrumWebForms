@@ -321,6 +321,7 @@ namespace FSW.Controls.Html
             public bool IsMultiple = false;
             public bool UseLargeDropDown = false;
             public bool ShowKeyInsteadOfValueInCell = false;
+            public bool AllowEmptySearch = false;
 
             public override EditorBase Clone()
             {
@@ -329,6 +330,7 @@ namespace FSW.Controls.Html
                     IsMultiple = IsMultiple,
                     UseLargeDropDown = UseLargeDropDown,
                     ShowKeyInsteadOfValueInCell = ShowKeyInsteadOfValueInCell,
+                    AllowEmptySearch = AllowEmptySearch,
                     OnRequest = OnRequest
                 });
             }

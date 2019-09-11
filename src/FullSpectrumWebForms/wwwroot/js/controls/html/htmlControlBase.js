@@ -158,6 +158,8 @@ var controls;
                         if (result.length == 0)
                             throw "Custom selector did not yield any results:" + selector;
                         this.element = $(result[0]);
+                        if (selector.startsWith('#'))
+                            this.element.attr('data-id', selector.substr(1));
                     }
                     else
                         this.initializeHtmlElement();

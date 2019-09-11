@@ -394,7 +394,7 @@ var controls;
                                 id: "",
                                 placeholder: "..."
                             },
-                            minimumInputLength: 2,
+                            minimumInputLength: that.AllowEmptySearch ? 0 : 2,
                             ajax: {
                                 type: 'post',
                                 contentType: "application/json; charset=utf-8",
