@@ -80,7 +80,7 @@ namespace FSW.Core
         public string OnDataGridComboBoxAjaxCall([FromBody]Newtonsoft.Json.Linq.JObject data)
         {
             var controlId = data["controlId"].ToObject<string>();
-            var searchString = data["searchString"].ToObject<string>();
+            var searchString = data.TryGetValue("searchString", out var searchString_) ? searchString_.ToObject<string>() : null;
             var colId = data["colId"].ToObject<string>();
             var connectionId = data["connectionId"].ToObject<string>();
 
