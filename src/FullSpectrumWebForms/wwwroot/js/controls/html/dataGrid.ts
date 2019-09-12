@@ -1,4 +1,5 @@
-﻿namespace controls.html.dataGrid {
+﻿declare var ResizeObserver: any;
+namespace controls.html.dataGrid {
     export interface onValidateValueCellChangeArgs<type> {
         column: Slick.Column<type>;
         item: type;
@@ -183,7 +184,6 @@
 
                 col.editor = Slick.Editors.CustomCheckboxEditor;
                 col.formatter = this.formatter.bind(this);
-                this.tree.grid.onClick.subscribe(this.onCellClicked.bind(this));
             }
             onCellClicked(e: DOMEvent, data: Slick.OnClickEventArgs<gen.treeTableData>) {
                 if (this.tree.grid.getColumns()[data.cell].id == this.col.id && (e.target as any).type == 'checkbox') {
@@ -441,9 +441,11 @@
             IsMultiple: boolean;
             UseLargeDropDown?: boolean;
             ShowKeyInsteadOfValueInCell?: boolean;
+            AllowEmptySearch?: boolean;
 
             setup(col: Slick.Column<gen.treeTableData>, grid: dataGrid) {
                 super.setup(col, grid);
+
 
                 let that = this;
                 col.editor = Slick.Editors.Select2({
@@ -454,7 +456,7 @@
                         id: "",
                         placeholder: "..."
                     },
-                    minimumInputLength: 2,
+                    minimumInputLength: that.AllowEmptySearch ? 0 : 2,
                     ajax: {
                         type: 'post',
                         contentType: "application/json; charset=utf-8",
@@ -466,7 +468,8 @@
                                 connectionId: core.manager.connectionId,
                                 controlId: that.control.id,
                                 searchString: searchString.term,
-                                colId: that.col.id
+                                colId: that.col.id,
+                                row: that.grid.treeTable.grid.getActiveCell().row
                             });
                         },
                         processResults: function (data: { [id: string]: string }) {
@@ -689,6 +692,9 @@
                 if (!colMeta) // shouldn't happen, if it does, the programmer who's fault it is, is kinda stupid...
                     continue;// anyway, let's protect it juuuust in case
 
+                if (!this.Columns[colIds[i]]) // if we're receiving metas for a col that doesn't even exist
+                    continue;
+
                 let meta: any = $.extend({}, colMeta.colInternal);
                 meta.id = colIds[i];
 
@@ -799,7 +805,7 @@
                 columns: this.columnsInternal,
                 getItemMetadata: this.getItemMetadata.bind(this),
                 gridOptions: {
-                    editable: this.AllowEdit,
+                    editable: true, // 2019/11/09, always set editable and assume the 'onBeforeEditCell' will prevent editing
                     autoEdit: this.UseSingleClickEdit,
                     forceFitColumns: this.ForceAutoFit,
                 },
@@ -815,6 +821,19 @@
             this.treeTable.grid.onBeforeEditCell.subscribe(this.onBeforeEditCell.bind(this));
             this.treeTable.grid.onCellChange.subscribe(this.onCellChange.bind(this));
             this.treeTable.grid.onKeyDown.subscribe(this.onKeyDown.bind(this));
+
+            if (ResizeObserver) {
+                let that = this;
+                let previousHeight = -2; // initial value to ensure it will be resized initialy
+                new ResizeObserver(function () {
+                    let height = that.element.height();
+                    if (Math.abs(height - previousHeight) > 2) // moved more than 2 pixel
+                    {
+                        previousHeight = height; // only update previous height when we do resize the canvas
+                        that.treeTable.grid.resizeCanvas();
+                    }
+                }).observe(that.element[0]);
+            }
         }
         onCellClicked(e: DOMEvent, data: Slick.OnClickEventArgs<gen.treeTableData>) {
 

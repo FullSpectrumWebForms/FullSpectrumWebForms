@@ -14,7 +14,7 @@ namespace FSW.Utility
         }
 
     }
-    public class ControlPropertyDictionary<TKey, TValue> : IDictionary<TKey, TValue>
+    public class ControlPropertyDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
     {
         private ControlBase Control;
         private string PropertyName;
@@ -74,6 +74,9 @@ namespace FSW.Utility
         public int Count => GetIntervalValue().Count;
 
         public bool IsReadOnly => false;
+
+        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
+        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
 
         public void Add(TKey key, TValue value)
         {

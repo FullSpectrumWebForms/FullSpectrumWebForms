@@ -324,6 +324,7 @@ namespace FSW.Controls.Html
             public bool IsMultiple = false;
             public bool UseLargeDropDown = false;
             public bool ShowKeyInsteadOfValueInCell = false;
+            public bool AllowEmptySearch = false;
 
             public override EditorBase Clone()
             {
@@ -332,6 +333,7 @@ namespace FSW.Controls.Html
                     IsMultiple = IsMultiple,
                     UseLargeDropDown = UseLargeDropDown,
                     ShowKeyInsteadOfValueInCell = ShowKeyInsteadOfValueInCell,
+                    AllowEmptySearch = AllowEmptySearch,
                     OnRequest = OnRequest
                 });
             }
@@ -430,6 +432,8 @@ namespace FSW.Controls.Html
     {
         ControlPropertyDictionary<DataGridColumn> GetColumns();
 
+        IReadOnlyDictionary<string, DataGridColumn.MetaData> MetaDatas { get; }
+
         bool HideExportContextMenu { get; set; }
     }
     public class DataGrid<DataType> : HtmlControlBase, IDataGrid where DataType : DataGridBase
@@ -517,6 +521,7 @@ namespace FSW.Controls.Html
         }
 
         public MetaDatasCollection MetaDatas { get; private set; }
+        IReadOnlyDictionary<string, DataGridColumn.MetaData> IDataGrid.MetaDatas => MetaDatas;
 
         private List<DataType> Datas_;
         public List<DataType> Datas
@@ -860,10 +865,13 @@ namespace FSW.Controls.Html
                 var attribute = (DataGridColumn.ColumnInfoAttribute)columnInfoAttribute[0];
                 if (attribute.Name != null)
                     col.Name = attribute.Name;
+
                 if (attribute.Width != 0)
                     col.Width = attribute.Width;
+
                 if (attribute.ReadOnly && col.Editor != null)
                     col.Editor.AllowEdit = !attribute.ReadOnly;
+
                 col.DisplayIndex = attribute.DisplayIndex;
                 col.Classes = attribute.Classes;
                 col.Append = attribute.Append;

@@ -85,8 +85,9 @@ namespace FSW.Core
         public async Task<string> OnDataGridComboBoxAjaxCall([FromBody]Newtonsoft.Json.Linq.JObject data)
         {
             var controlId = data["controlId"].ToObject<string>();
-            var searchString = data["searchString"].ToObject<string>();
+            var searchString = data.TryGetValue("searchString", out var searchString_) ? searchString_.ToObject<string>() : null;
             var colId = data["colId"].ToObject<string>();
+            var row = data["row"].ToObject<int>();
             var connectionId = data["connectionId"].ToObject<string>();
 
             var page = CommunicationHub.GetPage(connectionId);
@@ -97,6 +98,12 @@ namespace FSW.Core
             if (control is Controls.Html.IDataGrid dataGrid)
             {
                 var col = dataGrid.GetColumns()[colId];
+                if (dataGrid.MetaDatas.TryGetValue(row.ToString(), out var meta) && meta.Columns != null && meta.Columns.TryGetValue(colId, out var metaCol))
+                {
+                    if (metaCol.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor metaEditor)
+                        return JsonConvert.SerializeObject(metaEditor.CallRequest(searchString));
+                }
+
                 if (col?.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor editor)
                     return JsonConvert.SerializeObject(await editor.CallRequest(serverSideLock, searchString));
             }

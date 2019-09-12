@@ -159,7 +159,6 @@ var controls;
                         super.setup(col, grid);
                         col.editor = Slick.Editors.CustomCheckboxEditor;
                         col.formatter = this.formatter.bind(this);
-                        this.tree.grid.onClick.subscribe(this.onCellClicked.bind(this));
                     }
                     onCellClicked(e, data) {
                         if (this.tree.grid.getColumns()[data.cell].id == this.col.id && e.target.type == 'checkbox') {
@@ -394,7 +393,7 @@ var controls;
                                 id: "",
                                 placeholder: "..."
                             },
-                            minimumInputLength: 2,
+                            minimumInputLength: that.AllowEmptySearch ? 0 : 2,
                             ajax: {
                                 type: 'post',
                                 contentType: "application/json; charset=utf-8",
@@ -406,7 +405,8 @@ var controls;
                                         connectionId: core.manager.connectionId,
                                         controlId: that.control.id,
                                         searchString: searchString.term,
-                                        colId: that.col.id
+                                        colId: that.col.id,
+                                        row: that.grid.treeTable.grid.getActiveCell().row
                                     });
                                 },
                                 processResults: function (data) {
@@ -575,6 +575,8 @@ var controls;
                         let colMeta = cols[colIds[i]];
                         if (!colMeta) // shouldn't happen, if it does, the programmer who's fault it is, is kinda stupid...
                             continue; // anyway, let's protect it juuuust in case
+                        if (!this.Columns[colIds[i]]) // if we're receiving metas for a col that doesn't even exist
+                            continue;
                         let meta = $.extend({}, colMeta.colInternal);
                         meta.id = colIds[i];
                         if (colMeta.Editor && colMeta.EditorInfo === undefined)
@@ -668,7 +670,7 @@ var controls;
                         columns: this.columnsInternal,
                         getItemMetadata: this.getItemMetadata.bind(this),
                         gridOptions: {
-                            editable: this.AllowEdit,
+                            editable: true,
                             autoEdit: this.UseSingleClickEdit,
                             forceFitColumns: this.ForceAutoFit,
                         },
@@ -681,6 +683,18 @@ var controls;
                     this.treeTable.grid.onBeforeEditCell.subscribe(this.onBeforeEditCell.bind(this));
                     this.treeTable.grid.onCellChange.subscribe(this.onCellChange.bind(this));
                     this.treeTable.grid.onKeyDown.subscribe(this.onKeyDown.bind(this));
+                    if (ResizeObserver) {
+                        let that = this;
+                        let previousHeight = -2; // initial value to ensure it will be resized initialy
+                        new ResizeObserver(function () {
+                            let height = that.element.height();
+                            if (Math.abs(height - previousHeight) > 2) // moved more than 2 pixel
+                             {
+                                previousHeight = height; // only update previous height when we do resize the canvas
+                                that.treeTable.grid.resizeCanvas();
+                            }
+                        }).observe(that.element[0]);
+                    }
                 }
                 onCellClicked(e, data) {
                     // check click for buttons and checkbox
