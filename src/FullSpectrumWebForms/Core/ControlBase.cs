@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace FSW.Core
 {
@@ -243,52 +244,55 @@ namespace FSW.Core
             }
         }
         private List<ServerToClientCustomEvent> PendingCustomEvents = new List<ServerToClientCustomEvent>();
-        private Dictionary<int, Action<Newtonsoft.Json.Linq.JProperty>> AwaitingAnswerEvents = new Dictionary<int, Action<Newtonsoft.Json.Linq.JProperty>>();
+        private Dictionary<int, Func<AsyncLocks.IUnlockedAsyncServer, Newtonsoft.Json.Linq.JProperty, Task>> AwaitingAnswerEvents = new Dictionary<int, Func<AsyncLocks.IUnlockedAsyncServer, Newtonsoft.Json.Linq.JProperty, Task>>();
         internal protected void CallCustomClientEvent(string name, object parameters = null)
         {
             PendingCustomEvents.Add(new ServerToClientCustomEvent(name, parameters));
         }
-        internal protected void CallCustomClientEvent<T>(string name, Action<T> callback, object parameters = null)
+        internal protected void CallCustomClientEvent<T>(string name, Func<AsyncLocks.IUnlockedAsyncServer, T, Task> callback, object parameters = null)
         {
-            while (true)
+            int id;
+            do
             {
-                var id = Guid.NewGuid().GetHashCode();
-                if (AwaitingAnswerEvents.ContainsKey(id))
-                    continue;
-
-                PendingCustomEvents.Add(new ServerToClientCustomEvent(name, parameters, id));
-
-                AwaitingAnswerEvents[id] = (obj) =>
-                {
-                    if (obj == null)
-                        callback(default(T));
-                    else if (obj.HasValues)
-                        callback(obj.Value.ToObject<T>());
-                    else
-                        callback(obj.ToObject<T>());
-                };
-                break;
+                id = Guid.NewGuid().GetHashCode();
             }
+            while (AwaitingAnswerEvents.ContainsKey(id));
+
+            PendingCustomEvents.Add(new ServerToClientCustomEvent(name, parameters, id));
+
+            AwaitingAnswerEvents[id] = (unlockedAsyncServer, obj) =>
+            {
+                if (obj == null)
+                    return callback(unlockedAsyncServer, default);
+                else if (obj.HasValues)
+                    return callback(unlockedAsyncServer, obj.Value.ToObject<T>());
+                else
+                    return callback(unlockedAsyncServer, obj.ToObject<T>());
+            };
         }
 
         internal protected System.Threading.Tasks.Task<T> CallCustomClientEvent<T>(string name, object parameters = null)
         {
             var src = new System.Threading.Tasks.TaskCompletionSource<T>();
 
-            CallCustomClientEvent<T>(name, (res) => src.TrySetResult(res), parameters);
+            CallCustomClientEvent<T>(name, (_, res) =>
+            {
+                src.TrySetResult(res);
+                return Task.CompletedTask;
+            }, parameters);
 
             return src.Task;
         }
 
-        [CoreEvent]
-        protected void OnCustomClientEventAnswerReceivedFromClient(int id, Newtonsoft.Json.Linq.JProperty answer = null)
+        [AsyncCoreEvent]
+        protected Task OnCustomClientEventAnswerReceivedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, int id, Newtonsoft.Json.Linq.JProperty answer = null)
         {
             if (AwaitingAnswerEvents.TryGetValue(id, out var callback))
-                callback(answer);
+                return callback(unlockedAsyncServer, answer);
             else
                 throw new Exception("Client answer id not found");
         }
-        
+
         internal List<ServerToClientCustomEvent> ExtractPendingCustomEvents()
         {
             if (PendingCustomEvents.Count == 0)
@@ -405,54 +409,6 @@ namespace FSW.Core
 
             if (autoInvoke)
                 callback();
-        }
-
-        public void BindProperty(Action action, params Expression<Func<object>>[] checkExpression)
-        {
-            var knownedProperties = new List<KeyValuePair<ControlBase, string>>();
-            foreach (var propertyExpression in checkExpression)
-            {
-                var possibleMemberExpression = propertyExpression.Body is UnaryExpression unaryExpression ? unaryExpression.Operand : (object)propertyExpression.Body;
-
-                if (possibleMemberExpression is MemberExpression memberExpression)
-                {
-                    var me = memberExpression.Expression as MemberExpression;
-                    var ce = (ConstantExpression)me.Expression;
-                    var fieldInfo = ce.Value.GetType().GetField(me.Member.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    var value = (ControlBase)fieldInfo.GetValue(ce.Value);
-                    var propertyName = memberExpression.Member.Name;
-
-                    if (!value.Properties.ContainsKey(propertyName))
-                    {
-                        var attribute = memberExpression.Member.GetCustomAttribute<PropertyWrapperAttribute>();
-                        if (attribute is null)
-                            throw new Exception($"Unable to find control property or property wrapper for property '{propertyName}'");
-                        propertyName = attribute.Property;
-                    }
-
-                    var property = value.GetPropertyInternal(propertyName);
-
-                    if (!knownedProperties.Contains(new KeyValuePair<ControlBase, string>(value, propertyName)))
-                        knownedProperties.Add(new KeyValuePair<ControlBase, string>(value, propertyName));
-                    else
-                        continue;
-
-                    void callback(Property prop, object lastValue, object newValue, Property.UpdateSource source)
-                    {
-                        action();
-                    }
-                    property.OnInstantNewValue += callback;
-
-                    // prevent the other control from triggering this control, if this one doesn't even exist anymore!
-                    OnControlRemoved += (control) =>
-                    {
-                        property.OnInstantNewValue -= callback;
-                    };
-
-                    continue;
-                }
-                throw new Exception($"Unable to parse {propertyExpression.Body.ToString()}");
-            }
         }
 
     }

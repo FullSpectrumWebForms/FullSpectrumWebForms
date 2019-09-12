@@ -7,7 +7,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using System.Web;
+#pragma warning disable CA1813 // Avoid unsealed attributes
+#pragma warning disable CA1012 // Abstract types should not have constructors
 
 namespace FSW.Controls.Html
 {
@@ -316,7 +319,7 @@ namespace FSW.Controls.Html
         public class ComboBoxAjaxEditor : EditorBase
         {
             [JsonIgnore]
-            public Func<string, Dictionary<string, string>> OnRequest;
+            public Func<Core.AsyncLocks.IUnlockedAsyncServer, string, Task<Dictionary<string, string>>> OnRequest;
 
             public bool IsMultiple = false;
             public bool UseLargeDropDown = false;
@@ -333,9 +336,9 @@ namespace FSW.Controls.Html
                 });
             }
 
-            public Dictionary<string, string> CallRequest(string searchString)
+            public Task<Dictionary<string, string>> CallRequest(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string searchString)
             {
-                return OnRequest?.Invoke(searchString);
+                return OnRequest?.Invoke(unlockedAsyncServer, searchString);
             }
             public override object ParseNewInputValue(DataGridColumn colDef, object value)
             {
@@ -479,14 +482,14 @@ namespace FSW.Controls.Html
         public ControlPropertyDictionary<DataGridColumn> Columns { get; private set; }
         private Type RawDataType;
 
-        public delegate void OnCellChangedHandler(DataGridColumn col, int row, DataType item, object newValue);
+        public delegate Task OnCellChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataGridColumn col, int row, DataType item, object newValue);
         public event OnCellChangedHandler OnCellChanged;
 
-        public delegate void OnButtonCellClickedHandler(DataGridColumn col, int row, DataType item);
+        public delegate Task OnButtonCellClickedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataGridColumn col, int row, DataType item);
         public event OnButtonCellClickedHandler OnButtonCellClicked;
 
         private event OnActiveCellChangedHandler OnActiveCellChanged_;
-        public delegate void OnActiveCellChangedHandler(DataGridColumn col, int row, DataType item);
+        public delegate Task OnActiveCellChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataGridColumn col, int row, DataType item);
         public event OnActiveCellChangedHandler OnActiveCellChanged
         {
             add
@@ -587,6 +590,8 @@ namespace FSW.Controls.Html
                     return dct;
                 }).ToList()
             });
+
+            return;
         }
         public virtual void RefreshDatas(bool skipMetaDatasGeneration = false)
         {
@@ -629,12 +634,12 @@ namespace FSW.Controls.Html
                 ["Datas"] = Datas
             });
         }
-        [CoreEvent]
-        protected object OnActiveCellChangedFromClient(int row, string col)
+        [AsyncCoreEvent]
+        protected async Task<object> OnActiveCellChangedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, int row, string col)
         {
             if (row == -1 && col == null)
             {
-                OnActiveCellChanged_?.Invoke(null, -1, null);
+                OnActiveCellChanged_?.Invoke(unlockedAsyncServer, null, -1, null);
                 return null;
             }
             if (row >= Datas.Count)
@@ -645,12 +650,14 @@ namespace FSW.Controls.Html
                 throw new Exception($"Invalid col {col} in control {Id}");
 
             var item = Datas[row];
-            OnActiveCellChanged_?.Invoke(colDef, row, item);
+            var task = OnActiveCellChanged_?.Invoke(unlockedAsyncServer, colDef, row, item);
+            if (task != null)
+                await task;
             return null;
         }
 
-        [CoreEvent]
-        protected void OnButtonCellClickedFromClient(int row, string col)
+        [AsyncCoreEvent]
+        protected Task OnButtonCellClickedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, int row, string col)
         {
             if (row >= Datas.Count)
                 throw new Exception($"Invalid row {row} in control {Id}");
@@ -660,11 +667,11 @@ namespace FSW.Controls.Html
                 throw new Exception($"Invalid col {col} in control {Id}");
             var item = Datas[row];
 
-            OnButtonCellClicked?.Invoke(colDef, row, item);
+            return OnButtonCellClicked?.Invoke(unlockedAsyncServer, colDef, row, item) ?? Task.CompletedTask;
         }
 
-        [CoreEvent]
-        protected object OnCellChangedFromClient(int row, string col, object value = null)
+        [AsyncCoreEvent]
+        protected async Task<object> OnCellChangedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, int row, string col, object value = null)
         {
             if (row >= Datas.Count)
                 throw new Exception($"Invalid row {row} in control {Id}");
@@ -701,7 +708,9 @@ namespace FSW.Controls.Html
                 field.SetValue(item, realValue);
             }
 
-            OnCellChanged?.Invoke(colDef, row, item, realValue);
+            var task = OnCellChanged?.Invoke(unlockedAsyncServer, colDef, row, item, realValue);
+            if (task != null)
+                await task;
 
             return realValue;
         }

@@ -14,9 +14,9 @@ namespace TestApplication.Pages
         public TextBox TB_Test = new TextBox();
         public Label LB_Test = new Label();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
         {
-            base.OnPageLoad();
+            await base.OnPageLoad(requireAsyncReadOnlyLock);
 
             TB_Test.OnTextChangedAsync += TB_Test_OnTextChanged;
         }

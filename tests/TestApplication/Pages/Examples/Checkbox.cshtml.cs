@@ -11,9 +11,9 @@ namespace TestApplication.Pages.Examples
     public class CheckboxPage : FSW.Core.FSWPage
     {
         public FSW.Controls.Html.Checkbox CK_Test = new FSW.Controls.Html.Checkbox();
-        public override void OnPageLoad()
+        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
         {
-            base.OnPageLoad();
+            await base.OnPageLoad(requireAsyncReadOnlyLock);
 
             CK_Test.OnCheckedChangedAsync += CK_Test_OnStateChanged;
         }

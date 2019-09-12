@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FSW.Core.AsyncLocks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -14,9 +15,9 @@ namespace TestApplication.Pages.Examples.Semantic
         public FSW.Semantic.Controls.Html.IconLabeledButton BT_TestSecondary = new FSW.Semantic.Controls.Html.IconLabeledButton();
         public FSW.Semantic.Controls.Html.IconLabeledButton BT_TestLabel = new FSW.Semantic.Controls.Html.IconLabeledButton();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
         {
-            base.OnPageLoad();
+            await base.OnPageLoad(requireAsyncReadOnlyLock);
 
             BT_Test.Text = "Test Text";
             BT_Test.Icon = "heart";

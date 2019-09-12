@@ -66,7 +66,7 @@ namespace FSW.Core
 
             if (page != null)
             {
-                await page.InvokePageUnloadAsyncAndSync();
+                await page.InvokePageUnload(new AsyncLocks.UnlockedAsyncServer(page));
 
                 var guid = page.GetType().GUID;
                 if (StaticHostedServices.TryGetValue(guid, out var service))
@@ -151,6 +151,7 @@ namespace FSW.Core
                 throw;
             }
         }
+
         public Task CustomControlEvent(JObject data)
         {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -158,6 +159,7 @@ namespace FSW.Core
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             return Task.CompletedTask;
         }
+
         private Task CustomControlExtensionEvent_(JObject data)
         {
             var controlId = data["controlId"].ToObject<string>();
@@ -238,7 +240,7 @@ namespace FSW.Core
             return (pageId, page, newSessionId, newSessionAuth);
         }
 
-        public Task InitializeCore(JObject data)
+        public async Task InitializeCore_(JObject data)
         {
             var pageId = data["pageId"].ToObject<int?>() ?? 0;
             var pageIdAuth = data["pageIdAuth"]?.ToObject<string>();
@@ -256,7 +258,10 @@ namespace FSW.Core
                     var (PageId, page_, SessionId, SessionAuth) = GenerateFSWPage(typePath, sessionId, sessionAuth);
                     page = page_;
                     if (page == null)
-                        return SendAsync_ID(ConnectionId, "error", "typePath invalid");
+                    {
+                        SendAsync_ID(ConnectionId, "error", "typePath invalid").Wait();
+                        return;
+                    }
                     sessionId = SessionId;
                     sessionAuth = SessionAuth;
                     pageIdAuth = page.PageAuth;
@@ -272,12 +277,17 @@ namespace FSW.Core
                 PageAwaitingConnections.Remove(pageId);
 
                 if (page.PageAuth != pageIdAuth)
-                    return SendAsync_ID(ConnectionId, "error", "Invalid page auth");
+                {
+                    SendAsync_ID(ConnectionId, "error", "Invalid page auth").Wait();
+                }
             }
             lock (Connections)
             {
                 if (!Connections.ContainsKey(ConnectionId))
-                    return SendAsync_ID(ConnectionId, "error", "Id not found");
+                {
+                    SendAsync_ID(ConnectionId, "error", "Id not found").Wait();
+                    return;
+                }
                 Connections[ConnectionId] = page;
             }
 
@@ -285,8 +295,7 @@ namespace FSW.Core
 
             InitializationCoreServerAnswer res;
             var manager = page.Manager;
-            using (page.Manager._lock.WriterLock())
-                res = manager.InitializePageFromClient(ConnectionId, url, urlParameters);
+            res = await manager.InitializePageFromClient(ConnectionId, url, urlParameters);
             res.SessionId = sessionId;
             res.SessionAuth = sessionAuth;
             res.ConnectionId = ConnectionId;
@@ -302,7 +311,14 @@ namespace FSW.Core
 
             page.FSWPage_InitializedEvent.Set();
 
-            return task;
+            await task;
+        }
+        public Task InitializeCore(JObject data)
+        {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            InitializeCore_(data);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            return Task.CompletedTask;
         }
 
         public static void RegisterFSWPage(int id, FSWPage page)

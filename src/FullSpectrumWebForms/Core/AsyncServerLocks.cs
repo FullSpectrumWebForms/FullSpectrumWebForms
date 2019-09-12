@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace FSW.Core.AsyncLocks
 {
-    public interface IRequireAsyncReadOnlyLock
+    public interface IRequireReadOnlyLock
     {
         Nito.AsyncEx.AwaitableDisposable<IDisposable> EnterReadOnlyLock(CancellationToken token = default);
     }
-    public interface IRequireAsyncLock : IRequireAsyncReadOnlyLock
+    public interface IRequireAsyncLock : IRequireReadOnlyLock
     {
         Nito.AsyncEx.AwaitableDisposable<IAsyncLock> EnterLock(CancellationToken token = default);
     }
@@ -18,7 +18,7 @@ namespace FSW.Core.AsyncLocks
     {
         Nito.AsyncEx.AwaitableDisposable<IDisposable> EnterAnyLock(CancellationToken token = default);
     }
-    public interface IUnlockedAsyncServer : IRequireAsyncReadOnlyLock, IRequireAsyncLock, IRequireAnyLock
+    public interface IUnlockedAsyncServer : IRequireReadOnlyLock, IRequireAsyncLock, IRequireAnyLock
     {
         IRequireAnyLock AsReadOnlyLock();
         IRequireAnyLock AsLock();

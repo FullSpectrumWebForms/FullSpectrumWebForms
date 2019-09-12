@@ -47,7 +47,7 @@ namespace FSW.Controls.Html
         public delegate void OnStateChangedHandler(Radio sender);
         public event OnStateChangedHandler OnStateChanged;
 
-        [CoreEvent]
+        [AsyncCoreEvent]
         public void OnCheckboxClickedFromClient()
         {
             OnStateChanged?.Invoke(this);

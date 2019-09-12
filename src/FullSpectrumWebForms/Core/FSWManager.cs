@@ -106,9 +106,8 @@ namespace FSW.Core
                 throw new Exception($"Unable to get method '{eventName}' in type '{controlType}'");
 
             // check if the method have the "CoreEventAttribute", if not then for security reason, just rage-quit
-            var attr = m.GetCustomAttributes(typeof(CoreEventAttribute), true)?.FirstOrDefault() as CoreEventAttribute;
             var attrAsync = m.GetCustomAttributes(typeof(AsyncCoreEventAttribute), true)?.FirstOrDefault() as AsyncCoreEventAttribute;
-            if ((attr == null && attrAsync == null) || (attr != null && attrAsync != null))// one of them must be set but not both
+            if (attrAsync == null)// one of them must be set but not both
                 throw new Exception($"Unable to get method '{eventName}' in type '{controlType}'. Access denied");
 
             if (attrAsync != null && !typeof(Task).IsAssignableFrom(m.ReturnType))
@@ -219,7 +218,7 @@ namespace FSW.Core
                 throw new Exception($"Unable to get method '{eventName}' in type '{t}'");
 
             // check if the method have the "CoreEventAttribute", if not then for security reason, just rage-quit
-            if (!(m.GetCustomAttributes(typeof(CoreEventAttribute), true)?.FirstOrDefault() is CoreEventAttribute attr))
+            if (!(m.GetCustomAttributes(typeof(AsyncCoreEventAttribute), true)?.FirstOrDefault() is AsyncCoreEventAttribute attr))
                 throw new Exception($"Unable to get method '{eventName}' in type '{t}'. Access denied");
 
             // if there are parameters for this method
@@ -384,9 +383,9 @@ namespace FSW.Core
         /// Called by the client at the beginning to get all the controls from the server
         /// This is what load the initial controls on the client side
         /// </summary>
-        internal InitializationCoreServerAnswer InitializePageFromClient(string connectionId, string url, Dictionary<string, string> urlParameters)
+        internal async Task<InitializationCoreServerAnswer> InitializePageFromClient(string connectionId, string url, Dictionary<string, string> urlParameters)
         {
-            Page.InitializeFSWControls(connectionId, url, urlParameters);
+            await Page.InitializeFSWControls(connectionId, url, urlParameters);
             var res = new InitializationCoreServerAnswer()
             {
                 Answer = ProcessPropertyChange(true)

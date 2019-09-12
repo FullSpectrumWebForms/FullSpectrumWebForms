@@ -48,7 +48,6 @@ namespace FSW.Core
                 LastValue = Value_;
                 if (Control.IsInitializing)
                     return;
-                OnInstantNewValue?.Invoke(this, LastValue, Value_, UpdateSource.Server);
                 HasValueChanged = true;
             }
         }
@@ -60,20 +59,12 @@ namespace FSW.Core
         {
             Client, Server
         }
-        public delegate void OnNewValueEvent(Property property, object lastValue, object newValue, UpdateSource source);
 
         public delegate Task OnNewValueFromClientEvent(AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue);
         /// <summary>
         /// Called when the value is updated from the client
         /// </summary>
         public event OnNewValueFromClientEvent OnNewValueFromClientAsync;
-        /// <summary>
-        /// Instantly called when the <see cref="Value"/> is modified from server side,
-        /// or call just before the <see cref="OnNewValue"/> is called if modified from client side
-        /// <para/>
-        /// Use this if you don't want the event to be fired only when the postback is about to end
-        /// </summary>
-        public event OnNewValueEvent OnInstantNewValue;
 
         public Func<object, object> ParseValueFromClient;
         public Func<object, object> ParseValueToClient;
@@ -86,6 +77,7 @@ namespace FSW.Core
             LastValue = Value;
             HasValueChanged = true;
         }
+
         public static object ParseStringDictionary(object value)
         {
             if (value == null)
@@ -107,7 +99,6 @@ namespace FSW.Core
                 newValue = ParseValueFromClient(newValue);
 
             Value_ = newValue;
-            OnInstantNewValue?.Invoke(this, LastValue, newValue, UpdateSource.Client);
 
             var task = OnNewValueFromClientAsync?.Invoke(unlockedAsyncServer, this, LastValue, newValue);
 

@@ -5,35 +5,36 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FSW.Controls.Html;
+using FSW.Core.AsyncLocks;
 
 namespace TestApplication.Pages
 {
-    public class CalendarPage: FSW.Core.FSWPage
+    public class CalendarPage : FSW.Core.FSWPage
     {
         public Calendar C_Test = new Calendar();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
         {
-            base.OnPageLoad();
-
+            await base.OnPageLoad(requireAsyncReadOnlyLock);
 
             C_Test.OnRefreshRequest += C_Test_OnRefreshRequest;
-            C_Test.OnEventClick += C_Test_OnEventClick;
+            C_Test.OnEventClickAsync += C_Test_OnEventClick;
             C_Test.CurrentView = Calendar.AvailableView.AgendaWeek;
 
             C_Test.Width = "1500px";
             C_Test.Height = "900px";
         }
 
-        private void C_Test_OnEventClick(CalendarEvent eventClicked)
+        private Task C_Test_OnEventClick(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, CalendarEvent eventClicked)
         {
             MessageBox.Success("You clicked", eventClicked.Title);
+            return Task.CompletedTask;
         }
 
-        private List<CalendarEvent> C_Test_OnRefreshRequest(DateTime rangeStart, DateTime rangeEnd)
+        private Task<List<CalendarEvent>> C_Test_OnRefreshRequest(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DateTime rangeStart, DateTime rangeEnd)
         {
             var sunday = rangeStart - TimeSpan.FromDays((int)rangeStart.DayOfWeek);
-            return new List<CalendarEvent>()
+            return Task.FromResult(new List<CalendarEvent>()
             {
                 new CalendarEvent()
                 {
@@ -42,7 +43,7 @@ namespace TestApplication.Pages
                     End = sunday + TimeSpan.FromDays(1) + TimeSpan.FromHours(17),
                     Title = "Working shift 1"
                 }
-            };
+            });
         }
     }
 }

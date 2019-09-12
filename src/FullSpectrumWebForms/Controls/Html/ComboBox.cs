@@ -151,7 +151,7 @@ namespace FSW.Controls.Html
         /// <summary>
         /// If the ComboBox is ajax, set the fonction to be called when the user enter something in the ComboBox
         /// </summary>
-        public Func<string, Dictionary<string, string>> OnAjaxRequest { get; set; }
+        public Func<Core.AsyncLocks.IUnlockedAsyncServer, string, Task<Dictionary<string, string>>> OnAjaxRequest { get; set; }
 
 
         /// <summary>
@@ -239,10 +239,10 @@ namespace FSW.Controls.Html
             GetPropertyInternal(nameof(SelectedIdsAndValues)).OnNewValueFromClientAsync += OnSelectedIdsAndValuesChangedFromClient;
         }
 
-        [CoreEvent]
-        internal Dictionary<string, string> _OnAjaxRequestFromClient(string searchString)
+        [AsyncCoreEvent]
+        internal Task<Dictionary<string, string>> _OnAjaxRequestFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string searchString)
         {
-            return OnAjaxRequest?.Invoke(searchString);
+            return OnAjaxRequest?.Invoke(unlockedAsyncServer, searchString) ?? Task.FromResult((Dictionary<string, string>)null);
         }
 
         private Task OnSelectedIdAndValueChangedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)

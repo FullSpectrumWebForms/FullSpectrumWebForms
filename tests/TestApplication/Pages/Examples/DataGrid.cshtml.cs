@@ -1,4 +1,5 @@
 ﻿using FSW.Controls.Html;
+using FSW.Core.AsyncLocks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -10,9 +11,9 @@ namespace TestApplication.Pages.Examples
 {
     public class DataGridPage : FSW.Core.FSWPage
     {
-        public override void OnPageLoad()
+        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
         {
-            base.OnPageLoad();
+            await base.OnPageLoad(requireAsyncReadOnlyLock);
 
             Init_Basic();
             Init_Editing_Basic();
@@ -230,9 +231,10 @@ namespace TestApplication.Pages.Examples
 
             Grid_Basic2.OnCellChanged += Grid_Basic2_OnCellChanged;
         }
-        private void Grid_Basic2_OnCellChanged(DataGridColumn col, int row, Item2 item, object newValue)
+        private async Task Grid_Basic2_OnCellChanged(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataGridColumn col, int row, Item2 item, object newValue)
         {
-            MessageBox.Success("Success", $"Col {col.Name} was modified on row {row}. The new value is now: {newValue}");
+            using (await unlockedAsyncServer.EnterAnyLock())
+                MessageBox.Success("Success", $"Col {col.Name} was modified on row {row}. The new value is now: {newValue}");
         }
 
         #endregion
@@ -302,9 +304,10 @@ namespace TestApplication.Pages.Examples
             Grid_Editing_Advanced.OnCellChanged += Grid_Basic3_OnCellChanged;
         }
 
-        private void Grid_Editing_Advanced_OnButtonCellClicked(DataGridColumn col, int row, Item3 item)
+        private async Task Grid_Editing_Advanced_OnButtonCellClicked(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataGridColumn col, int row, Item3 item)
         {
-            MessageBox.Success("Success", $"Col {col.Name} was clicked on row {row}");
+            using (await unlockedAsyncServer.EnterAnyLock())
+                MessageBox.Success("Success", $"Col {col.Name} was clicked on row {row}");
         }
 
         private Dictionary<string, string> TestDictionary = new Dictionary<string, string>
@@ -315,15 +318,16 @@ namespace TestApplication.Pages.Examples
             ["test 4"] = "Test string 4",
             ["test 5"] = "Test string 5",
         };
-        private Dictionary<string, string> OnGrid_Basic3_Request(string searchString)
+        private Task<Dictionary<string, string>> OnGrid_Basic3_Request(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string searchString)
         {
-            return TestDictionary.Where(x =>
-               x.Key.ToLower().Contains(searchString.ToLower()) ||
-               x.Value.ToLower().Contains(searchString.ToLower())).ToDictionary(x => x.Key, x => x.Value);
+            return Task.FromResult(TestDictionary.Where(x =>
+              x.Key.ToLower().Contains(searchString.ToLower()) ||
+              x.Value.ToLower().Contains(searchString.ToLower())).ToDictionary(x => x.Key, x => x.Value));
         }
-        private void Grid_Basic3_OnCellChanged(DataGridColumn col, int row, Item3 item, object newValue)
+        private async Task Grid_Basic3_OnCellChanged(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataGridColumn col, int row, Item3 item, object newValue)
         {
-            MessageBox.Success("Success", $"Col {col.Name} was modified on row {row}. The new value is now: {newValue}");
+            using (await unlockedAsyncServer.EnterAnyLock())
+                MessageBox.Success("Success", $"Col {col.Name} was modified on row {row}. The new value is now: {newValue}");
         }
 
         #endregion

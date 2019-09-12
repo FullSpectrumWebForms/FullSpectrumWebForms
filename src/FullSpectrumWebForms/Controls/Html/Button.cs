@@ -39,13 +39,8 @@ namespace FSW.Controls.Html
             }
         }
 
-
-        public delegate void OnButtonClickedHandler(Button button);
-        [Obsolete("OnButtonClicked is deprecated. Try using OnButtonClickedAsync")]
-        public event OnButtonClickedHandler OnButtonClicked;
-
         public delegate Task OnButtonClickedAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Button button);
-        public event OnButtonClickedAsyncHandler OnButtonClickedAsync;
+        public event OnButtonClickedAsyncHandler OnButtonClicked;
 
         public override void InitializeProperties()
         {
@@ -63,9 +58,7 @@ namespace FSW.Controls.Html
                 state = State;
             if (state != State.Disabled)
             {
-                OnButtonClicked?.Invoke(this);
-
-                var task = OnButtonClickedAsync?.Invoke(unlockedAsyncServer, this);
+                var task = OnButtonClicked?.Invoke(unlockedAsyncServer, this);
                 if (task != null)
                     await task;
             }

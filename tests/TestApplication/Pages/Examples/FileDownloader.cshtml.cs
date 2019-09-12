@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FSW.Controls;
+using FSW.Core.AsyncLocks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -15,9 +16,9 @@ namespace TestApplication.Pages.Examples
         public FSW.Controls.Html.Button BT_UploadFile = new FSW.Controls.Html.Button();
 
         public FileDownloader FileDownloader = new FileDownloader();
-        public override void OnPageLoad()
+        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
         {
-            base.OnPageLoad();
+            await base.OnPageLoad(requireAsyncReadOnlyLock);
 
             var upload = new FSW.Controls.Extensions.FileUploadExtension();
             upload.GetOnFileUploadReceivedFromClient += Upload_GetOnFileUploadReceivedFromClient;

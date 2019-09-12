@@ -34,31 +34,34 @@ namespace FSW.Core
             remove => Manager.OnBeforeServerUnlocked -= value;
         }
 
-        internal void InitializeFSWControls(string connectionId, string url, Dictionary<string, string> urlParameters)
+        internal async Task InitializeFSWControls(string connectionId, string url, Dictionary<string, string> urlParameters)
         {
-            ID = connectionId;
-            MessageBox = new Controls.MessageBox();
-            LoadingScreen = new Controls.LoadingScreen();
-            Common = new Controls.CommonInformations();
-            UrlManager = new Controls.UrlManager(url, urlParameters);
-
-
-
-            var type = GetType();
-            var fields = type.GetFields(System.Reflection.BindingFlags.FlattenHierarchy | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            foreach (var field in fields)
+            var unlockedServer = new Core.AsyncLocks.UnlockedAsyncServer(this);
+            using (await unlockedServer.EnterReadOnlyLock())
             {
-                if (field.GetValue(this) is ControlBase control)
+                ID = connectionId;
+                MessageBox = new Controls.MessageBox();
+                LoadingScreen = new Controls.LoadingScreen();
+                Common = new Controls.CommonInformations();
+                UrlManager = new Controls.UrlManager(url, urlParameters);
+
+
+
+                var type = GetType();
+                var fields = type.GetFields(System.Reflection.BindingFlags.FlattenHierarchy | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                foreach (var field in fields)
                 {
-                    Manager.AddControl(field.Name, control);
-                    if (control.IsInitializing)
-                        control.InternalInitialize(this);
-                    control.ControlInitialized();
+                    if (field.GetValue(this) is ControlBase control)
+                    {
+                        Manager.AddControl(field.Name, control);
+                        if (control.IsInitializing)
+                            control.InternalInitialize(this);
+                        control.ControlInitialized();
+                    }
                 }
             }
 
-            OnPageLoad();
-
+            await OnPageLoad(unlockedServer);
         }
 
         [Obsolete("ServerSideLock is deprecated. Try using asynchronous locks. See FSW.Core.AsyncServerLock and async hosted services")]
@@ -66,13 +69,15 @@ namespace FSW.Core
         [Obsolete("ReadOnlyServerSideLock is deprecated. Try using asynchronous locks. See FSW.Core.AsyncServerLock and async hosted services")]
         public PageLock ReadOnlyServerSideLock => new PageLock(this, true);
 
-        public virtual void OnPageLoad()
+        public virtual Task OnPageLoad(Core.AsyncLocks.IRequireReadOnlyLock requireAsyncReadOnlyLock)
         {
+            return Task.CompletedTask;
         }
 
-        private void FSWPage_OnPageUnload()
+        private Task FSWPage_OnPageUnload(Core.AsyncLocks.IRequireReadOnlyLock requireAsyncReadOnlyLock)
         {
             BackgroundServiceReset.Set();
+            return Task.CompletedTask;
         }
 
         public FSWPage()
@@ -87,24 +92,16 @@ namespace FSW.Core
             UrlManager.UpdateUrlAndReload(url);
         }
 
-        internal async Task InvokePageUnloadAsyncAndSync()
+        internal async Task InvokePageUnload(Core.AsyncLocks.IRequireReadOnlyLock requireAsyncReadOnlyLock)
         {
             Session.RemovePage(this);
-            if (OnPageUnload != null)
-            {
-                using (await Manager._lock.WriterLockAsync())
-                    OnPageUnload?.Invoke();
-            }
 
-            var task = OnPageUnloadAsync?.Invoke();
+            var task = OnPageUnload?.Invoke(requireAsyncReadOnlyLock);
             if (task != null)
                 await task;
         }
-        public delegate void OnPageUnloadHandler();
-        [Obsolete("Deprecated. Consider using OnPageUnloadAsync")]
-        public event OnPageUnloadHandler OnPageUnload;
-        public delegate Task OnPageUnloadAsyncHandler();
-        public event OnPageUnloadAsyncHandler OnPageUnloadAsync;
+        public delegate Task OnPageUnloadAsyncHandler(Core.AsyncLocks.IRequireReadOnlyLock requireAsyncReadOnlyLock);
+        public event OnPageUnloadAsyncHandler OnPageUnload;
 
 
 

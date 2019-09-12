@@ -16,9 +16,9 @@ namespace TestApplication.Pages
         public TextBox TB_Test = new TextBox();
         public FSW.Controls.Html.Label LB_Test = new FSW.Controls.Html.Label();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
         {
-            base.OnPageLoad();
+            await base.OnPageLoad(requireAsyncReadOnlyLock);
 
             TB_Test.Text = "saluuut";
             TB_Test.OnTextChangedAsync += TB_Test_OnTextChanged;

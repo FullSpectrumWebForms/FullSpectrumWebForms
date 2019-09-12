@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FSW.Core.AsyncLocks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -13,10 +14,10 @@ namespace TestApplication.Pages
         FSW.Semantic.Controls.Html.TabItem item2;
         FSW.Semantic.Controls.Html.TabControl TAB_Test = new FSW.Semantic.Controls.Html.TabControl();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
         {
-            base.OnPageLoad();
-            
+            await base.OnPageLoad(requireAsyncReadOnlyLock);
+
             item1 = new FSW.Semantic.Controls.Html.TabItem("Item1",this);
             item2 = new FSW.Semantic.Controls.Html.TabItem("Item2", this);
            

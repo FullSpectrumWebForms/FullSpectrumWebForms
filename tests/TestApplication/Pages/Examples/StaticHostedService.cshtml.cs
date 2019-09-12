@@ -16,9 +16,9 @@ namespace TestApplication.Pages
         public Div DIV_Feed = new Div();
         public TextBox TB_Feed = new TextBox();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
         {
-            base.OnPageLoad();
+            await base.OnPageLoad(requireAsyncReadOnlyLock);
 
             DIV_Feed.Width = "400px";
             DIV_Feed.CssProperties["border"] = "dashed 1px";

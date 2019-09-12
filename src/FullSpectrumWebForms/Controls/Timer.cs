@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FSW.Controls
@@ -41,13 +42,13 @@ namespace FSW.Controls
             set => SetProperty(PropertyName(), value);
         }
 
-        public delegate void OnTimerTickHandler(Timer sender);
+        public delegate Task OnTimerTickHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Timer sender);
         public event OnTimerTickHandler OnTick;
 
-        [CoreEvent]
-        public void OnTimerTickFromClient()
+        [AsyncCoreEvent]
+        public Task OnTimerTickFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
         {
-            OnTick?.Invoke(this);
+            return OnTick?.Invoke(unlockedAsyncServer, this) ?? Task.CompletedTask;
         }
         public override void InitializeProperties()
         {

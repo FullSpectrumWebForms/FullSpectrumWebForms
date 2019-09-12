@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FSW.Core.AsyncLocks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -10,9 +11,10 @@ namespace TestApplication.Pages.Examples
     public class ButtonPage : FSW.Core.FSWPage
     {
         public FSW.Controls.Html.Button BT_test = new FSW.Controls.Html.Button();
-        public override void OnPageLoad()
+
+        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
         {
-            base.OnPageLoad();
+            await base.OnPageLoad(requireAsyncReadOnlyLock);
 
             BT_test.OnClickedAsync += BT_test_OnClickedAsync;
             BT_test.Text = "Button test";

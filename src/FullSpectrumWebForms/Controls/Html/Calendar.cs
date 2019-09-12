@@ -135,52 +135,61 @@ namespace FSW.Controls.Html
             set => SetProperty(PropertyName(), value?.ToString("s"));
         }
 
-        public delegate List<CalendarEvent> OnRefreshRequestHandler(DateTime rangeStart, DateTime rangeEnd);
+        public delegate Task<List<CalendarEvent>> OnRefreshRequestHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DateTime rangeStart, DateTime rangeEnd);
         public event OnRefreshRequestHandler OnRefreshRequest;
 
         public delegate Task OnCurrentViewChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer);
         public event OnCurrentViewChangedHandler OnCurrentViewChangedAsync;
 
-        public delegate bool OnValidateEventDropHandler(CalendarEvent eventMoved, DateTime newStart, DateTime? newEnd, bool isAllDay, string resourceId);
+        public delegate Task<bool> OnValidateEventDropHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, CalendarEvent eventMoved, DateTime newStart, DateTime? newEnd, bool isAllDay, string resourceId);
         public event OnValidateEventDropHandler OnValidateEventDrop;
-        public delegate void OnEventDropHandler(CalendarEvent eventMoved);
+
+        public delegate Task OnEventDropHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, CalendarEvent eventMoved);
         public event OnEventDropHandler OnEventDrop;
-        public delegate void OnRangeSelectedHandler(DateTime start, DateTime end, CalendarResource resource);
+
+        public delegate Task OnRangeSelectedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DateTime start, DateTime end, CalendarResource resource);
         public event OnRangeSelectedHandler OnRangeSelected;
-        public delegate void OnEventClickHandler(CalendarEvent eventClicked);
-        public event OnEventClickHandler OnEventClick;
+
+        public delegate Task OnEventClickHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, CalendarEvent eventClicked);
+        public event OnEventClickHandler OnEventClickAsync;
 
         public void Refresh()
         {
             CallCustomClientEvent("refreshFromServer");
         }
-        [CoreEvent]
-        private void OnEventClickedFromClient(string id)
+
+        [AsyncCoreEvent]
+        protected Task OnEventClickedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string id)
         {
             var ev = LastEvents.Find(x => x.Id == id);
             if (ev == null)
                 throw new Exception($"Unknowed event in calendar {Id}: {id}");
-            OnEventClick?.Invoke(ev);
+            return OnEventClickAsync?.Invoke(unlockedAsyncServer, ev) ?? Task.CompletedTask;
         }
-        [CoreEvent]
-        private void OnRangeSelectedFromClient(string start, string end, string resourceId = null)
+
+        [AsyncCoreEvent]
+        protected Task OnRangeSelectedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string start, string end, string resourceId = null)
         {
             var s = DateTime.Parse(start, null, System.Globalization.DateTimeStyles.RoundtripKind);
             var e = DateTime.Parse(end, null, System.Globalization.DateTimeStyles.RoundtripKind);
 
             var resource = resourceId == null ? null : Resources.FirstOrDefault(x => x.Id == resourceId);
-            OnRangeSelected?.Invoke(s, e, resource);
+            return OnRangeSelected?.Invoke(unlockedAsyncServer, s, e, resource) ?? Task.CompletedTask;
         }
 
         private List<CalendarEvent> LastEvents = new List<CalendarEvent>();
-        [CoreEvent]
-        private List<CalendarEvent> OnRefreshEventsFromClient(string rangeStart, string rangeEnd)
+        [AsyncCoreEvent]
+        protected async Task<List<CalendarEvent>> OnRefreshEventsFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string rangeStart, string rangeEnd)
         {
-            LastEvents = OnRefreshRequest?.Invoke(DateTime.Parse(rangeStart, null, System.Globalization.DateTimeStyles.RoundtripKind), DateTime.Parse(rangeStart, null, System.Globalization.DateTimeStyles.RoundtripKind));
+            var task = OnRefreshRequest?.Invoke(unlockedAsyncServer, DateTime.Parse(rangeStart, null, System.Globalization.DateTimeStyles.RoundtripKind), DateTime.Parse(rangeStart, null, System.Globalization.DateTimeStyles.RoundtripKind));
+            if (task != null)
+                LastEvents = await task;
+            else
+                LastEvents = null;
             return LastEvents;
         }
-        [CoreEvent]
-        private bool OnValidateEventDropFromClient(string id = null, string start = null, string end = null, bool isAllDay = false, string resourceId = null)
+        [AsyncCoreEvent]
+        protected async Task<bool> OnValidateEventDropFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string id = null, string start = null, string end = null, bool isAllDay = false, string resourceId = null)
         {
             if (string.IsNullOrEmpty(id))
                 throw new Exception("To edit events, add IDs");
@@ -190,20 +199,18 @@ namespace FSW.Controls.Html
                 throw new Exception("Event not found");
             var s = DateTime.Parse(start, null, System.Globalization.DateTimeStyles.RoundtripKind);
             var e = end == null ? null : (DateTime?)DateTime.Parse(end, null, System.Globalization.DateTimeStyles.RoundtripKind);
-            var res = OnValidateEventDrop?.Invoke(eventObj, s, e, isAllDay, resourceId);
-            if (res == null) // nothing bound to the event, so always confirm true
-                res = true;
-
-            if (res == true)
+            var res = await (OnValidateEventDrop?.Invoke(unlockedAsyncServer, eventObj, s, e, isAllDay, resourceId) ?? Task.FromResult(true));
+           
+            if (res)
             {
                 eventObj.Start = s;
                 eventObj.End = e;
                 eventObj.AllDay = isAllDay;
                 eventObj.ResourceId = resourceId;
-                OnEventDrop?.Invoke(eventObj);
+                await (OnEventDrop?.Invoke(unlockedAsyncServer, eventObj) ?? Task.CompletedTask);
             }
 
-            return res.Value;
+            return res;
         }
 
         public override void InitializeProperties()

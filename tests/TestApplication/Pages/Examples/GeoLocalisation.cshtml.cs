@@ -6,33 +6,30 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FSW.Controls.Html;
 using FSW.Controls;
+using FSW.Core.AsyncLocks;
 
 namespace TestApplication.Pages
 {
-    public class GeoLocalisationPage: FSW.Core.FSWPage
+    public class GeoLocalisationPage : FSW.Core.FSWPage
     {
         Button BT_QueryLocalisation = new Button();
         Span SP_GeoLocalisation = new Span();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
         {
-            base.OnPageLoad();
+            await base.OnPageLoad(requireAsyncReadOnlyLock);
 
             BT_QueryLocalisation.OnButtonClicked += BT_QueryLocalisation_OnButtonClicked;
         }
 
-        private void BT_QueryLocalisation_OnButtonClicked(Button button)
+        private async Task BT_QueryLocalisation_OnButtonClicked(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Button button)
         {
-            Page.Common.QueryGeoCoordinate(geo =>
-            {
-                using (ServerSideLock)
-                {
-                    if( geo == null )
-                        SP_GeoLocalisation.Text = "Error";
-                    else
-                        SP_GeoLocalisation.Text = geo.Longitude + ", " + geo.Latitude;
-                }
-            });
+            var geo = await Page.Common.QueryGeoCoordinate(unlockedAsyncServer);
+
+            if (geo == null)
+                SP_GeoLocalisation.Text = "Error";
+            else
+                SP_GeoLocalisation.Text = geo.Longitude + ", " + geo.Latitude;
         }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FSW.Controls.ServerSide.DataGrid
 {
@@ -79,21 +80,32 @@ namespace FSW.Controls.ServerSide.DataGrid
 
     public class SmartDataGrid<DataType> : DataGrid<DataType> where DataType : DataGridBase
     {
-        public delegate void OnSmartCellChangedHandler(DataGridColumn col, int row, DataType item, object newValue);
+        public delegate Task OnSmartCellChangedHandler(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataGridColumn col, int row, DataType item, object newValue);
         public event OnSmartCellChangedHandler OnSmartCellChanged;
 
         private Dictionary<string, (string cssName, DataInterfaces.RequiredColAttribute attribute)> RequiredCols = new Dictionary<string, (string cssName, DataInterfaces.RequiredColAttribute attribute)>();
 
-        public delegate void OnInitializeNewEmptyRowHandler(out DataType item, out int? row);
+        public class OnInitializeNewEmptyRowResult
+        {
+            public DataType Item { get; set; }
+            public int? Row { get; set; }
+        }
+        public delegate OnInitializeNewEmptyRowResult OnInitializeNewEmptyRowHandler();
         public event OnInitializeNewEmptyRowHandler OnInitializeNewEmptyRow;
 
-        public delegate void OnNewRowValidatedHandler(DataType item, int row);
+        public delegate Task OnNewRowValidatedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataType item, int row);
         public event OnNewRowValidatedHandler OnNewRowValidated;
 
-        public delegate void OnValidateInvalidOrIncompleteRowHandler(DataType item, out bool isInvalidOrIncomplete);
+        public delegate bool OnValidateInvalidOrIncompleteRowHandler(DataType item);
+        /// <summary>
+        /// Return if is invalid or incomplete
+        /// </summary>
         public event OnValidateInvalidOrIncompleteRowHandler OnValidateInvalidOrIncompleteRow;
 
-        public delegate void OnDeleteExistingRowHandler(DataType item, int row, out bool removeAndRefresh);
+        public delegate Task<bool> OnDeleteExistingRowHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataType item, int row);
+        /// <summary>
+        /// Return if removeAndRefresh
+        /// </summary>
         public event OnDeleteExistingRowHandler OnDeleteExistingRow;
 
         public delegate DataInterfaces.ITotalRow OnInitializeNewTotalRowHandler();
@@ -124,10 +136,7 @@ namespace FSW.Controls.ServerSide.DataGrid
 
         public void InvokeOnValidateInvalidOrIncompleteRow(DataType item, out bool isInvalidOrIncomplete)
         {
-            if (OnValidateInvalidOrIncompleteRow == null)
-                isInvalidOrIncomplete = false;
-            else
-                OnValidateInvalidOrIncompleteRow(item, out isInvalidOrIncomplete);
+            isInvalidOrIncomplete = OnValidateInvalidOrIncompleteRow?.Invoke(item) ?? false;
         }
 
         public void InitializeSmartDataGrid()
@@ -268,30 +277,30 @@ namespace FSW.Controls.ServerSide.DataGrid
             if (item is DataInterfaces.IDynamicReadOnlyCols readOnlyCols)
             {
                 var cols = readOnlyCols.ReadOnlyCols;
-                if( cols?.Length > 0 )
+                if (cols?.Length > 0)
                 {
                     if (metaData == null)
                         metaData = new DataGridColumn.MetaData();
 
-                    foreach ( var col in cols )
+                    foreach (var col in cols)
                     {
-                         if(!metaData.Columns.TryGetValue(col, out var colMeta))
+                        if (!metaData.Columns.TryGetValue(col, out var colMeta))
                             colMeta = metaData.Columns[col] = new DataGridColumn.MetaDataColumn();
-                         // take the actual editor and clone it, this ensure the client side formatter is the same
+                        // take the actual editor and clone it, this ensure the client side formatter is the same
                         colMeta.Editor = Columns[col].Editor?.Clone();
                         if (colMeta.Editor != null) // if there was an editor ( should be 'cause it's already readonly if there isn't... )
                             colMeta.Editor.AllowEdit = false; // put the cell readonly
                     }
                 }
             }
-            if( item is DataInterfaces.IColspanCols colspan)
+            if (item is DataInterfaces.IColspanCols colspan)
             {
                 var cols = colspan.ColspanCols;
-                if( cols?.Count > 0 )
+                if (cols?.Count > 0)
                 {
                     if (metaData == null)
                         metaData = new DataGridColumn.MetaData();
-                    foreach( var col in cols)
+                    foreach (var col in cols)
                     {
                         if (!metaData.Columns.TryGetValue(col.Key, out var colMeta))
                             colMeta = metaData.Columns[col.Key] = new DataGridColumn.MetaDataColumn();
@@ -301,14 +310,13 @@ namespace FSW.Controls.ServerSide.DataGrid
             }
         }
 
-        private void SmartDataGrid_OnCellChanged(DataGridColumn col, int row, DataType item, object newValue)
+        private async Task SmartDataGrid_OnCellChanged(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataGridColumn col, int row, DataType item, object newValue)
         {
             var isDeleted = (item as DataInterfaces.IDeleteRow)?.IsRowDeleted ?? false;
 
             if (isDeleted)
             {
-                var removeAndRefresh = false;
-                OnDeleteExistingRow?.Invoke(item, row, out removeAndRefresh);
+                var removeAndRefresh = await (OnDeleteExistingRow?.Invoke(unlockedAsyncServer, item, row) ?? Task.FromResult(false));
                 if (removeAndRefresh)
                 {
                     Datas.Remove(item);
@@ -334,7 +342,7 @@ namespace FSW.Controls.ServerSide.DataGrid
 
             if (isNewRow)
             {
-                OnNewRowValidated?.Invoke(item, row);
+                await (OnNewRowValidated?.Invoke(unlockedAsyncServer, item, row) ?? Task.CompletedTask);
 
                 RefreshRow(row);
 
@@ -344,7 +352,7 @@ namespace FSW.Controls.ServerSide.DataGrid
             }
 
 
-            OnSmartCellChanged?.Invoke(col, row, item, newValue);
+            await (OnSmartCellChanged?.Invoke(unlockedAsyncServer, col, row, item, newValue) ?? Task.CompletedTask);
 
             RevalidateEmptyRowCreation();
             RevalidateTotalRowCreation();
@@ -407,14 +415,14 @@ namespace FSW.Controls.ServerSide.DataGrid
             var refresh = false;
             while (true)
             {
-                OnInitializeNewEmptyRow(out var newRow, out var rowIndex);
+                var res = OnInitializeNewEmptyRow();
 
-                if (newRow != null)
+                if (res.Item != null)
                 {
-                    if (rowIndex == null && (Datas.LastOrDefault() as DataInterfaces.ITotalRow)?.IsTotalRow == true)
-                        rowIndex = Datas.Count - 1;
+                    if (res.Row == null && (Datas.LastOrDefault() as DataInterfaces.ITotalRow)?.IsTotalRow == true)
+                        res.Row = Datas.Count - 1;
 
-                    Datas.Insert(rowIndex ?? Datas.Count, newRow);
+                    Datas.Insert(res.Row ?? Datas.Count, res.Item);
                     refresh = true;
                 }
                 else
@@ -496,7 +504,7 @@ namespace FSW.Controls.ServerSide.DataGrid
             }
 
             smartDataGrid.InvokeOnValidateInvalidOrIncompleteRow((DataType)row, out var isInvalidOrIncomplete);
-            
+
             return isInvalidOrIncomplete || ((row as DataInterfaces.IInvalidOrIncompleteRow)?.IsInvalidOrIncomplete ?? false);
         }
     }

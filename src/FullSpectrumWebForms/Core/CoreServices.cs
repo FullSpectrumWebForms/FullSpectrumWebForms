@@ -65,31 +65,40 @@ namespace FSW.Core
     public class CoreServices : Controller
     {
         [HttpPost(nameof(OnComboBoxAjaxCall))]
-        public string OnComboBoxAjaxCall([FromBody] Newtonsoft.Json.Linq.JObject data)
+        public async Task<string> OnComboBoxAjaxCall([FromBody] Newtonsoft.Json.Linq.JObject data)
         {
             var controlId = data["controlId"].ToObject<string>();
             var searchString = data["searchString"].ToObject<string>();
             var connectionId = data["connectionId"].ToObject<string>();
 
-            var control = CommunicationHub.GetPage(connectionId).Manager.GetControl(controlId);
+            ControlBase control;
+            var page = CommunicationHub.GetPage(connectionId);
+            var serverSideLock = new AsyncLocks.UnlockedAsyncServer(page);
+            using (await serverSideLock.EnterNonExclusiveReadOnlyLock())
+                control = page.Manager.GetControl(controlId);
             if (control is Controls.Html.ComboBox_Ajax combo)
-                return JsonConvert.SerializeObject(combo._OnAjaxRequestFromClient(searchString));
-            return null;
+                return JsonConvert.SerializeObject(await combo._OnAjaxRequestFromClient(serverSideLock, searchString));
+            else
+                return null;
         }
         [HttpPost(nameof(OnDataGridComboBoxAjaxCall))]
-        public string OnDataGridComboBoxAjaxCall([FromBody]Newtonsoft.Json.Linq.JObject data)
+        public async Task<string> OnDataGridComboBoxAjaxCall([FromBody]Newtonsoft.Json.Linq.JObject data)
         {
             var controlId = data["controlId"].ToObject<string>();
             var searchString = data["searchString"].ToObject<string>();
             var colId = data["colId"].ToObject<string>();
             var connectionId = data["connectionId"].ToObject<string>();
 
-            var control = CommunicationHub.GetPage(connectionId).Manager.GetControl(controlId);
+            var page = CommunicationHub.GetPage(connectionId);
+            var serverSideLock = new Core.AsyncLocks.UnlockedAsyncServer(page);
+            ControlBase control;
+            using( await serverSideLock.EnterNonExclusiveReadOnlyLock() )
+                control = page.Manager.GetControl(controlId);
             if (control is Controls.Html.IDataGrid dataGrid)
             {
                 var col = dataGrid.GetColumns()[colId];
                 if (col?.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor editor)
-                    return JsonConvert.SerializeObject(editor.CallRequest(searchString));
+                    return JsonConvert.SerializeObject(await editor.CallRequest(serverSideLock, searchString));
             }
             return null;
         }
