@@ -101,7 +101,7 @@ namespace FSW.Core
                 if (dataGrid.MetaDatas.TryGetValue(row.ToString(), out var meta) && meta.Columns != null && meta.Columns.TryGetValue(colId, out var metaCol))
                 {
                     if (metaCol.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor metaEditor)
-                        return JsonConvert.SerializeObject(metaEditor.CallRequest(searchString));
+                        return JsonConvert.SerializeObject(metaEditor.CallRequest(serverSideLock, searchString));
                 }
 
                 if (col?.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor editor)
