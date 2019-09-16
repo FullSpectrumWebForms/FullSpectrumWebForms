@@ -138,7 +138,10 @@ namespace FSW.Controls.Html
             {
                 if (value == null)
                     return null;
-                return TimeSpan.FromHours(Convert.ToDouble(value));
+                if (colDef.RawType == typeof(TimeSpan) || colDef.RawType == typeof(TimeSpan?))
+                    return TimeSpan.FromHours(Convert.ToDouble(value));
+                else
+                    return (colDef.RawType == typeof(double) || colDef.RawType == typeof(double?)) ? Convert.ToDouble(value) : (float)Convert.ToDouble(value);
             }
         }
         public class TimeSpanHoursEditorAttribute : Attribute
@@ -190,7 +193,10 @@ namespace FSW.Controls.Html
             {
                 if (value == null)
                     return null;
-                return TimeSpan.FromHours(Convert.ToDouble(value));
+                if (colDef.RawType == typeof(TimeSpan) || colDef.RawType == typeof(TimeSpan?))
+                    return TimeSpan.FromHours(Convert.ToDouble(value));
+                else
+                    return (colDef.RawType == typeof(double) || colDef.RawType == typeof(double?)) ? Convert.ToDouble(value) : (float)Convert.ToDouble(value);
             }
         }
         public class TimeSpanEditorAttribute : Attribute

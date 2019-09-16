@@ -112,7 +112,7 @@ var gen;
             this.dataView.getItemMetadata = this.options.getItemMetadata;
             if (this.options.activateHeaderSearchBoxes) {
                 this.options.gridOptions.showHeaderRow = true;
-                this.options.gridOptions.headerRowHeight = 30;
+                this.options.gridOptions.headerRowHeight = 20;
             }
             // initialize the grid
             this.grid = new Slick.Grid(this.element, this.dataView, this.options.columns, this.options.gridOptions);

@@ -161,7 +161,7 @@ namespace gen {
 
             if (this.options.activateHeaderSearchBoxes) {
                 this.options.gridOptions.showHeaderRow = true;
-                this.options.gridOptions.headerRowHeight = 30;
+                this.options.gridOptions.headerRowHeight = 20;
             }
 
             // initialize the grid
