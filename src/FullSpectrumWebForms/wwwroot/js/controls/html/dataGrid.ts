@@ -45,6 +45,19 @@ namespace controls.html.dataGrid {
                 };
             }
         }
+        export class TextReplaceEditor extends baseEditor {
+            Text: string;
+
+            setup(col: Slick.Column<gen.treeTableData>, grid: dataGrid) {
+                super.setup(col, grid);
+            }
+            formatter(row: number, cell: number, value: string, columnDef: Slick.Column<any>, dataContext: Slick.SlickData) {
+                return this.Text;
+            }
+            onBeforeEditCell(e: Slick.EventData, data: Slick.OnBeforeEditCellEventArgs<gen.treeTableData>) {
+                return false;
+            }
+        }
         export class TimeSpanEditor extends baseEditor {
 
             EditorFormat: string;

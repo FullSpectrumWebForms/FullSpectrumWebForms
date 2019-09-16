@@ -148,6 +148,18 @@ namespace FSW.Controls.Html
         {
             public bool Format = true;
         }
+        public class TextReplaceEditor : EditorBase
+        {
+            public string Text;
+
+            public override EditorBase Clone()
+            {
+                return CloneInto(new ButtonEditor()
+                {
+                    Text = Text
+                });
+            }
+        }
         public class ButtonEditor : EditorBase
         {
             public string Text;

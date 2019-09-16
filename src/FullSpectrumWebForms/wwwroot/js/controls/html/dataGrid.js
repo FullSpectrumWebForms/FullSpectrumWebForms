@@ -38,6 +38,18 @@ var controls;
                     }
                 }
                 editors.TextEditor = TextEditor;
+                class TextReplaceEditor extends baseEditor {
+                    setup(col, grid) {
+                        super.setup(col, grid);
+                    }
+                    formatter(row, cell, value, columnDef, dataContext) {
+                        return this.Text;
+                    }
+                    onBeforeEditCell(e, data) {
+                        return false;
+                    }
+                }
+                editors.TextReplaceEditor = TextReplaceEditor;
                 class TimeSpanEditor extends baseEditor {
                     setup(col, grid) {
                         super.setup(col, grid);
