@@ -152,6 +152,14 @@ namespace FSW.Controls.Html
         {
             public string Text;
 
+            public TextReplaceEditor()
+            {
+            }
+            public TextReplaceEditor(string text)
+            {
+                Text = text;
+            }
+
             public override EditorBase Clone()
             {
                 return CloneInto(new ButtonEditor()

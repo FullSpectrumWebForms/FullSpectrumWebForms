@@ -41,6 +41,7 @@ var controls;
                 class TextReplaceEditor extends baseEditor {
                     setup(col, grid) {
                         super.setup(col, grid);
+                        col.formatter = this.formatter.bind(this);
                     }
                     formatter(row, cell, value, columnDef, dataContext) {
                         return this.Text;

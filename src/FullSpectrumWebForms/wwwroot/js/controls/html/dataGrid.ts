@@ -50,6 +50,8 @@ namespace controls.html.dataGrid {
 
             setup(col: Slick.Column<gen.treeTableData>, grid: dataGrid) {
                 super.setup(col, grid);
+
+                col.formatter = this.formatter.bind(this);
             }
             formatter(row: number, cell: number, value: string, columnDef: Slick.Column<any>, dataContext: Slick.SlickData) {
                 return this.Text;

@@ -218,7 +218,7 @@ var gen;
         ToggleFormatter(value, spacer, data) {
             if (!value)
                 value = '';
-            value = value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            //value = value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             var idx = this.dataView.getIdxById(data.id);
             if (this.options.data[idx + 1] && this.options.data[idx + 1].indent > this.options.data[idx].indent) {
                 if (data._collapsed)
