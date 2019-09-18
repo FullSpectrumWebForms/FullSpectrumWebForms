@@ -141,7 +141,7 @@ var controls;
             }
             appendElementToParent() {
                 let children = this.parentElement.children();
-                if (children.length == this.initialIndex || this.initialIndex == undefined)
+                if (children.length == this.initialIndex || this.initialIndex == undefined || $(children).length >= this.initialIndex)
                     this.parentElement.append(this.element);
                 else
                     this.element.insertBefore($(children[this.initialIndex]));
