@@ -8,7 +8,7 @@ using FSW.Core;
 
 namespace FSW.Semantic.Controls.Html
 {
-    
+
 
     public interface ITextButton
     {
@@ -24,7 +24,7 @@ namespace FSW.Semantic.Controls.Html
     public class IconTextButton : HtmlControlBase, IIconButton, ITextButton
     {
         public IconTextButton(FSWPage page = null) : base(page)
-        {}
+        { }
         public string Icon
         {
             get => GetProperty<string>(PropertyName());
@@ -49,7 +49,7 @@ namespace FSW.Semantic.Controls.Html
             }
         }
 
-        public delegate void OnButtonClickedHandler(IconTextButton button);
+        public delegate Task OnButtonClickedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, IconTextButton button);
         public event OnButtonClickedHandler OnButtonClicked;
 
         public override void InitializeProperties()
@@ -71,10 +71,16 @@ namespace FSW.Semantic.Controls.Html
             });
         }
 
-        private void IconTextButton_OnClicked(HtmlControlBase control)
+        private async Task IconTextButton_OnClicked(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control)
         {
-            if( State == State.Enabled)
-                OnButtonClicked?.Invoke(this);
+            if (OnButtonClicked == null)
+                return;
+            State state;
+            using (await unlockedAsyncServer.EnterReadOnlyLock())
+                state = State;
+
+            if (state == State.Enabled)
+                await OnButtonClicked?.Invoke(unlockedAsyncServer, this);
         }
     }
     public class IconLabeledButton : IconTextButton
@@ -96,7 +102,7 @@ namespace FSW.Semantic.Controls.Html
         }
 
         public IconLabeledButton(FSWPage page = null) : base(page)
-        {}
+        { }
         public override void InitializeProperties()
         {
             base.InitializeProperties();

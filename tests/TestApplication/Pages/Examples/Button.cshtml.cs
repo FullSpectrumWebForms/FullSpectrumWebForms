@@ -16,7 +16,7 @@ namespace TestApplication.Pages.Examples
         {
             await base.OnPageLoad(requireAsyncReadOnlyLock);
 
-            BT_test.OnClickedAsync += BT_test_OnClickedAsync;
+            BT_test.OnClicked += BT_test_OnClickedAsync;
             BT_test.Text = "Button test";
         }
 

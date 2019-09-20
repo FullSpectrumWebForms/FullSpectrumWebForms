@@ -5,13 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 using FSW.Controls.Html;
 using FSW.Core;
+using System.Threading.Tasks;
 
 namespace FSW.Semantic.Controls.Html
 {
     public class TabItem
     {
         private static int FrameIds = 0;
-        public TabItem(string headerText, FSWPage page): this(headerText, new Div(page))
+        public TabItem(string headerText, FSWPage page) : this(headerText, new Div(page))
         {
         }
         private TabItem(string headerText, Div frame)
@@ -60,9 +61,9 @@ namespace FSW.Semantic.Controls.Html
                 Items.Add(item);
             }
 
-            public void Clear()
+            public async Task Clear(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
             {
-                TabControl.ClearItems();
+                await TabControl.ClearItems(unlockedAsyncServer);
                 Items.Clear();
             }
 
@@ -74,18 +75,18 @@ namespace FSW.Semantic.Controls.Html
 
             public int IndexOf(TabItem item) => Items.IndexOf(item);
 
-            public bool Remove(TabItem item)
+            public async Task<bool> Remove(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, TabItem item)
             {
                 var i = IndexOf(item);
                 if (i != -1)
                 {
-                    RemoveAt(i);
+                    await RemoveAt(unlockedAsyncServer, i);
                     return true;
                 }
                 return false;
             }
 
-            public void RemoveAt(int index)
+            public async Task RemoveAt(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, int index)
             {
                 if (index >= Count || index < 0)
                     throw new IndexOutOfRangeException($"TabItem index out of bound: {index} on control {TabControl.Id}");
@@ -96,9 +97,9 @@ namespace FSW.Semantic.Controls.Html
                 if (isSelected)
                 {
                     if (Count != 0)
-                        TabControl.SelectedTab = this[0];
+                        await TabControl.SelectTab(unlockedAsyncServer, this[0]);
                     else
-                        TabControl.SelectedTab = null;
+                        await TabControl.SelectTab(unlockedAsyncServer, null);
                 }
             }
 
@@ -112,7 +113,7 @@ namespace FSW.Semantic.Controls.Html
 
         public bool Inverted
         {
-            get =>  TabsContainer.Classes.Contains("inverted");
+            get => TabsContainer.Classes.Contains("inverted");
             set
             {
                 if (value == Inverted)
@@ -132,7 +133,7 @@ namespace FSW.Semantic.Controls.Html
         {
             var tab = new HtmlControlBase(Page)
             {
-                
+
                 HtmlDefaultTag = "a",
                 Classes = new List<string>() { "item" },
                 Attributes = new Dictionary<string, string>()
@@ -155,51 +156,54 @@ namespace FSW.Semantic.Controls.Html
                 }
             };
 
-            tab.OnClicked += (control) => SelectTab(item);
+            tab.OnClicked += (unlockedAsyncServer, control) => SelectTab(unlockedAsyncServer, item);
 
             TabsContainer.Children.Add(tab);
-             
+
             Children.Add(tabContainer);
         }
 
-        public delegate void OnSelectedTabChangedHandler(TabItem item);
+        public delegate Task OnSelectedTabChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer,TabItem item);
         public event OnSelectedTabChangedHandler OnSelectedTabChanged;
 
         private TabItem SelectedTab_;
         public TabItem SelectedTab
         {
             get => SelectedTab_;
-            set => SelectTab(value);
         }
 
-        public void SelectTab(TabItem item)
+        public async Task SelectTab(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, TabItem item)
         {
-            var previouslySelected = SelectedTab;
-            if (previouslySelected == item)
-                return;
-
-            if (previouslySelected != null)
+            using (await unlockedAsyncServer.EnterAnyLock())
             {
-                var i = Tabs.IndexOf(previouslySelected);
-                ((HtmlControlBase)TabsContainer.Children[i]).Classes.Remove("active");
-                ((HtmlControlBase)Children[i+1]).Classes.Remove("active");
-            }
-            if (item != null)
-            {
-                var i = Tabs.IndexOf(item);
-                ((HtmlControlBase)TabsContainer.Children[i]).Classes.Add("active");
-                ((HtmlControlBase)Children[i+1]).Classes.Add("active");
-            }
-            SelectedTab_ = item;
+                var previouslySelected = SelectedTab;
+                if (previouslySelected == item)
+                    return;
 
-            OnSelectedTabChanged?.Invoke(item);
+                if (previouslySelected != null)
+                {
+                    var i = Tabs.IndexOf(previouslySelected);
+                    ((HtmlControlBase)TabsContainer.Children[i]).Classes.Remove("active");
+                    ((HtmlControlBase)Children[i + 1]).Classes.Remove("active");
+                }
+                if (item != null)
+                {
+                    var i = Tabs.IndexOf(item);
+                    ((HtmlControlBase)TabsContainer.Children[i]).Classes.Add("active");
+                    ((HtmlControlBase)Children[i + 1]).Classes.Add("active");
+                }
+                SelectedTab_ = item;
+            }
+
+            await OnSelectedTabChanged?.Invoke(unlockedAsyncServer, item);
         }
 
-        private void ClearItems()
+        private Task ClearItems(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
         {
             TabsContainer.Children.Clear();
             Children.Clear();
-            SelectedTab = null;
+
+            return SelectTab(unlockedAsyncServer, null);
         }
         /// <summary>
         /// for internal use ony. Use TabControl.

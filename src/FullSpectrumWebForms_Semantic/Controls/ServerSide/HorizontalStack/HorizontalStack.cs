@@ -116,10 +116,13 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
                 };
             }
 
-            listView.OnItemSelected += (item) =>
+            listView.OnItemSelected += async (unlockedServer, item) =>
             {
-                PopTo(id, true);
-                options.OnSelected?.Invoke(item.Data);
+                using (await unlockedServer.EnterAnyLock())
+                {
+                    PopTo(id, true);
+                    options.OnSelected?.Invoke(item.Data);
+                }
             };
 
             HtmlControlBase mainContainer = listView;

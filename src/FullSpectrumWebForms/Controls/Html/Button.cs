@@ -46,7 +46,7 @@ namespace FSW.Controls.Html
         {
             base.InitializeProperties();
 
-            OnClickedAsync += Button_OnClickedAsync;
+            OnClicked += Button_OnClickedAsync;
 
             Text = "";
         }

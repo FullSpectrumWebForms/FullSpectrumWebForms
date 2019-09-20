@@ -18,16 +18,17 @@ namespace TestApplication.Pages
         {
             await base.OnPageLoad(requireAsyncReadOnlyLock);
 
-            item1 = new FSW.Semantic.Controls.Html.TabItem("Item1",this);
+            item1 = new FSW.Semantic.Controls.Html.TabItem("Item1", this);
             item2 = new FSW.Semantic.Controls.Html.TabItem("Item2", this);
-           
-            TAB_Test.Tabs.AddRange(new FSW.Semantic.Controls.Html.TabItem[] { item1,item2});
-            TAB_Test.SelectTab(item1);
+
+            TAB_Test.Tabs.AddRange(new FSW.Semantic.Controls.Html.TabItem[] { item1, item2 });
+            _ = Page.RegisterAsyncHostedService((unlockedAsyncServer) => TAB_Test.SelectTab(unlockedAsyncServer, item1));
             TAB_Test.OnSelectedTabChanged += TAB_Test_OnSelectedTabChanged;
             TAB_Test.Inverted = true;
-            FSW.Controls.Html.Div frame1 = item1.Frame;
+            var frame1 = item1.Frame;
 
-            item1.Frame.Children.Add(new FSW.Controls.Html.Span(this) {
+            item1.Frame.Children.Add(new FSW.Controls.Html.Span(this)
+            {
                 Text = "Contaner 1",
             });
 
@@ -37,9 +38,10 @@ namespace TestApplication.Pages
             });
         }
 
-        private void TAB_Test_OnSelectedTabChanged(FSW.Semantic.Controls.Html.TabItem item)
+        private async Task TAB_Test_OnSelectedTabChanged(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, FSW.Semantic.Controls.Html.TabItem item)
         {
-            MessageBox.Success("title", item.HeaderText);
+            using (await unlockedAsyncServer.EnterAnyLock())
+                MessageBox.Success("title", item.HeaderText);
         }
     }
 }

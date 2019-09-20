@@ -111,9 +111,8 @@ namespace FSW.Controls.Html
         }
 
 
-        public delegate void OnClickedHandler(HtmlControlBase control);
+        public delegate Task OnClickedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control);
         private event OnClickedHandler OnClicked_;
-        [Obsolete("OnClicked is deprecated. Try using OnClickedAsync")]
         public event OnClickedHandler OnClicked
         {
             add
@@ -124,24 +123,7 @@ namespace FSW.Controls.Html
             remove
             {
                 OnClicked_ -= value;
-                if (OnClicked_.GetInvocationList().Length == 0 && OnClickedAsync_.GetInvocationList().Length == 0)
-                    SetProperty("GenerateClickEvents", false);
-            }
-        }
-        public delegate Task OnClickedAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control);
-        private event OnClickedAsyncHandler OnClickedAsync_;
-
-        public event OnClickedAsyncHandler OnClickedAsync
-        {
-            add
-            {
-                OnClickedAsync_ += value;
-                SetProperty("GenerateClickEvents", true);
-            }
-            remove
-            {
-                OnClickedAsync_ -= value;
-                if (OnClicked_.GetInvocationList().Length == 0 && OnClickedAsync_.GetInvocationList().Length == 0)
+                if (OnClicked_.GetInvocationList().Length == 0 )
                     SetProperty("GenerateClickEvents", false);
             }
         }
@@ -149,13 +131,7 @@ namespace FSW.Controls.Html
         [AsyncCoreEvent]
         protected async Task OnClickedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
         {
-            if (OnClicked_?.GetInvocationList().Length > 0)
-            {
-                using (await unlockedAsyncServer.EnterLock())
-                    OnClicked_?.Invoke(this);
-            }
-
-            var task = OnClickedAsync_?.Invoke(unlockedAsyncServer, this);
+            var task = OnClicked_?.Invoke(unlockedAsyncServer, this);
             if (task != null)
                 await task;
         }

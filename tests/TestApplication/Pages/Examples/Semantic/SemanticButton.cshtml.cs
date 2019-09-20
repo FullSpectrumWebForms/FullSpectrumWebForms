@@ -21,11 +21,11 @@ namespace TestApplication.Pages.Examples.Semantic
 
             BT_Test.Text = "Test Text";
             BT_Test.Icon = "heart";
-            BT_Test.OnClickedAsync += BT_Test_OnClickedAsync;
+            BT_Test.OnButtonClicked += BT_Test_OnClickedAsync;
 
 
             BT_TestPrimary.Text = "Accept";
-            BT_TestPrimary.OnClickedAsync += BT_TestPrimary_OnClickedAsync;
+            BT_TestPrimary.OnButtonClicked += BT_TestPrimary_OnClickedAsync;
             BT_TestSecondary.Text = "Cancel";
 
             BT_TestLabel.Text = "LabelText";
