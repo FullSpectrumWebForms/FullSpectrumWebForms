@@ -38,7 +38,7 @@ namespace FSW.Core
             // Adds a default in-memory implementation of IDistributedCache.
             services.AddDistributedMemoryCache();
 
-            var signalr_ = services.AddSignalR();
+            var signalr_ = services.AddSignalR().AddNewtonsoftJsonProtocol();
 
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, FSWSessionCleanerService>();
 
@@ -48,7 +48,7 @@ namespace FSW.Core
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public static void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseMiddleware<LibFilesMiddleware>();
 
@@ -63,9 +63,11 @@ namespace FSW.Core
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
 
-            app.UseSignalR(routes =>
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapHub<CommunicationHub>("/Polinet/CommunicationHub", config =>
+                endpoints.MapHub<CommunicationHub>("/Polinet/CommunicationHub", config =>
                 {
                     config.ApplicationMaxBufferSize = 1024 * 1024 * 10;
                     config.TransportMaxBufferSize = 1024 * 1024 * 10;

@@ -5,9 +5,9 @@
     <Configurations>Debug;Release;Azure;Debug_NetFramework</Configurations>
     <Version>1.0.0.1</Version>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3</TargetFramework>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NetFramework|AnyCPU'">
     <TargetFramework>net461</TargetFramework>
@@ -15,12 +15,16 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.ViewCompilation" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.0">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.0.0">
+
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -47,7 +51,7 @@
   </ItemGroup>
   <PropertyGroup>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptTarget>ES2016</TypeScriptTarget>
