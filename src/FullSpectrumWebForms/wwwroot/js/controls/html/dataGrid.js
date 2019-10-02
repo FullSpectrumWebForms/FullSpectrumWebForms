@@ -710,8 +710,9 @@ var controls;
                     }
                 }
                 onCellClicked(e, data) {
+                    var row = this.treeTable.dataView.getIdxById(this.treeTable.dataView.getItem(data.row).id);
                     // check click for buttons and checkbox
-                    let rowMeta = this.MetaDatas[data.row];
+                    let rowMeta = this.MetaDatas[row];
                     if (rowMeta && rowMeta.Columns) {
                         let colMeta = rowMeta.Columns[this.treeTable.grid.getColumns()[data.cell].id];
                         if (colMeta && colMeta.EditorInfo) {
