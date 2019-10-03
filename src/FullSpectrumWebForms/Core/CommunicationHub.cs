@@ -52,7 +52,8 @@ namespace FSW.Core
             }
             return null;
         }
-        public async Task OnConnectionClosed(Exception exception)
+
+        public Task OnConnectionClosed(Exception exception)
         {
             FSWPage page = null;
             lock (Connections)
@@ -66,7 +67,7 @@ namespace FSW.Core
 
             if (page != null)
             {
-                await page.InvokePageUnload(new AsyncLocks.UnlockedAsyncServer(page));
+                page.InvokePageUnload();
 
                 var guid = page.GetType().GUID;
                 if (StaticHostedServices.TryGetValue(guid, out var service))
@@ -295,7 +296,7 @@ namespace FSW.Core
 
             InitializationCoreServerAnswer res;
             var manager = page.Manager;
-            res = await manager.InitializePageFromClient(ConnectionId, url, urlParameters);
+            res = manager.InitializePageFromClient(ConnectionId, url, urlParameters);
             res.SessionId = sessionId;
             res.SessionAuth = sessionAuth;
             res.ConnectionId = ConnectionId;
@@ -313,12 +314,10 @@ namespace FSW.Core
 
             await task;
         }
+
         public Task InitializeCore(JObject data)
         {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            InitializeCore_(data);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            return Task.CompletedTask;
+            return Task.Run(() => InitializeCore_(data));
         }
 
         public static void RegisterFSWPage(int id, FSWPage page)

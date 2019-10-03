@@ -383,9 +383,9 @@ namespace FSW.Core
         /// Called by the client at the beginning to get all the controls from the server
         /// This is what load the initial controls on the client side
         /// </summary>
-        internal async Task<InitializationCoreServerAnswer> InitializePageFromClient(string connectionId, string url, Dictionary<string, string> urlParameters)
+        internal InitializationCoreServerAnswer InitializePageFromClient(string connectionId, string url, Dictionary<string, string> urlParameters)
         {
-            await Page.InitializeFSWControls(connectionId, url, urlParameters);
+            Page.InitializeFSWControls(connectionId, url, urlParameters);
             var res = new InitializationCoreServerAnswer()
             {
                 Answer = ProcessPropertyChange(true)

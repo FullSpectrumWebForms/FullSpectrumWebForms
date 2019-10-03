@@ -67,7 +67,7 @@ namespace FSW.Core
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<CommunicationHub>("/Polinet/CommunicationHub", config =>
+                endpoints.MapHub<CommunicationHub>("/FSW/CommunicationHub", config =>
                 {
                     config.ApplicationMaxBufferSize = 1024 * 1024 * 10;
                     config.TransportMaxBufferSize = 1024 * 1024 * 10;

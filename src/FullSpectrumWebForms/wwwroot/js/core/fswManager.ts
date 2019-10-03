@@ -72,7 +72,7 @@ namespace core {
 
 
             this.connection = new signalR.HubConnectionBuilder()
-                .withUrl("/Polinet/CommunicationHub")
+                .withUrl("/FSW/CommunicationHub")
                 .configureLogging(signalR.LogLevel.Warning).build();
 
             let that = this;
