@@ -18,13 +18,13 @@ namespace FSW.Controls
         public void SendGeneric(Func<Task<IActionResult>> callback)
         {
             FileDownloadCallback = callback;
-            CallCustomClientEvent("callDownload", new
-            {
-                url = Page.GetGenericRequestUrl("FileDownloader_" + Id, new Dictionary<string, string>
-                {
-                    ["_"] = "_" // there's a bug when getting a generic request url without any parametres
-                })
-            });
+            //CallCustomClientEvent("callDownload", new
+            //{
+            //    url = Page.GetGenericRequestUrl("FileDownloader_" + Id, new Dictionary<string, string>
+            //    {
+            //        ["_"] = "_" // there's a bug when getting a generic request url without any parametres
+            //    })
+            //});
         }
 
         public static Dictionary<string, string> FileTypeExtensions = new Dictionary<string, string>
@@ -60,7 +60,7 @@ namespace FSW.Controls
         {
             base.ControlInitialized();
 
-            Page.RegisterNewGenericRequest("FileDownloader_" + Id, OnFileDownloadRequest);
+            //Page.RegisterNewGenericRequest("FileDownloader_" + Id, OnFileDownloadRequest);
 
             OnControlRemoved += FileDownloader_OnControlRemoved;
         }
@@ -71,7 +71,7 @@ namespace FSW.Controls
 
         private void FileDownloader_OnControlRemoved(ControlBase control)
         {
-            Page.UnregisterGenericRequest("FileDownloader_" + Id);
+            //Page.UnregisterGenericRequest("FileDownloader_" + Id);
         }
 
         private Task<IActionResult> OnFileDownloadRequest(Dictionary<string, string> parameters)

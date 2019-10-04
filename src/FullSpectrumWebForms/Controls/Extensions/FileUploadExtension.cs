@@ -18,24 +18,24 @@ namespace FSW.Controls.Extensions
         {
             base.Initialize();
 
-            Control.Page.RegisterNewGenericFileUploadRequest(Control.Id + "_" + Id, (parameters, files) =>
-            {
-
-                if (GetOnFileUploadReceivedFromClient != null)
-                {
-                    var source = new TaskCompletionSource<IActionResult>();
-                    GetOnFileUploadReceivedFromClient(files, source);
-                    return source.Task;
-                }
-                else
-                    return Task.FromResult<IActionResult>(new NoContentResult());
-            });
+            //Control.Page.RegisterNewGenericFileUploadRequest(Control.Id + "_" + Id, (parameters, files) =>
+            //{
+            //
+            //    if (GetOnFileUploadReceivedFromClient != null)
+            //    {
+            //        var source = new TaskCompletionSource<IActionResult>();
+            //        GetOnFileUploadReceivedFromClient(files, source);
+            //        return source.Task;
+            //    }
+            //    else
+            //        return Task.FromResult<IActionResult>(new NoContentResult());
+            //});
         }
         protected internal override void Uninitialize()
         {
             base.Uninitialize();
 
-            Control.Page.UnregisterGenericFileUploadRequest(Control.Id + "_" + Id);
+            //Control.Page.UnregisterGenericFileUploadRequest(Control.Id + "_" + Id);
         }
 
         protected internal override void Bind(ControlBase control)

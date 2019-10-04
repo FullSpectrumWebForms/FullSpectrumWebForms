@@ -41,7 +41,6 @@ namespace FSW.Core
             LibToLoadAfter.Add(typeof(T));
         }
 
-        public abstract void ConfigureMvc(IMvcBuilder mvc);
 
         public abstract void ConfigureServices(IServiceCollection services);
 

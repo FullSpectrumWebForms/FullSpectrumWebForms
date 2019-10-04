@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FSW.Core
 {
-    public class FSWPage
+    public class FSWPage: LayoutComponentBase
     {
         public FSWPage Page => this;
 
@@ -95,92 +95,92 @@ namespace FSW.Core
 
 
 
-        #region Generic requests
-
-        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, Func<Dictionary<string, string>, Task<IActionResult>>> RegisteredGenericRequests =
-            new System.Collections.Concurrent.ConcurrentDictionary<string, Func<Dictionary<string, string>, Task<IActionResult>>>();
-        public void RegisterNewGenericRequest(string action, Func<Dictionary<string, string>, Task<IActionResult>> callback)
-        {
-            if (RegisteredGenericRequests.ContainsKey(action))
-                throw new Exception("Generic request already registered:" + action);
-            RegisteredGenericRequests.TryAdd(action, callback);
-        }
-
-        public void UnregisterGenericRequest(string action)
-        {
-            if (!RegisteredGenericRequests.TryRemove(action, out var value))
-                throw new Exception("Generic request not found: " + action);
-        }
-
-        internal async Task<IActionResult> InvokeGenericRequest(string action, JToken privateData)
-        {
-            if (!RegisteredGenericRequests.TryGetValue(action, out var callback))
-                throw new KeyNotFoundException("Cannot find generic request: " + action);
-
-            var parameters = privateData.ToString().Split('&');
-            var parametersParsed = new Dictionary<string, string>();
-
-            for (int i = 0; i < parameters.Length; i += 2)
-                parametersParsed[System.Web.HttpUtility.UrlDecode(parameters[i])] = System.Web.HttpUtility.UrlDecode(parameters[i + 1]);
-
-            return await callback(parametersParsed);
-        }
-
-        public string GetGenericRequestUrl(string action, Dictionary<string, string> parameters)
-        {
-            var url = "/FSW/CoreServices/GenericRequest/" + action + "/" + ID;
-            if (parameters != null && parameters.Count != 0)
-                url += "/" + string.Join("&", parameters.SelectMany(x => new[] { System.Web.HttpUtility.UrlEncode(x.Key), System.Web.HttpUtility.UrlEncode(x.Value) }));
-            else
-                url += "/";
-            return url;
-        }
-
-        #endregion
-
-        #region Generic Upload requests
-
-        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, Func<Dictionary<string, string>, List<IFormFile>, Task<IActionResult>>> RegisteredGenericFileUploadRequests =
-            new System.Collections.Concurrent.ConcurrentDictionary<string, Func<Dictionary<string, string>, List<IFormFile>, Task<IActionResult>>>();
-
-        public void RegisterNewGenericFileUploadRequest(string action, Func<Dictionary<string, string>, List<IFormFile>, Task<IActionResult>> callback)
-        {
-            if (RegisteredGenericFileUploadRequests.ContainsKey(action))
-                throw new Exception("Generic file upload request already registered:" + action);
-            RegisteredGenericFileUploadRequests.TryAdd(action, callback);
-        }
-
-        public void UnregisterGenericFileUploadRequest(string action)
-        {
-            if (!RegisteredGenericFileUploadRequests.TryRemove(action, out var value))
-                throw new Exception("Generic file upload request not found: " + action);
-        }
-
-        internal async Task<IActionResult> InvokeGenericFileUploadRequest(string action, JToken privateData, List<IFormFile> files)
-        {
-            if (!RegisteredGenericFileUploadRequests.TryGetValue(action, out var callback))
-                throw new KeyNotFoundException("Cannot find generic request: " + action);
-
-            var parameters = privateData.ToString().Split('&');
-            var parametersParsed = new Dictionary<string, string>();
-
-            for (int i = 0; i < parameters.Length; i += 2)
-                parametersParsed[System.Web.HttpUtility.UrlDecode(parameters[i])] = System.Web.HttpUtility.UrlDecode(parameters[i + 1]);
-
-            return await callback(parametersParsed, files);
-        }
-
-        public string GetGenericFileUploadRequestUrl(string action, Dictionary<string, string> parameters)
-        {
-            var url = "/FSW/CoreServices/GenericFileUploadRequest/" + action + "/" + ID;
-            if (parameters != null && parameters.Count != 0)
-                url += "/" + string.Join("&", parameters.SelectMany(x => new[] { System.Web.HttpUtility.UrlEncode(x.Key), System.Web.HttpUtility.UrlEncode(x.Value) }));
-            else
-                url += "/";
-            return url;
-        }
-
-        #endregion
+        //#region Generic requests
+        //
+        //private readonly System.Collections.Concurrent.ConcurrentDictionary<string, Func<Dictionary<string, string>, Task<IActionResult>>> RegisteredGenericRequests =
+        //    new System.Collections.Concurrent.ConcurrentDictionary<string, Func<Dictionary<string, string>, Task<IActionResult>>>();
+        //public void RegisterNewGenericRequest(string action, Func<Dictionary<string, string>, Task<IActionResult>> callback)
+        //{
+        //    if (RegisteredGenericRequests.ContainsKey(action))
+        //        throw new Exception("Generic request already registered:" + action);
+        //    RegisteredGenericRequests.TryAdd(action, callback);
+        //}
+        //
+        //public void UnregisterGenericRequest(string action)
+        //{
+        //    if (!RegisteredGenericRequests.TryRemove(action, out var value))
+        //        throw new Exception("Generic request not found: " + action);
+        //}
+        //
+        //internal async Task<IActionResult> InvokeGenericRequest(string action, JToken privateData)
+        //{
+        //    if (!RegisteredGenericRequests.TryGetValue(action, out var callback))
+        //        throw new KeyNotFoundException("Cannot find generic request: " + action);
+        //
+        //    var parameters = privateData.ToString().Split('&');
+        //    var parametersParsed = new Dictionary<string, string>();
+        //
+        //    for (int i = 0; i < parameters.Length; i += 2)
+        //        parametersParsed[System.Web.HttpUtility.UrlDecode(parameters[i])] = System.Web.HttpUtility.UrlDecode(parameters[i + 1]);
+        //
+        //    return await callback(parametersParsed);
+        //}
+        //
+        //public string GetGenericRequestUrl(string action, Dictionary<string, string> parameters)
+        //{
+        //    var url = "/FSW/CoreServices/GenericRequest/" + action + "/" + ID;
+        //    if (parameters != null && parameters.Count != 0)
+        //        url += "/" + string.Join("&", parameters.SelectMany(x => new[] { System.Web.HttpUtility.UrlEncode(x.Key), System.Web.HttpUtility.UrlEncode(x.Value) }));
+        //    else
+        //        url += "/";
+        //    return url;
+        //}
+        //
+        //#endregion
+        //
+        //#region Generic Upload requests
+        //
+        //private readonly System.Collections.Concurrent.ConcurrentDictionary<string, Func<Dictionary<string, string>, List<IFormFile>, Task<IActionResult>>> RegisteredGenericFileUploadRequests =
+        //    new System.Collections.Concurrent.ConcurrentDictionary<string, Func<Dictionary<string, string>, List<IFormFile>, Task<IActionResult>>>();
+        //
+        //public void RegisterNewGenericFileUploadRequest(string action, Func<Dictionary<string, string>, List<IFormFile>, Task<IActionResult>> callback)
+        //{
+        //    if (RegisteredGenericFileUploadRequests.ContainsKey(action))
+        //        throw new Exception("Generic file upload request already registered:" + action);
+        //    RegisteredGenericFileUploadRequests.TryAdd(action, callback);
+        //}
+        //
+        //public void UnregisterGenericFileUploadRequest(string action)
+        //{
+        //    if (!RegisteredGenericFileUploadRequests.TryRemove(action, out var value))
+        //        throw new Exception("Generic file upload request not found: " + action);
+        //}
+        //
+        //internal async Task<IActionResult> InvokeGenericFileUploadRequest(string action, JToken privateData, List<IFormFile> files)
+        //{
+        //    if (!RegisteredGenericFileUploadRequests.TryGetValue(action, out var callback))
+        //        throw new KeyNotFoundException("Cannot find generic request: " + action);
+        //
+        //    var parameters = privateData.ToString().Split('&');
+        //    var parametersParsed = new Dictionary<string, string>();
+        //
+        //    for (int i = 0; i < parameters.Length; i += 2)
+        //        parametersParsed[System.Web.HttpUtility.UrlDecode(parameters[i])] = System.Web.HttpUtility.UrlDecode(parameters[i + 1]);
+        //
+        //    return await callback(parametersParsed, files);
+        //}
+        //
+        //public string GetGenericFileUploadRequestUrl(string action, Dictionary<string, string> parameters)
+        //{
+        //    var url = "/FSW/CoreServices/GenericFileUploadRequest/" + action + "/" + ID;
+        //    if (parameters != null && parameters.Count != 0)
+        //        url += "/" + string.Join("&", parameters.SelectMany(x => new[] { System.Web.HttpUtility.UrlEncode(x.Key), System.Web.HttpUtility.UrlEncode(x.Value) }));
+        //    else
+        //        url += "/";
+        //    return url;
+        //}
+        //
+        //#endregion
 
         #region hosted services
 

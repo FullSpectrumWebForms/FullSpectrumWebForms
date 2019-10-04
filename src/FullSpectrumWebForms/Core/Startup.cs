@@ -14,27 +14,13 @@ namespace FSW.Core
     {
         internal static List<string> AppFiles = new List<string>();
         internal static List<StartupBase> LoadedStartupBases = new List<StartupBase>();
-        public static void ConfigureMvc(IMvcBuilder mvc)
-        {
-            mvc.AddApplicationPart(typeof(Startup).Assembly);
 
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                foreach (var type in assembly.GetTypes())
-                {
-                    if (type.IsSubclassOf(typeof(StartupBase)))
-                    {
-                        var startupBase = (StartupBase)Activator.CreateInstance(type);
-                        LoadedStartupBases.Add(startupBase);
-                        startupBase.ConfigureMvc(mvc);
-                    }
-                }
-            }
-
-        }
         // This method gets called by the runtime. Use this method to add services to the container.
         public static void ConfigureServices(IServiceCollection services)
         {
+            services.AddRazorPages();
+            services.AddServerSideBlazor();
+
             // Adds a default in-memory implementation of IDistributedCache.
             services.AddDistributedMemoryCache();
 
@@ -67,6 +53,7 @@ namespace FSW.Core
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapBlazorHub();
                 endpoints.MapHub<CommunicationHub>("/Polinet/CommunicationHub", config =>
                 {
                     config.ApplicationMaxBufferSize = 1024 * 1024 * 10;

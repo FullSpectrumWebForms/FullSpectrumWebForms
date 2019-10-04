@@ -8,10 +8,6 @@ namespace FSW.Semantic
 {
     public class Startup : Core.StartupBase
     {
-        public override void ConfigureMvc(IMvcBuilder mvc)
-        {
-            mvc.AddApplicationPart(typeof(Startup).Assembly);
-        }
         // This method gets called by the runtime. Use this method to add services to the container.
         public override void ConfigureServices(IServiceCollection services)
         { 
