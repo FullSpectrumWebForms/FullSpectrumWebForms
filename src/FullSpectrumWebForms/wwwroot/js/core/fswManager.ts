@@ -52,12 +52,62 @@ namespace core {
         }[]) {
             return properties[properties.findIndex(x => x.property == 'ControlType')].value;
         }
-        connection: {
-            send: (name: string, p: any) => void;
-            start: () => Promise<void>;
-            on: (name: string, callback: (data: any) => void) => void;
-        };
-        connectionId: string;
+
+        onInitialized(datas:
+            {
+                ChangedProperties: {
+                    id: string,
+                    index: number,
+                    properties: {
+                        property: string,
+                        value: any
+                    }[]
+                }[],
+                CustomEvents: {
+                    [id: string]: {
+                        Name: string,
+                        Parameters: any
+                    }[]
+                },
+                NewControls: {
+                    parentId: string,
+                    id: string,
+                    index: number,
+                    properties: {
+                        property: string,
+                        value: any
+                    }[]
+                }[],
+                DeletedControls: string[]
+            }) {
+
+            let that = this;
+
+            that.lockPropertyUpdate();
+            try {
+                datas = JSON.parse(datas as any);
+                var sessionId = (datas as any).SessionId;
+                var sessionAuth = (datas as any).SessionAuth;
+
+                if (sessionId && sessionAuth) {
+                    (Cookies as any).set('FSWSessionId', sessionId);
+                    (Cookies as any).set('FSWSessionAuth', sessionAuth);
+                }
+
+                datas = (datas as any).Answer;
+
+                that.processNewControls(datas.ChangedProperties);
+
+                that.propertyUpdateFromServerStep2({
+                    CustomEvents: datas.CustomEvents,
+                    NewControls: datas.NewControls,
+                    DeletedControls: datas.DeletedControls
+                });
+            }
+            finally {
+                that.unlockPropertyUpdate();
+            }
+        }
 
         async initialize() {
             let pageId_ = $('#pageId');
@@ -71,81 +121,8 @@ namespace core {
             $('#typePath').remove();
 
 
-            this.connection = new signalR.HubConnectionBuilder()
-                .withUrl("/Polinet/CommunicationHub")
-                .configureLogging(signalR.LogLevel.Warning).build();
-
             let that = this;
 
-            this.connection.on("error", function (error: string) {
-                new Noty({
-                    layout: 'topCenter',
-                    theme: 'mint',
-                    timeout: 3000,
-                    progressBar: true,
-                    text: 'Une erreur est survenus. Voir la console pour plus d\'information. Recharger la page pour continuer (f5)',
-                    type: 'error',
-                    animation: {
-                        open: 'noty_effects_open',
-                        close: 'noty_effects_close'
-                    },
-                }).show();
-                console.error(error);
-            });
-            this.connection.on('initialized', function (datas:
-                {
-                    ChangedProperties: {
-                        id: string,
-                        index: number,
-                        properties: {
-                            property: string,
-                            value: any
-                        }[]
-                    }[],
-                    CustomEvents: {
-                        [id: string]: {
-                            Name: string,
-                            Parameters: any
-                        }[]
-                    },
-                    NewControls: {
-                        parentId: string,
-                        id: string,
-                        index: number,
-                        properties: {
-                            property: string,
-                            value: any
-                        }[]
-                    }[],
-                    DeletedControls: string[]
-                }) {
-
-                that.lockPropertyUpdate();
-                try {
-                    datas = JSON.parse(datas as any);
-                    that.connectionId = (datas as any).ConnectionId;
-                    var sessionId = (datas as any).SessionId;
-                    var sessionAuth = (datas as any).SessionAuth;
-
-                    if (sessionId && sessionAuth) {
-                        (Cookies as any).set('FSWSessionId', sessionId);
-                        (Cookies as any).set('FSWSessionAuth', sessionAuth);
-                    }
-
-                    datas = (datas as any).Answer;
-
-                    that.processNewControls(datas.ChangedProperties);
-
-                    that.propertyUpdateFromServerStep2({
-                        CustomEvents: datas.CustomEvents,
-                        NewControls: datas.NewControls,
-                        DeletedControls: datas.DeletedControls
-                    });
-                }
-                finally {
-                    that.unlockPropertyUpdate();
-                }
-            });
 
             this.connection.on('customEventAnswer', this.customEventAnswer.bind(this));
             this.connection.on('propertyUpdateFromServer', function (data) {
