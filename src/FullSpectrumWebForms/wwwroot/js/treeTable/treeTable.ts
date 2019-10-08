@@ -283,12 +283,12 @@ namespace gen {
             var idx = this.dataView.getIdxById(data.id);
             if (this.options.data[idx + 1] && this.options.data[idx + 1].indent > this.options.data[idx].indent) {
                 if (data._collapsed)
-                    return spacer + " <span class='toggle expand' style='width:10px'></span>&nbsp;" + value;
+                    return spacer + " <span class='toggle expand' style='width:10px; margin-right: 5px'></span>" + value;
                 else
-                    return spacer + " <span class='toggle collapse'style='width:10px'></span>&nbsp;" + value;
+                    return spacer + " <span class='toggle collapse'style='width:10px; margin-right: 5px'></span>" + value;
             }
             else
-                return spacer + " <span class='toggle'></span>&nbsp;" + value;
+                return spacer + " <span class='toggle'></span>" + value;
         }
         GroupSpacerFormatter(data: DataType) {
             return "<span style='display:inline-block;height:1px;width:" + (15 * data.indent) + "px'></span>";

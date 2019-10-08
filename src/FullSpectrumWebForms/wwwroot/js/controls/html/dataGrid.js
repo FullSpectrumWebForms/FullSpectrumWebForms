@@ -192,9 +192,9 @@ var controls;
                                 allowEdit = false;
                         }
                         if (value)
-                            return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" checked />';
+                            return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" checked style="width: 17px; height: 17px"/>';
                         else
-                            return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" />';
+                            return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" style="width: 17px; height: 17px" />';
                     }
                 }
                 editors.BoolEditor = BoolEditor;
