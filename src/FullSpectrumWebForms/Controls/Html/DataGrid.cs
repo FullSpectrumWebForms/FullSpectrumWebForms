@@ -690,7 +690,7 @@ namespace FSW.Controls.Html
 
         private void SendNewDatasToClient()
         {
-            if (EnableTreeTableView || ShowSearchHeader)
+            if (EnableTreeTableView || (ShowSearchHeader && ColumnFilters.Count != 0))
             {
                 for (var i = 0; i < Datas.Count; ++i)
                 {
@@ -719,9 +719,9 @@ namespace FSW.Controls.Html
 
                             text += meta?.Append ?? colDef.Append ?? "";
 
-                            if( col.Value.StartsWith("!"))
+                            if (col.Value.StartsWith("!"))
                             {
-                                if( text.ToLower().Contains(col.Value.Substring(1).ToLower()))
+                                if (text.ToLower().Contains(col.Value.Substring(1).ToLower()))
                                 {
                                     data.FilterOut = true;
                                     break;
@@ -729,7 +729,7 @@ namespace FSW.Controls.Html
                             }
                             else
                             {
-                                if( !text.ToLower().Contains(col.Value.ToLower()))
+                                if (!text.ToLower().Contains(col.Value.ToLower()))
                                 {
                                     data.FilterOut = true;
                                     break;
