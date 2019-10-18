@@ -611,6 +611,13 @@ namespace controls.html.dataGrid {
         set EnableTreeTableView(value: boolean) {
             this.setPropertyValue<this>("EnableTreeTableView", value);
         }
+        // ------------------------------------------------------------------------   ColumnFilters
+        get ColumnFilters(): { [id: string]: string } {
+            return this.getPropertyValue<this, { [id: string]: string }>("ColumnFilters");
+        }
+        set ColumnFilters(value: { [id: string]: string }) {
+            this.setPropertyValue<this>("ColumnFilters", value);
+        }
 
         // ------------------------------------------------------------------------   Columns
         get Columns(): { [name: string]: dataGridColumn } {
@@ -824,8 +831,10 @@ namespace controls.html.dataGrid {
                     autoEdit: this.UseSingleClickEdit,
                     forceFitColumns: this.ForceAutoFit,
                 },
-                hideExport: this.tryGetPropertyValue('HideExportContextMenu')
+                hideExport: this.tryGetPropertyValue('HideExportContextMenu'),
+                onSearchChanged: this.onFilterChangedInTreeTable.bind(this)
             } as gen.treeTableOptions<gen.treeTableData>);
+            this.treeTable.columnFilters = this.ColumnFilters;
             this.treeTable._create();
 
             this.treeTable.grid.onActiveCellChanged.subscribe(this.onActiveCellChangedFromClient.bind(this));
@@ -849,6 +858,9 @@ namespace controls.html.dataGrid {
                     }
                 }).observe(that.element[0]);
             }
+        }
+        onFilterChangedInTreeTable() {
+            this.ColumnFilters = this.treeTable.columnFilters;
         }
         onCellClicked(e: DOMEvent, data: Slick.OnClickEventArgs<gen.treeTableData>) {
 

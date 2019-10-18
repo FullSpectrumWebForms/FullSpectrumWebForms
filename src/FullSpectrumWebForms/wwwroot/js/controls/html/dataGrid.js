@@ -511,6 +511,13 @@ var controls;
                 set EnableTreeTableView(value) {
                     this.setPropertyValue("EnableTreeTableView", value);
                 }
+                // ------------------------------------------------------------------------   ColumnFilters
+                get ColumnFilters() {
+                    return this.getPropertyValue("ColumnFilters");
+                }
+                set ColumnFilters(value) {
+                    this.setPropertyValue("ColumnFilters", value);
+                }
                 // ------------------------------------------------------------------------   Columns
                 get Columns() {
                     return this.getPropertyValue("Columns");
@@ -687,8 +694,10 @@ var controls;
                             autoEdit: this.UseSingleClickEdit,
                             forceFitColumns: this.ForceAutoFit,
                         },
-                        hideExport: this.tryGetPropertyValue('HideExportContextMenu')
+                        hideExport: this.tryGetPropertyValue('HideExportContextMenu'),
+                        onSearchChanged: this.onFilterChangedInTreeTable.bind(this)
                     });
+                    this.treeTable.columnFilters = this.ColumnFilters;
                     this.treeTable._create();
                     this.treeTable.grid.onActiveCellChanged.subscribe(this.onActiveCellChangedFromClient.bind(this));
                     this.treeTable.grid.onClick.subscribe(this.onCellClicked.bind(this));
@@ -708,6 +717,9 @@ var controls;
                             }
                         }).observe(that.element[0]);
                     }
+                }
+                onFilterChangedInTreeTable() {
+                    this.ColumnFilters = this.treeTable.columnFilters;
                 }
                 onCellClicked(e, data) {
                     var row = this.treeTable.dataView.getIdxById(this.treeTable.dataView.getItem(data.row).id);

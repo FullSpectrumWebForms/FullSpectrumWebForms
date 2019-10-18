@@ -175,7 +175,8 @@ var gen;
                         that.columnFilters[columnId] = $.trim($(this).val());
                         if (that.columnFilters[columnId].length == 0)
                             delete that.columnFilters[columnId];
-                        that.dataView.refresh();
+                        if (that.options.onSearchChanged)
+                            that.options.onSearchChanged();
                     }
                 });
                 this.grid.onHeaderRowCellRendered.subscribe(function (e, args) {
@@ -241,30 +242,8 @@ var gen;
                     parent = this.options.data[parent.parent];
                 }
             }
-            if (this.options.activateHeaderSearchBoxes) {
-                var index = this.dataView.getItems().indexOf(item);
-                let keys = Object.keys(this.columnFilters);
-                for (let i = 0; i < keys.length; ++i) {
-                    let obj = keys[i];
-                    let cols = this.grid.getColumns();
-                    let colIndex_ = cols.findIndex(x => x.id == obj);
-                    var colIndex = this.grid.getColumnIndex(obj);
-                    var col = this.grid.getColumns()[colIndex];
-                    var value = this._getDisplayValue(index, colIndex, item, col) + '';
-                    var searchCond = false;
-                    var searchText = this.columnFilters[obj].toLocaleLowerCase();
-                    if (searchText.startsWith('!')) {
-                        searchText = searchText.substr(1);
-                        searchCond = true;
-                    }
-                    if (searchText.length == 0 && searchCond) {
-                        if (value.length != 0)
-                            return false;
-                    }
-                    else if (value.toLocaleLowerCase().includes(searchText) == searchCond)
-                        return false;
-                }
-            }
+            if (this.options.activateHeaderSearchBoxes)
+                return !item.datas.FilterOut;
             if (this.options.filter)
                 return this.options.filter(item, args);
             return true;
