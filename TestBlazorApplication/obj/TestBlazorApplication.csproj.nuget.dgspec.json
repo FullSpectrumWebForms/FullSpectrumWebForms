@@ -1,0 +1,222 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\pasc3\\source\\repos\\FullSpectrumWebForms\\TestBlazorApplication\\TestBlazorApplication.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\pasc3\\source\\repos\\FullSpectrumWebForms\\src\\FullSpectrumWebForms\\FullSpectrumWebForms.csproj": {
+      "version": "3.0.2.6-beta",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\pasc3\\source\\repos\\FullSpectrumWebForms\\src\\FullSpectrumWebForms\\FullSpectrumWebForms.csproj",
+        "projectName": "FSW",
+        "projectPath": "C:\\Users\\pasc3\\source\\repos\\FullSpectrumWebForms\\src\\FullSpectrumWebForms\\FullSpectrumWebForms.csproj",
+        "packagesPath": "C:\\Users\\pasc3\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\pasc3\\source\\repos\\FullSpectrumWebForms\\src\\FullSpectrumWebForms\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\pasc3\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Users\\pasc3\\Source\\Repos\\fsw.dhtmlx.gantt.enterprise\\FSW.dhtmlx.Gantt.Enterprise\\bin\\Debug": {},
+          "C:\\Users\\pasc3\\source\\repos\\FullSpectrumWebForms\\src\\FullSpectrumWebForms\\bin\\Debug": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.0": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.0": {
+          "dependencies": {
+            "BuildBundlerMinifier": {
+              "target": "Package",
+              "version": "[3.0.415, )"
+            },
+            "Microsoft.AspNetCore.Hosting": {
+              "target": "Package",
+              "version": "[2.2.7, )"
+            },
+            "Microsoft.AspNetCore.Hosting.Abstractions": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.AspNetCore.HttpOverrides": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.AspNetCore.SignalR": {
+              "target": "Package",
+              "version": "[1.1.0, )"
+            },
+            "Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.AspNetCore.StaticFiles": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.Extensions.FileProviders.Embedded": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.VisualStudio.Web.BrowserLink": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.2, )"
+            },
+            "System.Drawing.Common": {
+              "target": "Package",
+              "version": "[4.6.0, )"
+            },
+            "System.Linq": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "System.Linq.Expressions": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[3.0.0, 3.0.0]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[3.0.0, 3.0.0]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[3.0.0, 3.0.0]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100-preview1-014459\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\pasc3\\source\\repos\\FullSpectrumWebForms\\TestBlazorApplication\\TestBlazorApplication.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\pasc3\\source\\repos\\FullSpectrumWebForms\\TestBlazorApplication\\TestBlazorApplication.csproj",
+        "projectName": "TestBlazorApplication",
+        "projectPath": "C:\\Users\\pasc3\\source\\repos\\FullSpectrumWebForms\\TestBlazorApplication\\TestBlazorApplication.csproj",
+        "packagesPath": "C:\\Users\\pasc3\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\pasc3\\source\\repos\\FullSpectrumWebForms\\TestBlazorApplication\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\pasc3\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Users\\pasc3\\Source\\Repos\\fsw.dhtmlx.gantt.enterprise\\FSW.dhtmlx.Gantt.Enterprise\\bin\\Debug": {},
+          "C:\\Users\\pasc3\\source\\repos\\FullSpectrumWebForms\\src\\FullSpectrumWebForms\\bin\\Debug": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.0": {
+            "projectReferences": {
+              "C:\\Users\\pasc3\\source\\repos\\FullSpectrumWebForms\\src\\FullSpectrumWebForms\\FullSpectrumWebForms.csproj": {
+                "projectPath": "C:\\Users\\pasc3\\source\\repos\\FullSpectrumWebForms\\src\\FullSpectrumWebForms\\FullSpectrumWebForms.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.0": {
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[3.0.0, 3.0.0]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[3.0.0, 3.0.0]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[3.0.0, 3.0.0]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[3.0.0, 3.0.0]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100-preview1-014459\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

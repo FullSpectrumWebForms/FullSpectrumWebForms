@@ -24,7 +24,7 @@ namespace FSW.Core
                 {
                     if (type.IsSubclassOf(typeof(StartupBase)))
                     {
-                        var startupBase = (StartupBase)Activator.CreateInstance(type);
+                        var startupBase = (StartupBase?)Activator.CreateInstance(type);
                         LoadedStartupBases.Add(startupBase);
                         startupBase.ConfigureMvc(mvc);
                     }

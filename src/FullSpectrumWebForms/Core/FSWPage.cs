@@ -64,6 +64,8 @@ namespace FSW.Core
         public PageLock ServerSideLock => new PageLock(this);
         public PageLock ReadOnlyServerSideLock => new PageLock(this, true);
 
+        public bool IsRegistered { get; internal set; }
+
         public virtual void OnPageLoad()
         {
         }

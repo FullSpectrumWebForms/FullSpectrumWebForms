@@ -44,6 +44,7 @@ namespace FSW
 
             page.Session = session;
             page.PageAuth = Guid.NewGuid().ToString();
+            page.IsRegistered = true;
 
             CommunicationHub.RegisterFSWPage(pageId, page);
             return (id: pageId, auth: page.PageAuth);

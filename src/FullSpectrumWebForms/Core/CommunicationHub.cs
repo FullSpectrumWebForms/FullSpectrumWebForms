@@ -211,14 +211,14 @@ namespace FSW.Core
             }
         }
         // used to generate a polinet page on the fly when there are auth error or invalid connection ids
-        internal (int PageId, FSWPage Page, string SessionId, string SessionAuth) GeneratePolinetPage(string typePath, string sessionId, string sessionAuth)
+        internal (int PageId, FSWPage? Page, string? SessionId, string? SessionAuth) GeneratePolinetPage(string typePath, string sessionId, string sessionAuth)
         {
             var type = Type.GetType(typePath);
             if (type == null)
                 return (0, null, null, null);
 
-            var page = (FSWPage)Activator.CreateInstance(type);
-            var pageId = ModelBase.RegisterFSWPage(page, sessionId, sessionAuth, out var newSessionId, out var newSessionAuth).id;
+            var page = (FSWPage?)Activator.CreateInstance(type);
+            var pageId = FSW.ModelBase.RegisterFSWPage(page, sessionId, sessionAuth, out var newSessionId, out var newSessionAuth).id;
             return (pageId, page, newSessionId, newSessionAuth);
         }
         public Task InitializeCore(JObject data)
@@ -227,7 +227,6 @@ namespace FSW.Core
             var pageIdAuth = data["pageIdAuth"]?.ToObject<string>();
             var sessionId = data["sessionId"]?.ToObject<string>();
             var sessionAuth = data["sessionAuth"]?.ToObject<string>();
-            var typePath = data["typePath"].ToObject<string>();
             var url = data["url"].ToObject<string>();
             var urlParameters = data["urlParameters"].ToObject<Dictionary<string, string>>();
 
@@ -236,6 +235,7 @@ namespace FSW.Core
             {
                 if (!PageAwaitingConnections.ContainsKey(pageId))
                 {
+                    var typePath = data["typePath"].ToObject<string>();
                     var generatedPageInfos = GeneratePolinetPage(typePath, sessionId, sessionAuth);
                     page = generatedPageInfos.Page;
                     if (page == null)
@@ -297,14 +297,6 @@ namespace FSW.Core
                 PageAwaitingConnections.Add(id, page);
             }
         }
-
-
-
-        #region signal R methods
-
-
-        #endregion
-
 
         public override Task OnConnectedAsync()
         {
