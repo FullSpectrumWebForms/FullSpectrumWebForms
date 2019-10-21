@@ -282,7 +282,7 @@ namespace controls.html.dataGrid {
             }
 
             formatter(row: number, cell: number, value: number, columnDef: Slick.Column<any>, dataContext: Slick.SlickData) {
-                if (value) {
+                if (value || value == 0) {
                     if (typeof value == 'string') {
                         try {
                             value = parseFloat(value);

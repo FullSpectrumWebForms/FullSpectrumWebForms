@@ -241,7 +241,7 @@ var controls;
                         col.formatter = this.formatter.bind(this);
                     }
                     formatter(row, cell, value, columnDef, dataContext) {
-                        if (value) {
+                        if (value || value == 0) {
                             if (typeof value == 'string') {
                                 try {
                                     value = parseFloat(value);
