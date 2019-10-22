@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FSW.Core.AsyncLocks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -15,9 +14,9 @@ namespace TestApplication.Pages.Examples.Semantic
         public FSW.Semantic.Controls.Html.IconLabeledButton BT_TestSecondary = new FSW.Semantic.Controls.Html.IconLabeledButton();
         public FSW.Semantic.Controls.Html.IconLabeledButton BT_TestLabel = new FSW.Semantic.Controls.Html.IconLabeledButton();
 
-        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
+        public override async Task OnPageLoad()
         {
-            await base.OnPageLoad(requireAsyncReadOnlyLock);
+            await base.OnPageLoad();
 
             BT_Test.Text = "Test Text";
             BT_Test.Icon = "heart";
@@ -32,20 +31,18 @@ namespace TestApplication.Pages.Examples.Semantic
             BT_TestLabel.Icon = "heart";
         }
 
-        private async Task BT_TestPrimary_OnClickedAsync(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, FSW.Controls.Html.HtmlControlBase control)
+        private async Task BT_TestPrimary_OnClickedAsync(FSW.Controls.Html.HtmlControlBase control)
         {
             await Task.Delay(TimeSpan.FromSeconds(0.2));
 
-            using (await unlockedAsyncServer.EnterLock())
-                BT_TestPrimary.Text = "You clicked me !";
+            BT_TestPrimary.Text = "You clicked me !";
         }
 
-        private async Task BT_Test_OnClickedAsync(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, FSW.Controls.Html.HtmlControlBase control)
+        private async Task BT_Test_OnClickedAsync(FSW.Controls.Html.HtmlControlBase control)
         {
             await Task.Delay(TimeSpan.FromSeconds(5));
 
-            using (await unlockedAsyncServer.EnterLock())
-                BT_Test.Text = "You clicked me !";
+            BT_Test.Text = "You clicked me !";
         }
     }
 }

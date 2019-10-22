@@ -31,14 +31,14 @@ namespace FSW.Controls.Html
 
         public bool IsEmpty => !string.IsNullOrEmpty(Text);
 
-        public delegate Task OnTextChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, TextBox sender, string previousText, string newText);
+        public delegate Task OnTextChangedHandler(TextBox sender, string previousText, string newText);
         public event OnTextChangedHandler OnTextChangedAsync;
 
         public delegate void OnEnterPressedHandler(TextBox sender);
         [Obsolete("OnEnterPressed is deprecated. Consider using OnEnterPressedAsync")]
         public event OnEnterPressedHandler OnEnterPressed;
 
-        public delegate Task OnEnterPressedAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, TextBox sender);
+        public delegate Task OnEnterPressedAsyncHandler(TextBox sender);
         public event OnEnterPressedAsyncHandler OnEnterPressedAsync;
 
         public bool Disabled
@@ -75,22 +75,18 @@ namespace FSW.Controls.Html
         }
 
         [AsyncCoreEvent]
-        public async Task OnEnterPressedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
+        public async Task OnEnterPressedFromClient()
         {
-            if (OnEnterPressed != null)
-            {
-                using (await unlockedAsyncServer.EnterLock())
-                    OnEnterPressed?.Invoke(this);
-            }
+            OnEnterPressed?.Invoke(this);
 
-            var task = OnEnterPressedAsync?.Invoke(unlockedAsyncServer, this);
+            var task = OnEnterPressedAsync?.Invoke(this);
             if (task != null)
                 await task;
         }
 
-        private Task TextBox_OnNewValue(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
+        private Task TextBox_OnNewValue(Property property, object lastValue, object newValue)
         {
-            return OnTextChangedAsync?.Invoke(unlockedAsyncServer, this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
+            return OnTextChangedAsync?.Invoke(this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
         }
     }
 }

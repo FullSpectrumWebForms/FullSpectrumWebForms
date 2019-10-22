@@ -42,13 +42,13 @@ namespace FSW.Controls
             set => SetProperty(PropertyName(), value);
         }
 
-        public delegate Task OnTimerTickHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Timer sender);
+        public delegate Task OnTimerTickHandler(Timer sender);
         public event OnTimerTickHandler OnTick;
 
         [AsyncCoreEvent]
-        public Task OnTimerTickFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
+        public Task OnTimerTickFromClient()
         {
-            return OnTick?.Invoke(unlockedAsyncServer, this) ?? Task.CompletedTask;
+            return OnTick?.Invoke(this) ?? Task.CompletedTask;
         }
         public override void InitializeProperties()
         {

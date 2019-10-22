@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FSW.Core.AsyncLocks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -14,15 +13,17 @@ namespace TestApplication.Pages
         FSW.Semantic.Controls.Html.TabItem item2;
         FSW.Semantic.Controls.Html.TabControl TAB_Test = new FSW.Semantic.Controls.Html.TabControl();
 
-        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
+        public override async Task OnPageLoad()
         {
-            await base.OnPageLoad(requireAsyncReadOnlyLock);
+            await base.OnPageLoad();
 
             item1 = new FSW.Semantic.Controls.Html.TabItem("Item1", this);
             item2 = new FSW.Semantic.Controls.Html.TabItem("Item2", this);
 
             TAB_Test.Tabs.AddRange(new FSW.Semantic.Controls.Html.TabItem[] { item1, item2 });
-            _ = Page.RegisterAsyncHostedService((unlockedAsyncServer) => TAB_Test.SelectTab(unlockedAsyncServer, item1));
+
+            await TAB_Test.SelectTab(item1);
+
             TAB_Test.OnSelectedTabChanged += TAB_Test_OnSelectedTabChanged;
             TAB_Test.Inverted = true;
             var frame1 = item1.Frame;
@@ -38,10 +39,9 @@ namespace TestApplication.Pages
             });
         }
 
-        private async Task TAB_Test_OnSelectedTabChanged(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, FSW.Semantic.Controls.Html.TabItem item)
+        private async Task TAB_Test_OnSelectedTabChanged(FSW.Semantic.Controls.Html.TabItem item)
         {
-            using (await unlockedAsyncServer.EnterAnyLock())
-                MessageBox.Success("title", item.HeaderText);
+            MessageBox.Success("title", item.HeaderText);
         }
     }
 }

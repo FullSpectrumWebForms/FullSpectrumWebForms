@@ -20,24 +20,24 @@ namespace FSW.Controls
         }
 
 
-        public delegate Task OnClientInactiveHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer);
+        public delegate Task OnClientInactiveHandler();
         public event OnClientInactiveHandler OnClientInactive;
 
-        public delegate Task OnClientActiveHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, TimeSpan totalInactivityTime);
+        public delegate Task OnClientActiveHandler(TimeSpan totalInactivityTime);
         public event OnClientActiveHandler OnClientActive;
 
         private DateTime LastInactivity;
         [AsyncCoreEvent]
-        protected Task OnInactiveFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
+        protected Task OnInactiveFromClient()
         {
             LastInactivity = DateTime.Now;
-            return OnClientInactive?.Invoke(unlockedAsyncServer) ?? Task.CompletedTask;
+            return OnClientInactive?.Invoke() ?? Task.CompletedTask;
         }
 
         [AsyncCoreEventAttribute]
-        protected Task OnActiveFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
+        protected Task OnActiveFromClient()
         {
-            return OnClientActive?.Invoke(unlockedAsyncServer, DateTime.Now - LastInactivity) ?? Task.CompletedTask;
+            return OnClientActive?.Invoke(DateTime.Now - LastInactivity) ?? Task.CompletedTask;
         }
 
 

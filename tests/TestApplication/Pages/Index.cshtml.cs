@@ -1,6 +1,5 @@
 ﻿using FSW.Controls.Html;
 using FSW.Controls.ServerSide;
-using FSW.Core.AsyncLocks;
 using FSW.Semantic.Controls.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,19 +15,18 @@ namespace TestApplication.Pages
         public TextBox TB_Test = new TextBox();
         public FSW.Controls.Html.Label LB_Test = new FSW.Controls.Html.Label();
 
-        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
+        public override async Task OnPageLoad()
         {
-            await base.OnPageLoad(requireAsyncReadOnlyLock);
+            await base.OnPageLoad();
 
             TB_Test.Text = "saluuut";
             TB_Test.OnTextChangedAsync += TB_Test_OnTextChanged;
 
         }
 
-        private async Task TB_Test_OnTextChanged(IUnlockedAsyncServer unlockedAsyncServer, TextBox sender, string previousText, string newText)
+        private async Task TB_Test_OnTextChanged(TextBox sender, string previousText, string newText)
         {
-            using (await unlockedAsyncServer.EnterAnyLock())
-                LB_Test.Text = newText;
+            LB_Test.Text = newText;
         }
     }
 }

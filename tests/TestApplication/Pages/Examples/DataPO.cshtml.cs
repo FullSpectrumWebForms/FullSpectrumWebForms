@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FSW.Controls.Html;
-using FSW.Core.AsyncLocks;
 
 namespace TestApplication.Pages.Examples
 {
@@ -14,9 +13,9 @@ namespace TestApplication.Pages.Examples
         public Span spanTest1 = new Span();
         public TextBox spanTest2 = new TextBox();
 
-        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
+        public override async Task OnPageLoad()
         {
-            await base.OnPageLoad(requireAsyncReadOnlyLock);
+            await base.OnPageLoad();
 
 
         }

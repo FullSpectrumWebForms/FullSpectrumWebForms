@@ -11,20 +11,19 @@ namespace TestApplication.Pages.Examples
     {
         public FSW.Controls.Html.Button BT_test = new FSW.Controls.Html.Button();
 
-        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
+        public override async Task OnPageLoad()
         {
-            await base.OnPageLoad(requireAsyncReadOnlyLock);
+            await base.OnPageLoad();
 
             BT_test.OnClicked += BT_test_OnClickedAsync;
             BT_test.Text = "Button test";
         }
 
-        private async Task BT_test_OnClickedAsync(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, FSW.Controls.Html.HtmlControlBase control)
+        private async Task BT_test_OnClickedAsync(FSW.Controls.Html.HtmlControlBase control)
         {
             await Task.Delay(TimeSpan.FromSeconds(5));
 
-            using (await unlockedAsyncServer.EnterAnyLock())
-                BT_test.Text = "You clicked me !";
+            BT_test.Text = "You clicked me !";
         }
     }
 }

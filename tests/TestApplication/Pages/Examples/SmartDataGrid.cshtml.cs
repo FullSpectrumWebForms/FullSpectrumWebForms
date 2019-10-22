@@ -1,7 +1,6 @@
 ﻿using FSW.Controls.Html;
 using FSW.Controls.ServerSide.DataGrid;
 using FSW.Controls.ServerSide.DataGrid.DataInterfaces;
-using FSW.Core.AsyncLocks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -29,9 +28,9 @@ namespace TestApplication.Pages.Examples
         }
 
         private SmartDataGrid<RowData> DG_Test = new SmartDataGrid<RowData>();
-        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
+        public override async Task OnPageLoad()
         {
-            await base.OnPageLoad(requireAsyncReadOnlyLock);
+            await base.OnPageLoad();
 
             DG_Test.AllowEdit = true;
             DG_Test.EnableTreeTableView = true;

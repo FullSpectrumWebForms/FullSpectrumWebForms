@@ -54,14 +54,14 @@ namespace FSW.Semantic.Controls.ServerSide
                 ListView.AddItems(items);
             }
 
-            public Task Set(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, IEnumerable<T> items, int? newSelectedIndex = null)
+            public Task Set(IEnumerable<T> items, int? newSelectedIndex = null)
             {
-                return ListView.SetItems(unlockedAsyncServer, items, newSelectedIndex);
+                return ListView.SetItems(items, newSelectedIndex);
             }
 
-            public Task Clear(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
+            public Task Clear()
             {
-                return ListView.Clear(unlockedAsyncServer);
+                return ListView.Clear();
             }
 
             public int IndexOf(T item)
@@ -86,12 +86,12 @@ namespace FSW.Semantic.Controls.ServerSide
 
             public IEnumerable<ListViewItem> DataEnumerator => ListView.Items_;
 
-            public async Task<bool> Remove(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, T item)
+            public async Task<bool> Remove(T item)
             {
                 var i = IndexOf(item);
                 if (i == -1)
                     return false;
-                await ListView.RemoveItemFromIndex(unlockedAsyncServer, i);
+                await ListView.RemoveItemFromIndex(i);
                 return true;
             }
         }
@@ -165,31 +165,28 @@ namespace FSW.Semantic.Controls.ServerSide
             return Items_[index];
         }
 
-        public async Task RemoveItemFromIndex(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, int index)
+        public async Task RemoveItemFromIndex(int index)
         {
             var item = Items_[index];
             item.Container.Remove();
 
             Items_.Remove(item);
             if (index == SelectedIndex)
-                await SelectIndex(unlockedAsyncServer, null);
+                await SelectIndex(null);
             else if (index < SelectedIndex)
                 --SelectedIndex_;
         }
 
         public int ItemCount => Items_.Count;
 
-        private async Task OnItemClickedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control)
+        private async Task OnItemClickedFromClient(HtmlControlBase control)
         {
             int index;
-            using (await unlockedAsyncServer.EnterReadOnlyLock())
-            {
-                index = FindItemIndex(control);
-                if (index == -1)
-                    return; // shouldn't happen, but who knows
-                var item = Items_[index];
-            }
-            await SelectIndex(unlockedAsyncServer, index);
+            index = FindItemIndex(control);
+            if (index == -1)
+                return; // shouldn't happen, but who knows
+            var item = Items_[index];
+            await SelectIndex(index);
         }
         public ListViewItem SelectedItem
         {
@@ -206,54 +203,53 @@ namespace FSW.Semantic.Controls.ServerSide
             get => SelectedIndex_;
         }
 
-        public async Task SelectItem(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, ListViewItem item)
+        public async Task SelectItem(ListViewItem item)
         {
             if (item == null)
-                await SelectIndex(unlockedAsyncServer, null);
+                await SelectIndex(null);
             else
             {
                 var index = FindItemIndex(item);
-                await SelectIndex(unlockedAsyncServer, index == -1 ? null : (int?)index);
+                await SelectIndex(index == -1 ? null : (int?)index);
             }
         }
-        public async Task SelectIndex(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, int? index)
+        public async Task SelectIndex(int? index)
         {
             ListViewItem itemSelected;
-            using (await unlockedAsyncServer.EnterReadOnlyLock())
+
+            if (SelectedIndex_ == index)
+                return;
+            if (SelectedIndex_.HasValue)
             {
-                if (SelectedIndex_ == index)
-                    return;
-                if (SelectedIndex_.HasValue)
-                {
-                    foreach (var item in Items_)
-                        item.Container.Classes.Remove("active");
-                }
-
-                SelectedIndex_ = index;
-                if (index.HasValue)
-                {
-                    if (index.Value > Items_.Count || index.Value < 0)
-                        throw new ArgumentException($"Invalid {nameof(SelectedIndex)} in {nameof(ListView<T>)}");
-
-                    Items_[index.Value].Container.Classes.Add("active");
-                    itemSelected = Items_[index.Value];
-                }
-                else
-                    itemSelected = null;
+                foreach (var item in Items_)
+                    item.Container.Classes.Remove("active");
             }
-            await (OnItemSelected?.Invoke(unlockedAsyncServer, itemSelected) ?? Task.CompletedTask);
+
+            SelectedIndex_ = index;
+            if (index.HasValue)
+            {
+                if (index.Value > Items_.Count || index.Value < 0)
+                    throw new ArgumentException($"Invalid {nameof(SelectedIndex)} in {nameof(ListView<T>)}");
+
+                Items_[index.Value].Container.Classes.Add("active");
+                itemSelected = Items_[index.Value];
+            }
+            else
+                itemSelected = null;
+
+            await (OnItemSelected?.Invoke(itemSelected) ?? Task.CompletedTask);
         }
 
-        public delegate Task OnItemSelectedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, ListViewItem item);
+        public delegate Task OnItemSelectedHandler(ListViewItem item);
         public event OnItemSelectedHandler OnItemSelected;
         /// <summary>
         /// Remove all items from the list view
         /// This will also clear the UI
         /// </summary>
-        public Task Clear(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
+        public Task Clear()
         {
             ClearAndSkipItemSelectedEvent();
-            return SelectItem(unlockedAsyncServer, null);
+            return SelectItem(null);
         }
 
         private void ClearAndSkipItemSelectedEvent()
@@ -282,7 +278,7 @@ namespace FSW.Semantic.Controls.ServerSide
         /// <summary>
         /// Clear the list view and add the provided items
         /// </summary>
-        public async Task SetItems(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, IEnumerable<T> items, int? newSelectedIndex)
+        public async Task SetItems(IEnumerable<T> items, int? newSelectedIndex)
         {
             var previousIndex = SelectedIndex;
             SelectedIndex_ = null;
@@ -290,9 +286,9 @@ namespace FSW.Semantic.Controls.ServerSide
             ClearAndSkipItemSelectedEvent();
             AddItems(items);
 
-            await SelectIndex(unlockedAsyncServer, newSelectedIndex);
+            await SelectIndex(newSelectedIndex);
             if (newSelectedIndex == null && previousIndex != null)
-                await (OnItemSelected?.Invoke(unlockedAsyncServer, null) ?? Task.CompletedTask);
+                await (OnItemSelected?.Invoke(null) ?? Task.CompletedTask);
         }
         public ListViewItem AddItem(T item)
         {

@@ -14,8 +14,6 @@ namespace FSW.Core
             Page = page;
         }
 
-        public readonly Nito.AsyncEx.AsyncReaderWriterLock _lock = new Nito.AsyncEx.AsyncReaderWriterLock();
-
         public Dictionary<string, ControlBase> Controls = new Dictionary<string, ControlBase>();
         public List<KeyValuePair<int, ControlBase>> PendingNewControls = new List<KeyValuePair<int, ControlBase>>();
         public List<string> PendingDeletionControls = new List<string>();
@@ -115,7 +113,6 @@ namespace FSW.Core
 
             // if there are parameters for this method
             object[] parametersParsed = null;
-            AsyncLocks.UnlockedAsyncServer unlockedAsyncServer = null;
             if (parameters != null)
             {
                 // get the theorical paraemeters name
@@ -126,15 +123,8 @@ namespace FSW.Core
                 // initialize them all to missing
                 // so if the client did not sent that parameter, it will be marked as missing
                 for (var i = 0; i < parametersParsed.Length; ++i)
-                {
-                    if (methodParameters[i].ParameterType == typeof(AsyncLocks.IUnlockedAsyncServer) || methodParameters[i].ParameterType == typeof(AsyncLocks.UnlockedAsyncServer))
-                    {
-                        unlockedAsyncServer = new AsyncLocks.UnlockedAsyncServer(Page);
-                        parametersParsed[i] = unlockedAsyncServer;
-                    }
-                    else
-                        parametersParsed[i] = Type.Missing;
-                }
+                    parametersParsed[i] = Type.Missing;
+
                 // for all the received parameters ( from the client ( duh ) )
                 foreach (var item in parameters)
                 {
@@ -172,24 +162,7 @@ namespace FSW.Core
                     res = null;
             }
 
-            CoreServerAnswer changes;
-            if (unlockedAsyncServer?.GotAnyLocked != false)
-            {
-                using (await _lock.WriterLockAsync())
-                {
-                    //process the property change in response to the event
-                    changes = ProcessPropertyChange(false);
-                }
-            }
-            else
-            {
-                changes = new CoreServerAnswer
-                {
-                    ChangedProperties = null,
-                    CustomEvents = null,
-                    NewControls = null
-                };
-            }
+            var changes = ProcessPropertyChange(false);
 
             //  return the changed properties and the return value of the method
             return new CustomControlEventResult()
@@ -203,7 +176,7 @@ namespace FSW.Core
         /// <summary>
         /// Called from the client side to call custom method in a control, Ex. ticks event for the timer control
         /// </summary>
-        internal CustomControlEventResult CustomControlExtensionEvent(string controlId, string extension, string eventName, Newtonsoft.Json.Linq.JToken parameters)
+        internal async Task<CustomControlEventResult> CustomControlExtensionEvent(string controlId, string extension, string eventName, Newtonsoft.Json.Linq.JToken parameters)
         {
             // get the control associated with the event in the required page
             var control = Page.Manager.GetControl(controlId);
@@ -256,8 +229,24 @@ namespace FSW.Core
             // the actual call of the method/event
             var res = m.Invoke(controlExtension, parametersParsed);
 
+            if (res is Task task)
+            {
+                await task;
+
+                var taskResultType = task.GetType();
+                if (taskResultType.IsGenericType && taskResultType.GetGenericTypeDefinition() == typeof(Task<>))
+                {
+                    var resultProperty = taskResultType.GetProperty(nameof(Task<bool>.Result));
+
+                    res = resultProperty.GetValue(task);
+                }
+                else
+                    res = null;
+            }
+
             //process the property change in response to the event
             var changes = ProcessPropertyChange(false);
+
             //  return the changed properties and the return value of the method
             return new CustomControlEventResult()
             {
@@ -343,38 +332,34 @@ namespace FSW.Core
         internal async Task OnPropertiesChangedFromClient(List<ExistingControlProperty> newValues)
         {
             var properties = new List<KeyValuePair<Property, object>>();
-            var unlockedAsyncServer = new AsyncLocks.UnlockedAsyncServer(Page);
-            using (await unlockedAsyncServer.EnterNonExclusiveReadOnlyLock())
+            // for each properties that changed from the client
+            foreach (var value in newValues)
             {
-                // for each properties that changed from the client
-                foreach (var value in newValues)
+                foreach (var prop in value.properties)
                 {
-                    foreach (var prop in value.properties)
+                    // get the control associated with that property                            and update its value
+                    ControlBase c = null;
+                    try
                     {
-                        // get the control associated with that property                            and update its value
-                        ControlBase c = null;
-                        try
-                        {
-                            c = GetControl<ControlBase>(value.id);
-                        }
-                        catch (KeyNotFoundException)
-                        {
-                        }
+                        c = GetControl<ControlBase>(value.id);
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                    }
 
-                        if (c != null)
-                        {
-                            if (c.Properties.TryGetValue(prop.property, out var property))
-                                properties.Add(new KeyValuePair<Property, object>(property, prop.value));
-                            else
-                                throw new ArgumentException($"Property not found:{prop.property} in control:{value.id.ToString()}");
-                        }
+                    if (c != null)
+                    {
+                        if (c.Properties.TryGetValue(prop.property, out var property))
+                            properties.Add(new KeyValuePair<Property, object>(property, prop.value));
+                        else
+                            throw new ArgumentException($"Property not found:{prop.property} in control:{value.id.ToString()}");
                     }
                 }
             }
 
             var allTasks = new Task[properties.Count];
             for (var i = 0; i < allTasks.Length; ++i)
-                allTasks[i] = properties[i].Key.UpdateValue(unlockedAsyncServer, properties[i].Value);
+                allTasks[i] = properties[i].Key.UpdateValue(properties[i].Value);
 
             await Task.WhenAll(allTasks);
         }
@@ -383,13 +368,19 @@ namespace FSW.Core
         /// Called by the client at the beginning to get all the controls from the server
         /// This is what load the initial controls on the client side
         /// </summary>
-        internal InitializationCoreServerAnswer InitializePageFromClient(string connectionId, string url, Dictionary<string, string> urlParameters)
+        internal async Task<InitializationCoreServerAnswer> InitializePageFromClient(string connectionId, string url, Dictionary<string, string> urlParameters)
         {
-            Page.InitializeFSWControls(connectionId, url, urlParameters);
-            var res = new InitializationCoreServerAnswer()
+            new System.Threading.Thread(() => Nito.AsyncEx.AsyncContext.Run(Page.RunAsyncContext)).Start();
+
+            var res = await Page.Invoke(async () =>
             {
-                Answer = ProcessPropertyChange(true)
-            };
+                await Page.InitializeFSWControls(connectionId, url, urlParameters);
+
+                return new InitializationCoreServerAnswer()
+                {
+                    Answer = ProcessPropertyChange(true)
+                };
+            }, true);
 
             return res;
         }

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FSW.Controls.Html;
-using FSW.Core.AsyncLocks;
 
 namespace TestApplication.Pages
 {
@@ -13,9 +12,9 @@ namespace TestApplication.Pages
     {
         public Calendar C_Test = new Calendar();
 
-        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
+        public override async Task OnPageLoad()
         {
-            await base.OnPageLoad(requireAsyncReadOnlyLock);
+            await base.OnPageLoad();
 
             C_Test.OnRefreshRequest += C_Test_OnRefreshRequest;
             C_Test.OnEventClickAsync += C_Test_OnEventClick;
@@ -25,13 +24,13 @@ namespace TestApplication.Pages
             C_Test.Height = "900px";
         }
 
-        private Task C_Test_OnEventClick(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, CalendarEvent eventClicked)
+        private Task C_Test_OnEventClick(CalendarEvent eventClicked)
         {
             MessageBox.Success("You clicked", eventClicked.Title);
             return Task.CompletedTask;
         }
 
-        private Task<List<CalendarEvent>> C_Test_OnRefreshRequest(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DateTime rangeStart, DateTime rangeEnd)
+        private Task<List<CalendarEvent>> C_Test_OnRefreshRequest(DateTime rangeStart, DateTime rangeEnd)
         {
             var sunday = rangeStart - TimeSpan.FromDays((int)rangeStart.DayOfWeek);
             return Task.FromResult(new List<CalendarEvent>()

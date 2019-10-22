@@ -80,7 +80,7 @@ namespace FSW.Controls.ServerSide.DataGrid
 
     public class SmartDataGrid<DataType> : DataGrid<DataType> where DataType : DataGridBase
     {
-        public delegate Task OnSmartCellChangedHandler(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataGridColumn col, int row, DataType item, object newValue);
+        public delegate Task OnSmartCellChangedHandler(DataGridColumn col, int row, DataType item, object newValue);
         public event OnSmartCellChangedHandler OnSmartCellChanged;
 
         private Dictionary<string, (string cssName, DataInterfaces.RequiredColAttribute attribute)> RequiredCols = new Dictionary<string, (string cssName, DataInterfaces.RequiredColAttribute attribute)>();
@@ -93,7 +93,7 @@ namespace FSW.Controls.ServerSide.DataGrid
         public delegate OnInitializeNewEmptyRowResult OnInitializeNewEmptyRowHandler();
         public event OnInitializeNewEmptyRowHandler OnInitializeNewEmptyRow;
 
-        public delegate Task OnNewRowValidatedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataType item, int row);
+        public delegate Task OnNewRowValidatedHandler(DataType item, int row);
         public event OnNewRowValidatedHandler OnNewRowValidated;
 
         public delegate bool OnValidateInvalidOrIncompleteRowHandler(DataType item);
@@ -102,7 +102,7 @@ namespace FSW.Controls.ServerSide.DataGrid
         /// </summary>
         public event OnValidateInvalidOrIncompleteRowHandler OnValidateInvalidOrIncompleteRow;
 
-        public delegate Task<bool> OnDeleteExistingRowHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataType item, int row);
+        public delegate Task<bool> OnDeleteExistingRowHandler(DataType item, int row);
         /// <summary>
         /// Return if removeAndRefresh
         /// </summary>
@@ -318,13 +318,13 @@ namespace FSW.Controls.ServerSide.DataGrid
             }
         }
 
-        private async Task SmartDataGrid_OnCellChanged(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataGridColumn col, int row, DataType item, object newValue)
+        private async Task SmartDataGrid_OnCellChanged(DataGridColumn col, int row, DataType item, object newValue)
         {
             var isDeleted = (item as DataInterfaces.IDeleteRow)?.IsRowDeleted ?? false;
 
             if (isDeleted)
             {
-                var removeAndRefresh = await (OnDeleteExistingRow?.Invoke(unlockedAsyncServer, item, row) ?? Task.FromResult(false));
+                var removeAndRefresh = await (OnDeleteExistingRow?.Invoke(item, row) ?? Task.FromResult(false));
                 if (removeAndRefresh)
                 {
                     Datas.Remove(item);
@@ -350,7 +350,7 @@ namespace FSW.Controls.ServerSide.DataGrid
 
             if (isNewRow)
             {
-                await (OnNewRowValidated?.Invoke(unlockedAsyncServer, item, row) ?? Task.CompletedTask);
+                await (OnNewRowValidated?.Invoke(item, row) ?? Task.CompletedTask);
 
                 RefreshRow(row);
 
@@ -360,7 +360,7 @@ namespace FSW.Controls.ServerSide.DataGrid
             }
 
 
-            await (OnSmartCellChanged?.Invoke(unlockedAsyncServer, col, row, item, newValue) ?? Task.CompletedTask);
+            await (OnSmartCellChanged?.Invoke(col, row, item, newValue) ?? Task.CompletedTask);
 
             RevalidateEmptyRowCreation();
             RevalidateTotalRowCreation();

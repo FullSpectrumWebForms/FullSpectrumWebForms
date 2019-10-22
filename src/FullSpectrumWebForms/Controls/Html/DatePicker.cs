@@ -26,7 +26,7 @@ namespace FSW.Controls.Html
         }
 
 
-        public delegate Task OnDateChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DatePicker sender);
+        public delegate Task OnDateChangedHandler(DatePicker sender);
         public event OnDateChangedHandler OnDateChanged;
 
         public override void InitializeProperties()
@@ -39,9 +39,9 @@ namespace FSW.Controls.Html
             GetPropertyInternal(nameof(Date)).OnNewValueFromClientAsync += DatePicker_OnNewValue;
         }
 
-        private Task DatePicker_OnNewValue(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
+        private Task DatePicker_OnNewValue(Property property, object lastValue, object newValue)
         {
-            return OnDateChanged?.Invoke(unlockedAsyncServer, this) ?? Task.CompletedTask;
+            return OnDateChanged?.Invoke(this) ?? Task.CompletedTask;
         }
     }
 }

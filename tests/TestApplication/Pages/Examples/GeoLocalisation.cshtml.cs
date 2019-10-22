@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FSW.Controls.Html;
 using FSW.Controls;
-using FSW.Core.AsyncLocks;
 
 namespace TestApplication.Pages
 {
@@ -15,16 +14,16 @@ namespace TestApplication.Pages
         Button BT_QueryLocalisation = new Button();
         Span SP_GeoLocalisation = new Span();
 
-        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
+        public override async Task OnPageLoad()
         {
-            await base.OnPageLoad(requireAsyncReadOnlyLock);
+            await base.OnPageLoad();
 
             BT_QueryLocalisation.OnButtonClicked += BT_QueryLocalisation_OnButtonClicked;
         }
 
-        private async Task BT_QueryLocalisation_OnButtonClicked(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Button button)
+        private async Task BT_QueryLocalisation_OnButtonClicked(Button button)
         {
-            var geo = await Page.Common.QueryGeoCoordinate(unlockedAsyncServer);
+            var geo = await Page.Common.QueryGeoCoordinate();
 
             if (geo == null)
                 SP_GeoLocalisation.Text = "Error";

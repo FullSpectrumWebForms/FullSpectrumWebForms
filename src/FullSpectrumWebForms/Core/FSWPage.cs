@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FSW.Core
@@ -34,15 +36,13 @@ namespace FSW.Core
             remove => Manager.OnBeforeServerUnlocked -= value;
         }
 
-        internal void InitializeFSWControls(string connectionId, string url, Dictionary<string, string> urlParameters)
+        internal async Task InitializeFSWControls(string connectionId, string url, Dictionary<string, string> urlParameters)
         {
             ID = connectionId;
             MessageBox = new Controls.MessageBox();
             LoadingScreen = new Controls.LoadingScreen();
             Common = new Controls.CommonInformations();
             UrlManager = new Controls.UrlManager(url, urlParameters);
-
-
 
             var type = GetType();
             var fields = type.GetFields(System.Reflection.BindingFlags.FlattenHierarchy | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -53,26 +53,27 @@ namespace FSW.Core
                     Manager.AddControl(field.Name, control);
                     if (control.IsInitializing)
                         control.InternalInitialize(this);
-                    control.ControlInitialized();
+                    await control.ControlInitialized();
                 }
             }
 
-            OnPageLoad();
+            await OnPageLoad();
         }
 
-        public virtual void OnPageLoad()
+        public virtual Task OnPageLoad()
         {
+            return Task.CompletedTask;
         }
 
-        private void FSWPage_OnPageUnload()
+        private Task FSWPage_OnPageUnload()
         {
             BackgroundServiceReset.Set();
+            return Task.CompletedTask;
         }
 
         public FSWPage()
         {
             Manager = new FSWManager(this);
-            ServicesContainer = new HostedServicesContainer(this);
             OnPageUnload += FSWPage_OnPageUnload;
         }
 
@@ -85,15 +86,82 @@ namespace FSW.Core
         {
             Session.RemovePage(this);
 
-            using (ReadOnlyServerSideLock)
-                OnPageUnload?.Invoke();
+            Invoke(() => OnPageUnload?.Invoke());
+
+            StopAsyncContext();
         }
-        public delegate void OnPageUnloadAsyncHandler();
+        public delegate Task OnPageUnloadAsyncHandler();
         public event OnPageUnloadAsyncHandler OnPageUnload;
 
-        public Task Invoke(Func<Task> action)
+        public async Task<T> Invoke<T>(Func<Task<T>> action, bool skipChanged = false)
         {
-            action();
+            var source = new TaskCompletionSource<T>();
+            await TasksToInvoke.EnqueueAsync(async () =>
+            {
+                T value;
+                try
+                {
+                    value = await action();
+
+                    if (!skipChanged)
+                        await CommunicationHub.ProcessPropertyChange(Page.Manager, true);
+                }
+                catch (Exception ex)
+                {
+                    source.SetException(ex);
+                    return;
+                }
+
+                source.SetResult(value);
+            });
+
+            return await source.Task;
+        }
+
+        public void InvokeSync(Action action, bool ignoreChanges = false)
+        {
+            Invoke(() =>
+            {
+                action();
+                return Task.CompletedTask;
+            }, ignoreChanges);
+        }
+        public Task Invoke(Func<Task> action, bool ignoreChanges = false)
+        {
+            return Invoke(async () =>
+            {
+                await action();
+                return true;
+            }, ignoreChanges);
+        }
+
+
+        private readonly Nito.AsyncEx.AsyncProducerConsumerQueue<Func<Task>> TasksToInvoke = new Nito.AsyncEx.AsyncProducerConsumerQueue<Func<Task>>();
+
+        private readonly CancellationTokenSource AsyncContextCancellationTokenSource = new CancellationTokenSource();
+        internal async Task RunAsyncContext()
+        {
+            while (true)
+            {
+                Func<Task> task;
+                try
+                {
+                    task = await TasksToInvoke.DequeueAsync(AsyncContextCancellationTokenSource.Token);
+                }
+                catch (TaskCanceledException)
+                {
+                    if (AsyncContextCancellationTokenSource.IsCancellationRequested)
+                        return;
+                    throw;
+                }
+
+                _ = task.Invoke();
+            }
+        }
+
+        private void StopAsyncContext()
+        {
+            AsyncContextCancellationTokenSource.Cancel();
         }
 
         #region Generic requests
@@ -121,7 +189,7 @@ namespace FSW.Core
             var parameters = privateData.ToString().Split('&');
             var parametersParsed = new Dictionary<string, string>();
 
-            for (int i = 0; i < parameters.Length; i += 2)
+            for (var i = 0; i < parameters.Length; i += 2)
                 parametersParsed[System.Web.HttpUtility.UrlDecode(parameters[i])] = System.Web.HttpUtility.UrlDecode(parameters[i + 1]);
 
             return await callback(parametersParsed);
@@ -141,8 +209,8 @@ namespace FSW.Core
 
         #region Generic Upload requests
 
-        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, Func<Dictionary<string, string>, List<IFormFile>, Task<IActionResult>>> RegisteredGenericFileUploadRequests =
-            new System.Collections.Concurrent.ConcurrentDictionary<string, Func<Dictionary<string, string>, List<IFormFile>, Task<IActionResult>>>();
+        private readonly ConcurrentDictionary<string, Func<Dictionary<string, string>, List<IFormFile>, Task<IActionResult>>> RegisteredGenericFileUploadRequests =
+            new ConcurrentDictionary<string, Func<Dictionary<string, string>, List<IFormFile>, Task<IActionResult>>>();
 
         public void RegisterNewGenericFileUploadRequest(string action, Func<Dictionary<string, string>, List<IFormFile>, Task<IActionResult>> callback)
         {
@@ -165,7 +233,7 @@ namespace FSW.Core
             var parameters = privateData.ToString().Split('&');
             var parametersParsed = new Dictionary<string, string>();
 
-            for (int i = 0; i < parameters.Length; i += 2)
+            for (var i = 0; i < parameters.Length; i += 2)
                 parametersParsed[System.Web.HttpUtility.UrlDecode(parameters[i])] = System.Web.HttpUtility.UrlDecode(parameters[i + 1]);
 
             return await callback(parametersParsed, files);
@@ -185,138 +253,15 @@ namespace FSW.Core
 
         #region hosted services
 
-        public enum HostedServicePriority
-        {
-            Low, Medium, High, NewThread
-        }
-        private class HostedServicesContainer
-        {
-            private readonly FSWPage Page;
-            public HostedServicesContainer(FSWPage page)
-            {
-                Page = page;
-                ServicesToRun[HostedServicePriority.Low] = new Queue<Action>();
-                ServicesToRun[HostedServicePriority.Medium] = new Queue<Action>();
-                ServicesToRun[HostedServicePriority.High] = new Queue<Action>();
-            }
-
-            private readonly Dictionary<HostedServicePriority, Queue<Action>> ServicesToRun = new Dictionary<HostedServicePriority, Queue<Action>>();
-            private Action CurrentAction;
-            private void PeekNextService(out Action action, out Queue<Action> queue)
-            {
-                lock (ServicesToRun)
-                {
-                    queue = ServicesToRun.OrderByDescending(x => x.Key).FirstOrDefault(x => x.Value.Count != 0).Value;
-                    CurrentAction = action = queue?.Peek(); // only peek so the other threads knows we haven't finished processing yet
-                }
-            }
-            private void RunningThread()
-            {
-                while (true)
-                {
-                    PeekNextService(out var action, out var queue);
-
-                    if (queue == null || Page.BackgroundServiceReset.WaitOne(0))
-                        return; // nothing left to do
-
-                    try
-                    {
-                        action();
-                    }
-                    catch (Exception e)
-                    {
-                        try
-                        {
-                            if (Page.OverrideErrorHandle != null)
-                            {
-                                using (Page.ServerSideLock)
-                                    Page.OverrideErrorHandle(e);
-                            }
-                            else
-                                CommunicationHub.SendError(Page, e);
-                        }
-                        catch (Exception)
-                        {
-                            CommunicationHub.SendError(Page, e);
-                        }
-                    }
-
-                    lock (ServicesToRun)
-                        queue.Dequeue();
-                }
-            }
-            public void AddHostedService(Action callback, HostedServicePriority priority)
-            {
-                if (priority == HostedServicePriority.NewThread)
-                {
-                    new System.Threading.Thread(() =>
-                    {
-                        while (!Page.FSWPage_InitializedEvent.WaitOne(TimeSpan.FromSeconds(1)))
-                        {
-                            if (Page.BackgroundServiceReset.WaitOne(TimeSpan.Zero))
-                                return;
-                        }
-
-                        callback();
-                    }).Start();
-                    return;
-                }
-
-                lock (ServicesToRun)
-                {
-                    ServicesToRun[priority].Enqueue(callback);
-                    if (CurrentAction == null) // nothing is running
-                    {
-                        PeekNextService(out var action, out var queue); // ensure we peek the next service so we tell other threads that we're processing
-                        AddHostedService(RunningThread, HostedServicePriority.NewThread);
-                    }
-                }
-            }
-        }
-
-
-        private HostedServicesContainer ServicesContainer;
-
-        public Task RegisterAsyncHostedService(Func<AsyncLocks.IUnlockedAsyncServer, Task> callback, HostedServicePriority priority = HostedServicePriority.Medium)
-        {
-            var taskCompletionSource = new TaskCompletionSource<bool>();
-            RegisterHostedService(() =>
-            {
-                try
-                {
-                    var source = new AsyncLocks.UnlockedAsyncServer(this);
-                    callback(source).Wait();
-                }
-                catch (Exception ex)
-                {
-                    taskCompletionSource.SetException(ex);
-                    return;
-                }
-
-                taskCompletionSource.SetResult(true);
-            }, priority);
-
-            return taskCompletionSource.Task;
-        }
-
-        public void RegisterHostedService(Action callback, HostedServicePriority priority = HostedServicePriority.Medium)
-        {
-            ServicesContainer.AddHostedService(callback, priority);
-        }
-
-        public class HostedServiceCancellation
-        {
-            public bool Cancel = false;
-        }
         public void RegisterHostedService(TimeSpan callbackInterval, Action callback)
         {
             RegisterHostedService(callbackInterval, (c) => callback());
         }
         public System.Threading.ManualResetEvent BackgroundServiceReset = new System.Threading.ManualResetEvent(false);
         internal System.Threading.ManualResetEvent FSWPage_InitializedEvent = new System.Threading.ManualResetEvent(false);
-        public void RegisterHostedService(TimeSpan callbackInterval, Action<HostedServiceCancellation> callback)
+        public void RegisterHostedService(TimeSpan callbackInterval, Action<CancellationTokenSource> callback)
         {
-            var cancellation = new HostedServiceCancellation();
+            var cancellation = new CancellationTokenSource();
             new System.Threading.Thread(() =>
             {
                 while (!FSWPage_InitializedEvent.WaitOne(TimeSpan.FromSeconds(1)))
@@ -330,7 +275,7 @@ namespace FSW.Core
                     try
                     {
                         callback(cancellation);
-                        if (cancellation.Cancel)
+                        if (cancellation.IsCancellationRequested)
                             return;
                     }
                     catch (Exception e)
@@ -339,8 +284,7 @@ namespace FSW.Core
                         {
                             if (OverrideErrorHandle != null)
                             {
-                                using (ServerSideLock)
-                                    OverrideErrorHandle(e);
+                                Invoke(() => OverrideErrorHandle(e));
                             }
                             else
                                 CommunicationHub.SendError(this, e);
@@ -357,51 +301,5 @@ namespace FSW.Core
         }
 
         #endregion
-
-        public class PageLock : IDisposable
-        {
-            private readonly FSWPage Page;
-
-            public bool IsReadOnly { get; set; }
-
-            private IDisposable Lock;
-
-            internal PageLock(FSWPage page, bool isReadOnly)
-            {
-                Page = page;
-                IsReadOnly = isReadOnly;
-                Lock = Page.Manager._lock.WriterLock();
-            }
-
-            internal PageLock(FSWPage page)
-            {
-                Page = page;
-            }
-
-            internal async Task AsyncAcquireLock(bool isReadOnly, System.Threading.CancellationToken cancellationToken = default, bool trueReadOnly = false)
-            {
-                if (trueReadOnly)
-                    Lock = await Page.Manager._lock.ReaderLockAsync(cancellationToken).ConfigureAwait(false);
-                else
-                    Lock = await Page.Manager._lock.WriterLockAsync(cancellationToken).ConfigureAwait(false);
-            }
-
-            public void Dispose()
-            {
-                try
-                {
-                    if (!IsReadOnly)
-                    {
-                        // the core manager is still locked, so process the property changes right away
-                        CommunicationHub.ProcessPropertyChange(Page.Manager, true);
-                    }
-                }
-                finally
-                {
-                    Lock.Dispose();
-                }
-            }
-        }
-
     }
 }

@@ -49,7 +49,7 @@ namespace FSW.Semantic.Controls.Html
             }
         }
 
-        public delegate Task OnButtonClickedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, IconTextButton button);
+        public delegate Task OnButtonClickedHandler(IconTextButton button);
         public event OnButtonClickedHandler OnButtonClicked;
 
         public override void InitializeProperties()
@@ -71,16 +71,14 @@ namespace FSW.Semantic.Controls.Html
             });
         }
 
-        private async Task IconTextButton_OnClicked(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control)
+        private async Task IconTextButton_OnClicked(HtmlControlBase control)
         {
             if (OnButtonClicked == null)
                 return;
-            State state;
-            using (await unlockedAsyncServer.EnterReadOnlyLock())
-                state = State;
+            State state = State;
 
             if (state == State.Enabled)
-                await OnButtonClicked?.Invoke(unlockedAsyncServer, this);
+                await OnButtonClicked?.Invoke(this);
         }
     }
     public class IconLabeledButton : IconTextButton

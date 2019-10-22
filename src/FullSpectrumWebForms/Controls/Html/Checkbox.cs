@@ -20,7 +20,7 @@ namespace FSW.Controls.Html
         }
 
 
-        public delegate Task OnStateChangedAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Checkbox sender);
+        public delegate Task OnStateChangedAsyncHandler(Checkbox sender);
         public event OnStateChangedAsyncHandler OnCheckedChangedAsync;
 
         public override void InitializeProperties()
@@ -32,9 +32,9 @@ namespace FSW.Controls.Html
             GetPropertyInternal(nameof(Checked)).OnNewValueFromClientAsync += ComboBoxState_OnNewValue;
         }
 
-        private Task ComboBoxState_OnNewValue( Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
+        private Task ComboBoxState_OnNewValue( Property property, object lastValue, object newValue)
         {
-            return OnCheckedChangedAsync?.Invoke(unlockedAsyncServer, this) ?? Task.CompletedTask;
+            return OnCheckedChangedAsync?.Invoke(this) ?? Task.CompletedTask;
         }
 
     }

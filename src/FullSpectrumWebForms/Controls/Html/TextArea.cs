@@ -20,7 +20,7 @@ namespace FSW.Controls.Html
 
         public bool IsEmpty => !string.IsNullOrEmpty(Text);
 
-        public delegate Task OnTextChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, TextArea sender, string previousText, string newText);
+        public delegate Task OnTextChangedHandler(TextArea sender, string previousText, string newText);
         public event OnTextChangedHandler OnTextChanged;
 
         public override void InitializeProperties()
@@ -36,9 +36,9 @@ namespace FSW.Controls.Html
             GetPropertyInternal(nameof(Text)).OnNewValueFromClientAsync += TextBox_OnNewValue;
         }
 
-        private Task TextBox_OnNewValue(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
+        private Task TextBox_OnNewValue( Property property, object lastValue, object newValue)
         {
-            return OnTextChanged?.Invoke(unlockedAsyncServer, this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
+            return OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
         }
     }
 }

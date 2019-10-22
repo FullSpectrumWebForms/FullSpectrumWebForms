@@ -90,20 +90,20 @@ namespace FSW.Controls.Html
         public Utility.ControlPropertyList<string> SelectedIds { get; private set; }
 
 
-        public delegate Task OnSelectedIdChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, ComboBox sender, string oldId, string newId);
+        public delegate Task OnSelectedIdChangedHandler(ComboBox sender, string oldId, string newId);
         public event OnSelectedIdChangedHandler OnSelectedIdChangedAsync;
 
-        public delegate Task OnSelectedIdsChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, ComboBox sender, string[] oldId, string[] newId);
+        public delegate Task OnSelectedIdsChangedHandler(ComboBox sender, string[] oldId, string[] newId);
         public event OnSelectedIdsChangedHandler OnSelectedIdsChangedAsync;
 
-        public Task InvokeOnSelectedIdChangedAsync(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string oldId)
+        public Task InvokeOnSelectedIdChangedAsync(string oldId)
         {
-            return OnSelectedIdChangedAsync?.Invoke(unlockedAsyncServer, this, oldId, SelectedId) ?? Task.CompletedTask;
+            return OnSelectedIdChangedAsync?.Invoke(this, oldId, SelectedId) ?? Task.CompletedTask;
         }
 
-        public Task InvokeOnSelectedIdsChangedAsync(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string[] oldIds)
+        public Task InvokeOnSelectedIdsChangedAsync(string[] oldIds)
         {
-            return OnSelectedIdsChangedAsync?.Invoke(unlockedAsyncServer, this, oldIds, SelectedIds.ToArray()) ?? Task.CompletedTask;
+            return OnSelectedIdsChangedAsync?.Invoke(this, oldIds, SelectedIds.ToArray()) ?? Task.CompletedTask;
         }
 
         public override void InitializeProperties()
@@ -119,16 +119,16 @@ namespace FSW.Controls.Html
 
         }
 
-        private Task OnSelectedIdsChangedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
+        private Task OnSelectedIdsChangedFromClient(Property property, object lastValue, object newValue)
         {
             if (lastValue is JArray lastValueArray)
                 lastValue = lastValueArray.ToObject<string[]>();
-            return OnSelectedIdsChangedAsync?.Invoke(unlockedAsyncServer, this, (string[])lastValue, ((JArray)newValue)?.ToObject<string[]>()) ?? Task.CompletedTask;
+            return OnSelectedIdsChangedAsync?.Invoke(this, (string[])lastValue, ((JArray)newValue)?.ToObject<string[]>()) ?? Task.CompletedTask;
         }
 
-        private Task OnSelectedIdChangedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
+        private Task OnSelectedIdChangedFromClient(Property property, object lastValue, object newValue)
         {
-            return OnSelectedIdChangedAsync?.Invoke(unlockedAsyncServer, this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
+            return OnSelectedIdChangedAsync?.Invoke(this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
         }
     }
     public class ComboBox_Ajax : HtmlControlBase
@@ -151,7 +151,7 @@ namespace FSW.Controls.Html
         /// <summary>
         /// If the ComboBox is ajax, set the fonction to be called when the user enter something in the ComboBox
         /// </summary>
-        public Func<Core.AsyncLocks.IUnlockedAsyncServer, string, Task<Dictionary<string, string>>> OnAjaxRequest { get; set; }
+        public Func<string, Task<Dictionary<string, string>>> OnAjaxRequest { get; set; }
 
 
         /// <summary>
@@ -203,21 +203,21 @@ namespace FSW.Controls.Html
         }
 
 
-        public delegate Task OnSelectedIdAndValueChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, ComboBox_Ajax sender, KeyValuePair<string, string>? newId);
+        public delegate Task OnSelectedIdAndValueChangedHandler(ComboBox_Ajax sender, KeyValuePair<string, string>? newId);
         public event OnSelectedIdAndValueChangedHandler OnSelectedIdAndValueChanged;
 
-        public delegate Task OnSelectedIdsAndValuesChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, ComboBox_Ajax sender, Dictionary<string, string> oldId, Dictionary<string, string> newId);
+        public delegate Task OnSelectedIdsAndValuesChangedHandler(ComboBox_Ajax sender, Dictionary<string, string> oldId, Dictionary<string, string> newId);
         public event OnSelectedIdsAndValuesChangedHandler OnSelectedIdsAndValuesChanged;
 
 
-        public Task InvokeOnSelectedIdAndValueChanged(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
+        public Task InvokeOnSelectedIdAndValueChanged()
         {
-            return OnSelectedIdAndValueChanged?.Invoke(unlockedAsyncServer, this, SelectedIdAndValue) ?? Task.CompletedTask;
+            return OnSelectedIdAndValueChanged?.Invoke(this, SelectedIdAndValue) ?? Task.CompletedTask;
         }
 
-        public Task InvokeOnSelectedIdsAndValuesChanged(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Dictionary<string, string> oldId)
+        public Task InvokeOnSelectedIdsAndValuesChanged(Dictionary<string, string> oldId)
         {
-            return OnSelectedIdsAndValuesChanged?.Invoke(unlockedAsyncServer, this, oldId, SelectedIdsAndValues.ToDictionary(x => x.Key, x => x.Value)) ?? Task.CompletedTask;
+            return OnSelectedIdsAndValuesChanged?.Invoke(this, oldId, SelectedIdsAndValues.ToDictionary(x => x.Key, x => x.Value)) ?? Task.CompletedTask;
         }
 
         public override void InitializeProperties()
@@ -240,21 +240,21 @@ namespace FSW.Controls.Html
         }
 
         [AsyncCoreEvent]
-        internal Task<Dictionary<string, string>> _OnAjaxRequestFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string searchString)
+        internal Task<Dictionary<string, string>> _OnAjaxRequestFromClient(string searchString)
         {
-            return OnAjaxRequest?.Invoke(unlockedAsyncServer, searchString) ?? Task.FromResult((Dictionary<string, string>)null);
+            return OnAjaxRequest?.Invoke(searchString) ?? Task.FromResult((Dictionary<string, string>)null);
         }
 
-        private Task OnSelectedIdAndValueChangedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
+        private Task OnSelectedIdAndValueChangedFromClient( Property property, object lastValue, object newValue)
         {
-            return OnSelectedIdAndValueChanged?.Invoke(unlockedAsyncServer, this, SelectedIdAndValue) ?? Task.CompletedTask;
+            return OnSelectedIdAndValueChanged?.Invoke(this, SelectedIdAndValue) ?? Task.CompletedTask;
         }
 
-        private Task OnSelectedIdsAndValuesChangedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
+        private Task OnSelectedIdsAndValuesChangedFromClient(Property property, object lastValue, object newValue)
         {
             if (lastValue is JObject lastValueDictionary)
                 lastValue = lastValueDictionary.ToObject<Dictionary<string, string>>();
-            return OnSelectedIdsAndValuesChanged?.Invoke(unlockedAsyncServer, this, (Dictionary<string, string>)lastValue, ((JObject)newValue)?.ToObject<Dictionary<string, string>>()) ?? Task.CompletedTask;
+            return OnSelectedIdsAndValuesChanged?.Invoke(this, (Dictionary<string, string>)lastValue, ((JObject)newValue)?.ToObject<Dictionary<string, string>>()) ?? Task.CompletedTask;
         }
 
     }

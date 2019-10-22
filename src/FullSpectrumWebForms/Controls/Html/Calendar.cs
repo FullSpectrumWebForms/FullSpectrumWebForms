@@ -135,22 +135,22 @@ namespace FSW.Controls.Html
             set => SetProperty(PropertyName(), value?.ToString("s"));
         }
 
-        public delegate Task<List<CalendarEvent>> OnRefreshRequestHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DateTime rangeStart, DateTime rangeEnd);
+        public delegate Task<List<CalendarEvent>> OnRefreshRequestHandler(DateTime rangeStart, DateTime rangeEnd);
         public event OnRefreshRequestHandler OnRefreshRequest;
 
-        public delegate Task OnCurrentViewChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer);
+        public delegate Task OnCurrentViewChangedHandler();
         public event OnCurrentViewChangedHandler OnCurrentViewChangedAsync;
 
-        public delegate Task<bool> OnValidateEventDropHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, CalendarEvent eventMoved, DateTime newStart, DateTime? newEnd, bool isAllDay, string resourceId);
+        public delegate Task<bool> OnValidateEventDropHandler(CalendarEvent eventMoved, DateTime newStart, DateTime? newEnd, bool isAllDay, string resourceId);
         public event OnValidateEventDropHandler OnValidateEventDrop;
 
-        public delegate Task OnEventDropHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, CalendarEvent eventMoved);
+        public delegate Task OnEventDropHandler( CalendarEvent eventMoved);
         public event OnEventDropHandler OnEventDrop;
 
-        public delegate Task OnRangeSelectedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DateTime start, DateTime end, CalendarResource resource);
+        public delegate Task OnRangeSelectedHandler(DateTime start, DateTime end, CalendarResource resource);
         public event OnRangeSelectedHandler OnRangeSelected;
 
-        public delegate Task OnEventClickHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, CalendarEvent eventClicked);
+        public delegate Task OnEventClickHandler( CalendarEvent eventClicked);
         public event OnEventClickHandler OnEventClickAsync;
 
         public void Refresh()
@@ -159,29 +159,29 @@ namespace FSW.Controls.Html
         }
 
         [AsyncCoreEvent]
-        protected Task OnEventClickedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string id)
+        protected Task OnEventClickedFromClient(string id)
         {
             var ev = LastEvents.Find(x => x.Id == id);
             if (ev == null)
                 throw new Exception($"Unknowed event in calendar {Id}: {id}");
-            return OnEventClickAsync?.Invoke(unlockedAsyncServer, ev) ?? Task.CompletedTask;
+            return OnEventClickAsync?.Invoke(ev) ?? Task.CompletedTask;
         }
 
         [AsyncCoreEvent]
-        protected Task OnRangeSelectedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string start, string end, string resourceId = null)
+        protected Task OnRangeSelectedFromClient(string start, string end, string resourceId = null)
         {
             var s = DateTime.Parse(start, null, System.Globalization.DateTimeStyles.RoundtripKind);
             var e = DateTime.Parse(end, null, System.Globalization.DateTimeStyles.RoundtripKind);
 
             var resource = resourceId == null ? null : Resources.FirstOrDefault(x => x.Id == resourceId);
-            return OnRangeSelected?.Invoke(unlockedAsyncServer, s, e, resource) ?? Task.CompletedTask;
+            return OnRangeSelected?.Invoke(s, e, resource) ?? Task.CompletedTask;
         }
 
         private List<CalendarEvent> LastEvents = new List<CalendarEvent>();
         [AsyncCoreEvent]
-        protected async Task<List<CalendarEvent>> OnRefreshEventsFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string rangeStart, string rangeEnd)
+        protected async Task<List<CalendarEvent>> OnRefreshEventsFromClient(string rangeStart, string rangeEnd)
         {
-            var task = OnRefreshRequest?.Invoke(unlockedAsyncServer, DateTime.Parse(rangeStart, null, System.Globalization.DateTimeStyles.RoundtripKind), DateTime.Parse(rangeStart, null, System.Globalization.DateTimeStyles.RoundtripKind));
+            var task = OnRefreshRequest?.Invoke(DateTime.Parse(rangeStart, null, System.Globalization.DateTimeStyles.RoundtripKind), DateTime.Parse(rangeStart, null, System.Globalization.DateTimeStyles.RoundtripKind));
             if (task != null)
                 LastEvents = await task;
             else
@@ -189,7 +189,7 @@ namespace FSW.Controls.Html
             return LastEvents;
         }
         [AsyncCoreEvent]
-        protected async Task<bool> OnValidateEventDropFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string id = null, string start = null, string end = null, bool isAllDay = false, string resourceId = null)
+        protected async Task<bool> OnValidateEventDropFromClient(string id = null, string start = null, string end = null, bool isAllDay = false, string resourceId = null)
         {
             if (string.IsNullOrEmpty(id))
                 throw new Exception("To edit events, add IDs");
@@ -199,7 +199,7 @@ namespace FSW.Controls.Html
                 throw new Exception("Event not found");
             var s = DateTime.Parse(start, null, System.Globalization.DateTimeStyles.RoundtripKind);
             var e = end == null ? null : (DateTime?)DateTime.Parse(end, null, System.Globalization.DateTimeStyles.RoundtripKind);
-            var res = await (OnValidateEventDrop?.Invoke(unlockedAsyncServer, eventObj, s, e, isAllDay, resourceId) ?? Task.FromResult(true));
+            var res = await (OnValidateEventDrop?.Invoke(eventObj, s, e, isAllDay, resourceId) ?? Task.FromResult(true));
            
             if (res)
             {
@@ -207,7 +207,7 @@ namespace FSW.Controls.Html
                 eventObj.End = e;
                 eventObj.AllDay = isAllDay;
                 eventObj.ResourceId = resourceId;
-                await (OnEventDrop?.Invoke(unlockedAsyncServer, eventObj) ?? Task.CompletedTask);
+                await (OnEventDrop?.Invoke(eventObj) ?? Task.CompletedTask);
             }
 
             return res;
@@ -247,9 +247,9 @@ namespace FSW.Controls.Html
             GetPropertyInternal(nameof(CurrentView)).OnNewValueFromClientAsync += Calendar_OnNewValueFromClientAsync;
         }
 
-        private Task Calendar_OnNewValueFromClientAsync(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
+        private Task Calendar_OnNewValueFromClientAsync(Property property, object lastValue, object newValue)
         {
-            return OnCurrentViewChangedAsync?.Invoke(unlockedAsyncServer) ?? Task.CompletedTask;
+            return OnCurrentViewChangedAsync?.Invoke() ?? Task.CompletedTask;
         }
     }
 }

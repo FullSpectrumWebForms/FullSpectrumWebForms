@@ -106,23 +106,19 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
                 options.RefreshItem = (item) =>
                 {
                     var v = options.GetText(item.Id);
-                    using (Page.ServerSideLock)
-                    {
-                        if (listView?.IsRemoved != false)
-                            return;
-                        item.Value = v;
-                        listView.UpdateItem(item);
-                    }
+
+                    if (listView?.IsRemoved != false)
+                        return;
+                    item.Value = v;
+                    listView.UpdateItem(item);
                 };
             }
 
-            listView.OnItemSelected += async (unlockedServer, item) =>
+            listView.OnItemSelected += (item) =>
             {
-                using (await unlockedServer.EnterAnyLock())
-                {
-                    PopTo(id, true);
-                    options.OnSelected?.Invoke(item.Data);
-                }
+                PopTo(id, true);
+                options.OnSelected?.Invoke(item.Data);
+                return Task.CompletedTask;
             };
 
             HtmlControlBase mainContainer = listView;
@@ -140,18 +136,15 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
                     Placeholder = "Search...",
                     InstantFeedback = TimeSpan.FromMilliseconds(50)
                 };
-                searchBox.OnTextChangedAsync += async (unlockedServer, sender, previous, newText) =>
+                searchBox.OnTextChangedAsync += async (sender, previous, newText) =>
                 {
-                    using (await unlockedServer.EnterAnyLock())
+                    newText = newText.ToLower();
+                    foreach (var item in listView.Items.DataEnumerator)
                     {
-                        newText = newText.ToLower();
-                        foreach (var item in listView.Items.DataEnumerator)
-                        {
-                            if (item.Data.Name.ToLower().Contains(newText))
-                                item.Container.Visible = VisibleState.Block;
-                            else
-                                item.Container.Visible = VisibleState.None;
-                        }
+                        if (item.Data.Name.ToLower().Contains(newText))
+                            item.Container.Visible = VisibleState.Block;
+                        else
+                            item.Container.Visible = VisibleState.None;
                     }
                 };
 
@@ -192,7 +185,7 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
                 {
                     container.Children.Add(new Html.LoadingIcon(Page));
 
-                    Page.RegisterHostedService(() => options.RefreshItem(obj));
+                    options.RefreshItem(obj);
                 }
                 else
                 {
@@ -216,8 +209,7 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
             //mainContainer.Transition(Transition.Animation.SlideRight);
             mainContainer.Visible = VisibleState.Block;
 
-            if (options.PopulateListView != null)
-                Page.RegisterHostedService(() => options.PopulateListView(listView), FSW.Core.FSWPage.HostedServicePriority.High);
+            options.PopulateListView?.Invoke(listView);
 
             return listView;
         }

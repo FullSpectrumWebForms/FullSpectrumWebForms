@@ -41,7 +41,7 @@ namespace FSW.Controls.Html
             set => SetProperty(PropertyName(), value);
         }
 
-        public delegate Task OnTextChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Radio sender, string previousText, string newText);
+        public delegate Task OnTextChangedHandler(Radio sender, string previousText, string newText);
         public event OnTextChangedHandler OnTextChanged;
 
         public delegate void OnStateChangedHandler(Radio sender);
@@ -66,9 +66,9 @@ namespace FSW.Controls.Html
             GetPropertyInternal(nameof(Checked)).OnNewValueFromClientAsync += TextBox_OnNewValue;
         }
 
-        private Task TextBox_OnNewValue(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
+        private Task TextBox_OnNewValue( Property property, object lastValue, object newValue)
         {
-            return OnTextChanged?.Invoke(unlockedAsyncServer, this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
+            return OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
         }
     }
 }

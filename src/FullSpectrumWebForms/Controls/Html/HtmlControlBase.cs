@@ -24,7 +24,7 @@ namespace FSW.Controls.Html
                 [JsonIgnore]
                 public object Tag;
                 [JsonIgnore]
-                public Func<Core.AsyncLocks.IUnlockedAsyncServer, Task> OnClick;
+                public Func<Task> OnClick;
 
                 public List<Item> Items = new List<Item>();
             }
@@ -111,7 +111,7 @@ namespace FSW.Controls.Html
         }
 
 
-        public delegate Task OnClickedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control);
+        public delegate Task OnClickedHandler(HtmlControlBase control);
         private event OnClickedHandler OnClicked_;
         public event OnClickedHandler OnClicked
         {
@@ -123,15 +123,15 @@ namespace FSW.Controls.Html
             remove
             {
                 OnClicked_ -= value;
-                if (OnClicked_.GetInvocationList().Length == 0 )
+                if (OnClicked_.GetInvocationList().Length == 0)
                     SetProperty("GenerateClickEvents", false);
             }
         }
 
         [AsyncCoreEvent]
-        protected async Task OnClickedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
+        protected async Task OnClickedFromClient()
         {
-            var task = OnClicked_?.Invoke(unlockedAsyncServer, this);
+            var task = OnClicked_?.Invoke(this);
             if (task != null)
                 await task;
         }
@@ -155,7 +155,7 @@ namespace FSW.Controls.Html
             }
         }
 
-        public delegate Task OnDoubleClickedAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control);
+        public delegate Task OnDoubleClickedAsyncHandler(HtmlControlBase control);
         private event OnDoubleClickedAsyncHandler OnDoubleClickedAsync_;
         public event OnDoubleClickedAsyncHandler OnDoubleClickedAsync
         {
@@ -173,21 +173,20 @@ namespace FSW.Controls.Html
         }
 
         [AsyncCoreEvent]
-        protected async Task OnDoubleClickedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
+        protected async Task OnDoubleClickedFromClient()
         {
             if (OnDoubleClicked_?.GetInvocationList().Length > 0)
             {
-                using (await unlockedAsyncServer.EnterLock())
-                    OnDoubleClicked_?.Invoke(this);
+                OnDoubleClicked_?.Invoke(this);
             }
 
-            var task = OnDoubleClickedAsync_?.Invoke(unlockedAsyncServer, this);
+            var task = OnDoubleClickedAsync_?.Invoke(this);
             if (task != null)
                 await task;
         }
 
 
-        public delegate Task OnFocusInAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control);
+        public delegate Task OnFocusInAsyncHandler(HtmlControlBase control);
         private event OnFocusInAsyncHandler OnFocusInAsync_;
         public event OnFocusInAsyncHandler OnFocusInAsync
         {
@@ -204,12 +203,12 @@ namespace FSW.Controls.Html
             }
         }
         [AsyncCoreEvent]
-        protected Task OnFocusInFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
+        protected Task OnFocusInFromClient()
         {
-            return OnFocusInAsync_?.Invoke(unlockedAsyncServer, this) ?? Task.CompletedTask;
+            return OnFocusInAsync_?.Invoke(this) ?? Task.CompletedTask;
         }
 
-        public delegate Task OnFocusOutAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control);
+        public delegate Task OnFocusOutAsyncHandler(HtmlControlBase control);
         private event OnFocusOutAsyncHandler OnFocusOutAsync_;
         public event OnFocusOutAsyncHandler OnFocusOutAsync
         {
@@ -226,12 +225,12 @@ namespace FSW.Controls.Html
             }
         }
         [AsyncCoreEvent]
-        protected Task OnFocusOutFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
+        protected Task OnFocusOutFromClient()
         {
-            return OnFocusOutAsync_?.Invoke(unlockedAsyncServer, this) ?? Task.CompletedTask;
+            return OnFocusOutAsync_?.Invoke(this) ?? Task.CompletedTask;
         }
 
-        public delegate Task OnContextMenuAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control);
+        public delegate Task OnContextMenuAsyncHandler(HtmlControlBase control);
         private event OnContextMenuAsyncHandler OnContextMenuAsync_;
         public event OnContextMenuAsyncHandler OnContextMenuAsync
         {
@@ -249,9 +248,9 @@ namespace FSW.Controls.Html
         }
 
         [AsyncCoreEvent]
-        protected Task OnContextMenuFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer)
+        protected Task OnContextMenuFromClient()
         {
-            return OnContextMenuAsync_?.Invoke(unlockedAsyncServer, this) ?? Task.CompletedTask; ;
+            return OnContextMenuAsync_?.Invoke(this) ?? Task.CompletedTask; ;
         }
 
         public void Focus()
@@ -406,14 +405,12 @@ namespace FSW.Controls.Html
         }
 
         [AsyncCoreEvent]
-        protected async Task OnRightClickMenuClickedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, int id)
+        protected async Task OnRightClickMenuClickedFromClient(int id)
         {
-            RightClickMenuOptions.Item item;
-            using (await unlockedAsyncServer.EnterReadOnlyLock())
-                item = RightClickMenu.FindItemById(id);
+            var item = RightClickMenu.FindItemById(id);
 
             if (item?.OnClick != null)
-                await item.OnClick(unlockedAsyncServer);
+                await item.OnClick();
         }
 
         public override void InitializeProperties()

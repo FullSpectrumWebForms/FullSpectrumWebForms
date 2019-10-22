@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FSW.Controls.Html;
-using FSW.Core.AsyncLocks;
 
 namespace TestApplication.Pages
 {
@@ -16,9 +15,9 @@ namespace TestApplication.Pages
         public Div DIV_Feed = new Div();
         public TextBox TB_Feed = new TextBox();
 
-        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
+        public override async Task OnPageLoad()
         {
-            await base.OnPageLoad(requireAsyncReadOnlyLock);
+            await base.OnPageLoad();
 
             DIV_Feed.Width = "400px";
             DIV_Feed.CssProperties["border"] = "dashed 1px";
@@ -26,13 +25,10 @@ namespace TestApplication.Pages
             TB_Feed.OnTextChangedAsync += TB_Feed_OnTextChanged;
         }
 
-        private async Task TB_Feed_OnTextChanged(IUnlockedAsyncServer unlockedAsyncServer, TextBox sender, string previousText, string newText)
+        private async Task TB_Feed_OnTextChanged(TextBox sender, string previousText, string newText)
         {
-            using (await unlockedAsyncServer.EnterAnyLock())
-            {
-                TB_Feed.Text = "";
-                StaticHostedServicePageSingleton.AddText(newText, this);
-            }
+            TB_Feed.Text = "";
+            StaticHostedServicePageSingleton.AddText(newText, this);
         }
         private void AddText(string text, bool isSender)
         {
@@ -57,11 +53,8 @@ namespace TestApplication.Pages
         }
         public void AddTexts(List<string> texts, bool own)
         {
-            using (ServerSideLock)
-            {
-                foreach (var text in texts)
-                    AddText(text, own);
-            }
+            foreach (var text in texts)
+                AddText(text, own);
         }
 
     }
@@ -81,10 +74,13 @@ namespace TestApplication.Pages
             AllTexts.Add(text);
             foreach (var page in GetActivePages())
             {
-                page.AddTexts(new List<string>
+                page.InvokeSync(() =>
                 {
-                    text
-                }, page == sender);
+                    page.AddTexts(new List<string>
+                    {
+                        text
+                    }, page == sender);
+                });
             }
         }
 

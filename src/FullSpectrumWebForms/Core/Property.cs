@@ -60,7 +60,7 @@ namespace FSW.Core
             Client, Server
         }
 
-        public delegate Task OnNewValueFromClientEvent(AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue);
+        public delegate Task OnNewValueFromClientEvent(Property property, object lastValue, object newValue);
         /// <summary>
         /// Called when the value is updated from the client
         /// </summary>
@@ -93,14 +93,14 @@ namespace FSW.Core
         /// Set the new <see cref="Value"/> then Raise <see cref="OnInstantNewValue"/>, and then <see cref="OnNewValue"/>
         /// This is called when the client update the value
         /// </summary>
-        public Task UpdateValue(AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, object newValue)
+        public Task UpdateValue(object newValue)
         {
             if (ParseValueFromClient != null)
                 newValue = ParseValueFromClient(newValue);
 
             Value_ = newValue;
 
-            var task = OnNewValueFromClientAsync?.Invoke(unlockedAsyncServer, this, LastValue, newValue);
+            var task = OnNewValueFromClientAsync?.Invoke(this, LastValue, newValue);
 
             LastValue = newValue;
 

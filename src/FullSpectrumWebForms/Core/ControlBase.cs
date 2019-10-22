@@ -244,12 +244,12 @@ namespace FSW.Core
             }
         }
         private List<ServerToClientCustomEvent> PendingCustomEvents = new List<ServerToClientCustomEvent>();
-        private Dictionary<int, Func<AsyncLocks.IUnlockedAsyncServer, Newtonsoft.Json.Linq.JProperty, Task>> AwaitingAnswerEvents = new Dictionary<int, Func<AsyncLocks.IUnlockedAsyncServer, Newtonsoft.Json.Linq.JProperty, Task>>();
+        private Dictionary<int, Func<Newtonsoft.Json.Linq.JProperty, Task>> AwaitingAnswerEvents = new Dictionary<int, Func<Newtonsoft.Json.Linq.JProperty, Task>>();
         internal protected void CallCustomClientEvent(string name, object parameters = null)
         {
             PendingCustomEvents.Add(new ServerToClientCustomEvent(name, parameters));
         }
-        internal protected void CallCustomClientEvent<T>(string name, Func<AsyncLocks.IUnlockedAsyncServer, T, Task> callback, object parameters = null)
+        internal protected void CallCustomClientEvent<T>(string name, Func<T, Task> callback, object parameters = null)
         {
             int id;
             do
@@ -260,35 +260,37 @@ namespace FSW.Core
 
             PendingCustomEvents.Add(new ServerToClientCustomEvent(name, parameters, id));
 
-            AwaitingAnswerEvents[id] = (unlockedAsyncServer, obj) =>
+            AwaitingAnswerEvents[id] = (obj) =>
             {
                 if (obj == null)
-                    return callback(unlockedAsyncServer, default);
+                    return callback(default);
                 else if (obj.HasValues)
-                    return callback(unlockedAsyncServer, obj.Value.ToObject<T>());
+                    return callback(obj.Value.ToObject<T>());
                 else
-                    return callback(unlockedAsyncServer, obj.ToObject<T>());
+                    return callback(obj.ToObject<T>());
             };
         }
 
-        internal protected System.Threading.Tasks.Task<T> CallCustomClientEvent<T>(string name, object parameters = null)
+        internal protected Task<T> CallCustomClientEvent<T>(string name, object parameters = null)
         {
-            var src = new System.Threading.Tasks.TaskCompletionSource<T>();
-
-            CallCustomClientEvent<T>(name, (_, res) =>
+            return Page.Invoke(() =>
             {
-                src.TrySetResult(res);
-                return Task.CompletedTask;
-            }, parameters);
+                var src = new System.Threading.Tasks.TaskCompletionSource<T>();
+                CallCustomClientEvent<T>(name, (res) =>
+                {
+                    src.TrySetResult(res);
+                    return Task.CompletedTask;
+                }, parameters);
+                return src.Task;
+            });
 
-            return src.Task;
         }
 
         [AsyncCoreEvent]
-        protected Task OnCustomClientEventAnswerReceivedFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, int id, Newtonsoft.Json.Linq.JProperty answer = null)
+        protected Task OnCustomClientEventAnswerReceivedFromClient(int id, Newtonsoft.Json.Linq.JProperty answer = null)
         {
             if (AwaitingAnswerEvents.TryGetValue(id, out var callback))
-                return callback(unlockedAsyncServer, answer);
+                return callback(answer);
             else
                 throw new Exception("Client answer id not found");
         }
@@ -331,8 +333,9 @@ namespace FSW.Core
         internal bool IsInitializing { get; private set; }
         public abstract void InitializeProperties();
 
-        virtual protected internal void ControlInitialized()
+        virtual protected internal Task ControlInitialized()
         {
+            return Task.CompletedTask;
         }
 
         public enum VariableWatchType

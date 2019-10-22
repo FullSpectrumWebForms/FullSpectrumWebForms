@@ -1,5 +1,4 @@
 ﻿using FSW.Controls.Html;
-using FSW.Core.AsyncLocks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -11,9 +10,9 @@ namespace TestApplication.Pages.Examples
 {
     public class DataGridPage : FSW.Core.FSWPage
     {
-        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
+        public override async Task OnPageLoad()
         {
-            await base.OnPageLoad(requireAsyncReadOnlyLock);
+            await base.OnPageLoad();
 
             Init_Basic();
             Init_Editing_Basic();
@@ -56,14 +55,14 @@ namespace TestApplication.Pages.Examples
             var count = 0;
             RegisterHostedService(TimeSpan.FromSeconds(2), () =>
             {
-                using (ServerSideLock)
+                InvokeSync(() =>
                 {
                     // write directly to the datas and the index we want
                     Grid_UpdateSingleRow.Datas[1].Col2 = ++count;
                     // and then update the index we juste modified
                     // if not specified otherwise, this will also generate the metas for this row
                     Grid_UpdateSingleRow.RefreshRow(1);
-                }
+                });
             });
         }
 
@@ -231,10 +230,9 @@ namespace TestApplication.Pages.Examples
 
             Grid_Basic2.OnCellChanged += Grid_Basic2_OnCellChanged;
         }
-        private async Task Grid_Basic2_OnCellChanged(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataGridColumn col, int row, Item2 item, object newValue)
+        private async Task Grid_Basic2_OnCellChanged(DataGridColumn col, int row, Item2 item, object newValue)
         {
-            using (await unlockedAsyncServer.EnterAnyLock())
-                MessageBox.Success("Success", $"Col {col.Name} was modified on row {row}. The new value is now: {newValue}");
+            MessageBox.Success("Success", $"Col {col.Name} was modified on row {row}. The new value is now: {newValue}");
         }
 
         #endregion
@@ -304,10 +302,9 @@ namespace TestApplication.Pages.Examples
             Grid_Editing_Advanced.OnCellChanged += Grid_Basic3_OnCellChanged;
         }
 
-        private async Task Grid_Editing_Advanced_OnButtonCellClicked(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataGridColumn col, int row, Item3 item)
+        private async Task Grid_Editing_Advanced_OnButtonCellClicked(DataGridColumn col, int row, Item3 item)
         {
-            using (await unlockedAsyncServer.EnterAnyLock())
-                MessageBox.Success("Success", $"Col {col.Name} was clicked on row {row}");
+            MessageBox.Success("Success", $"Col {col.Name} was clicked on row {row}");
         }
 
         private Dictionary<string, string> TestDictionary = new Dictionary<string, string>
@@ -318,16 +315,15 @@ namespace TestApplication.Pages.Examples
             ["test 4"] = "Test string 4",
             ["test 5"] = "Test string 5",
         };
-        private Task<Dictionary<string, string>> OnGrid_Basic3_Request(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, string searchString)
+        private Task<Dictionary<string, string>> OnGrid_Basic3_Request(string searchString)
         {
             return Task.FromResult(TestDictionary.Where(x =>
               x.Key.ToLower().Contains(searchString.ToLower()) ||
               x.Value.ToLower().Contains(searchString.ToLower())).ToDictionary(x => x.Key, x => x.Value));
         }
-        private async Task Grid_Basic3_OnCellChanged(FSW.Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, DataGridColumn col, int row, Item3 item, object newValue)
+        private async Task Grid_Basic3_OnCellChanged(DataGridColumn col, int row, Item3 item, object newValue)
         {
-            using (await unlockedAsyncServer.EnterAnyLock())
-                MessageBox.Success("Success", $"Col {col.Name} was modified on row {row}. The new value is now: {newValue}");
+            MessageBox.Success("Success", $"Col {col.Name} was modified on row {row}. The new value is now: {newValue}");
         }
 
         #endregion

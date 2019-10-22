@@ -10,25 +10,24 @@ namespace FSW.Controls.Extensions
 {
     public class FileUploadExtension : ControlExtension
     {
-
-        public delegate void OnFileUploadReceivedHandler(List<IFormFile> files, TaskCompletionSource<IActionResult> taskCompletionSource);
+        public delegate Task OnFileUploadReceivedHandler(List<IFormFile> files, TaskCompletionSource<IActionResult> taskCompletionSource);
         public event OnFileUploadReceivedHandler GetOnFileUploadReceivedFromClient;
 
         protected internal override void Initialize()
         {
             base.Initialize();
 
-            Control.Page.RegisterNewGenericFileUploadRequest(Control.Id + "_" + Id, (parameters, files) =>
+            Control.Page.RegisterNewGenericFileUploadRequest(Control.Id + "_" + Id, async (parameters, files) =>
             {
 
                 if (GetOnFileUploadReceivedFromClient != null)
                 {
                     var source = new TaskCompletionSource<IActionResult>();
-                    GetOnFileUploadReceivedFromClient(files, source);
-                    return source.Task;
+                    await GetOnFileUploadReceivedFromClient(files, source);
+                    return await source.Task;
                 }
                 else
-                    return Task.FromResult<IActionResult>(new NoContentResult());
+                    return new NoContentResult();
             });
         }
         protected internal override void Uninitialize()

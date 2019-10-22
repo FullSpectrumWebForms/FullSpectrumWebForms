@@ -1,12 +1,12 @@
-﻿using System;
+﻿using FSW;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
-using FSW;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace FSW.Core
 {
@@ -73,13 +73,14 @@ namespace FSW.Core
 
             ControlBase control;
             var page = CommunicationHub.GetPage(connectionId);
-            var serverSideLock = new AsyncLocks.UnlockedAsyncServer(page);
-            using (await serverSideLock.EnterNonExclusiveReadOnlyLock())
+            return await page.Invoke(async () =>
+            {
                 control = page.Manager.GetControl(controlId);
-            if (control is Controls.Html.ComboBox_Ajax combo)
-                return JsonConvert.SerializeObject(await combo._OnAjaxRequestFromClient(serverSideLock, searchString));
-            else
-                return null;
+                if (control is Controls.Html.ComboBox_Ajax combo)
+                    return JsonConvert.SerializeObject(await combo._OnAjaxRequestFromClient(searchString));
+                else
+                    return null;
+            }, true);
         }
         [HttpPost(nameof(OnDataGridComboBoxAjaxCall))]
         public async Task<string> OnDataGridComboBoxAjaxCall([FromBody]Newtonsoft.Json.Linq.JObject data)
@@ -91,23 +92,23 @@ namespace FSW.Core
             var connectionId = data["connectionId"].ToObject<string>();
 
             var page = CommunicationHub.GetPage(connectionId);
-            var serverSideLock = new Core.AsyncLocks.UnlockedAsyncServer(page);
-            ControlBase control;
-            using( await serverSideLock.EnterNonExclusiveReadOnlyLock() )
-                control = page.Manager.GetControl(controlId);
-            if (control is Controls.Html.IDataGrid dataGrid)
+            return await page.Invoke(async () =>
             {
-                var col = dataGrid.GetColumns()[colId];
-                if (dataGrid.MetaDatas.TryGetValue(row.ToString(), out var meta) && meta.Columns != null && meta.Columns.TryGetValue(colId, out var metaCol))
+                var control = page.Manager.GetControl(controlId);
+                if (control is Controls.Html.IDataGrid dataGrid)
                 {
-                    if (metaCol.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor metaEditor)
-                        return JsonConvert.SerializeObject(metaEditor.CallRequest(serverSideLock, searchString));
-                }
+                    var col = dataGrid.GetColumns()[colId];
+                    if (dataGrid.MetaDatas.TryGetValue(row.ToString(), out var meta) && meta.Columns != null && meta.Columns.TryGetValue(colId, out var metaCol))
+                    {
+                        if (metaCol.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor metaEditor)
+                            return JsonConvert.SerializeObject(await metaEditor.CallRequest(searchString));
+                    }
 
-                if (col?.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor editor)
-                    return JsonConvert.SerializeObject(await editor.CallRequest(serverSideLock, searchString));
-            }
-            return null;
+                    if (col?.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor editor)
+                        return JsonConvert.SerializeObject(await editor.CallRequest(searchString));
+                }
+                return null;
+            }, true);
         }
 
         [HttpGet("GenericRequest/{actionToDo}/{connectionId}/{data}", Name = nameof(GenericRequest))]

@@ -1,5 +1,4 @@
-﻿using FSW.Core.AsyncLocks;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,22 +24,9 @@ namespace FSW.Controls
 
 
 
-        public async Task<GeoCoordinate> QueryGeoCoordinate(IUnlockedAsyncServer unlockedAsyncServer)
+        public Task<GeoCoordinate> QueryGeoCoordinate()
         {
-            Task<GeoCoordinate> task;
-            using (await unlockedAsyncServer.EnterLock())
-                task = CallCustomClientEvent<GeoCoordinate>("queryGeoCoordinate");
-            return await task;
-        }
-
-        public void QueryGeoCoordinate(IUnlockedAsyncServer unlockedAsyncServer, Action<GeoCoordinate> callback)
-        {
-            var task = QueryGeoCoordinate(unlockedAsyncServer);
-
-            task.ContinueWith((geo) =>
-            {
-                callback(geo.Result);
-            });
+            return CallCustomClientEvent<GeoCoordinate>("queryGeoCoordinate");
         }
 
         public Task PerformLifeCycle()

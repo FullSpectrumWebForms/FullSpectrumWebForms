@@ -34,7 +34,7 @@ namespace FSW.Semantic.Controls.Html
         }
 
 
-        public delegate Task OnStateChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Checkbox sender);
+        public delegate Task OnStateChangedHandler(Checkbox sender);
         public event OnStateChangedHandler OnStateChanged;
 
         public Checkbox(FSWPage page = null) : base(page)
@@ -53,9 +53,9 @@ namespace FSW.Semantic.Controls.Html
             GetPropertyInternal(nameof(Checked)).OnNewValueFromClientAsync += ComboBoxState_OnNewValueFromClient;
         }
 
-        private Task ComboBoxState_OnNewValueFromClient(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
+        private Task ComboBoxState_OnNewValueFromClient(Property property, object lastValue, object newValue)
         {
-            return OnStateChanged?.Invoke(unlockedAsyncServer, this) ?? Task.CompletedTask;
+            return OnStateChanged?.Invoke(this) ?? Task.CompletedTask;
         }
 
     }

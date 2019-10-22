@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FSW.Core.AsyncLocks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -18,9 +17,9 @@ namespace TestApplication.Pages.Examples
         }
 
         public FSW.Controls.ServerSide.SmartComboBox<ComboItem> CB_Smart = new FSW.Controls.ServerSide.SmartComboBox<ComboItem>();
-        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
+        public override async Task OnPageLoad()
         {
-            await base.OnPageLoad(requireAsyncReadOnlyLock);
+            await base.OnPageLoad();
 
             CB_Smart.AvailableChoices = new[]
             {
@@ -51,10 +50,9 @@ namespace TestApplication.Pages.Examples
             CB_Smart.OnSelectedItemsChanged += CB_Smart_OnSelectedItemsChanged;
         }
 
-        private async Task CB_Smart_OnSelectedItemsChanged(IUnlockedAsyncServer unlockedAsyncServer, FSW.Controls.ServerSide.SmartComboBox<ComboItem> sender, List<ComboItem> oldItems, List<ComboItem> newItems)
+        private async Task CB_Smart_OnSelectedItemsChanged(FSW.Controls.ServerSide.SmartComboBox<ComboItem> sender, List<ComboItem> oldItems, List<ComboItem> newItems)
         {
-            using( await unlockedAsyncServer.EnterAnyLock())
-                MessageBox.Success("Changed:", string.Join(",", newItems.Select(x => x.MyCustomId + ":" + x.Text)));
+            MessageBox.Success("Changed:", string.Join(",", newItems.Select(x => x.MyCustomId + ":" + x.Text)));
         }
     }
 }

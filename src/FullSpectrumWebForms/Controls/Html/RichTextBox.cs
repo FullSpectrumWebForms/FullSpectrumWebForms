@@ -32,10 +32,10 @@ namespace FSW.Controls.Html
 
 
 
-        public delegate Task OnTextChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, RichTextBox sender, string previousText, string newText);
+        public delegate Task OnTextChangedHandler(RichTextBox sender, string previousText, string newText);
         public event OnTextChangedHandler OnTextChanged;
 
-        public delegate Task OnContentsChangedHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, RichTextBox sender, string previousText, string newText);
+        public delegate Task OnContentsChangedHandler( RichTextBox sender, string previousText, string newText);
         public event OnContentsChangedHandler OnContentsChanged;
 
         public override void InitializeProperties()
@@ -51,14 +51,14 @@ namespace FSW.Controls.Html
             GetPropertyInternal(nameof(Contents)).OnNewValueFromClientAsync += Contents_OnNewValue;
         }
 
-        private Task Text_OnNewValue(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
+        private Task Text_OnNewValue( Property property, object lastValue, object newValue)
         {
-            return OnTextChanged?.Invoke(unlockedAsyncServer, this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
+            return OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
         }
 
-        private Task Contents_OnNewValue(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Property property, object lastValue, object newValue)
+        private Task Contents_OnNewValue(Property property, object lastValue, object newValue)
         {
-            return OnContentsChanged?.Invoke(unlockedAsyncServer, this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
+            return OnContentsChanged?.Invoke(this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
         }
     }
 }

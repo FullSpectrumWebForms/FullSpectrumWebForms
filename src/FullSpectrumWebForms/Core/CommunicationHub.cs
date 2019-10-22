@@ -74,6 +74,7 @@ namespace FSW.Core
                     service.RemoveConnection(page);
             }
 
+            return Task.CompletedTask;
         }
 
         public static void SendError(FSWPage page, Exception exception)
@@ -90,9 +91,11 @@ namespace FSW.Core
             {
                 try
                 {
-                    await page.Manager.OnPropertiesChangedFromClient(changedProperties);
-                    using (await page.Manager._lock.WriterLockAsync())
+                    await page.Invoke(async () =>
+                    {
+                        await page.Manager.OnPropertiesChangedFromClient(changedProperties);
                         await ProcessPropertyChange(page.Manager);
+                    }, true);
                 }
                 catch (Exception e)
                 {
@@ -127,9 +130,11 @@ namespace FSW.Core
                 var page = CurrentPage;
                 try
                 {
-                    var res = await page.Manager.CustomControlEvent(controlId, eventName, parameters);
-
-                    await SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
+                    await page.Invoke(async () =>
+                    {
+                        var res = await page.Manager.CustomControlEvent(controlId, eventName, parameters);
+                        await SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
+                    }, true);
                 }
                 catch (Exception e)
                 {
@@ -137,7 +142,7 @@ namespace FSW.Core
                         throw;
                     else
                     {
-                        await page.OverrideErrorHandle(e);
+                        await page.Invoke(() => page.OverrideErrorHandle(e), true);
 
                         await SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(new FSWManager.CustomControlEventResult()
                         {
@@ -161,7 +166,7 @@ namespace FSW.Core
             return Task.CompletedTask;
         }
 
-        private Task CustomControlExtensionEvent_(JObject data)
+        private async Task CustomControlExtensionEvent_(JObject data)
         {
             var controlId = data["controlId"].ToObject<string>();
             var extension = data["extension"].ToObject<string>();
@@ -174,12 +179,11 @@ namespace FSW.Core
                 var page = CurrentPage;
                 try
                 {
-                    using (page.Manager._lock.WriterLock())
+                    await page.Invoke(async () =>
                     {
-                        res = page.Manager.CustomControlExtensionEvent(controlId, extension, eventName, parameters);
-
-                        return SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
-                    }
+                        res = await page.Manager.CustomControlExtensionEvent(controlId, extension, eventName, parameters);
+                        await SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
+                    }, true);
                 }
                 catch (Exception e)
                 {
@@ -187,25 +191,25 @@ namespace FSW.Core
                         throw;
                     else
                     {
-                        return page.OverrideErrorHandle(e).ContinueWith((r) =>
+                        await page.OverrideErrorHandle(e);
+                        await SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(new FSWManager.CustomControlEventResult()
                         {
-                            return SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(new FSWManager.CustomControlEventResult()
-                            {
-                                properties = new CoreServerAnswer()
-                            }));
-                        });
+                            properties = new CoreServerAnswer()
+                        }));
                     }
                 }
             }
             catch (Exception e)
             {
-                SendAsync_ID(CurrentPage.ID, "error", e.ToString());
+                await SendAsync_ID(CurrentPage.ID, "error", e.ToString());
                 throw;
             }
         }
         public Task CustomControlExtensionEvent(JObject data)
         {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             CustomControlExtensionEvent_(data);// don't await, this way we can keep processing this event and receive a new one
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
             return Task.CompletedTask;
         }
@@ -296,7 +300,7 @@ namespace FSW.Core
 
             InitializationCoreServerAnswer res;
             var manager = page.Manager;
-            res = manager.InitializePageFromClient(ConnectionId, url, urlParameters);
+            res = await manager.InitializePageFromClient(ConnectionId, url, urlParameters);
             res.SessionId = sessionId;
             res.SessionAuth = sessionAuth;
             res.ConnectionId = ConnectionId;

@@ -39,7 +39,7 @@ namespace FSW.Controls.Html
             }
         }
 
-        public delegate Task OnButtonClickedAsyncHandler(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, Button button);
+        public delegate Task OnButtonClickedAsyncHandler(Button button);
         public event OnButtonClickedAsyncHandler OnButtonClicked;
 
         public override void InitializeProperties()
@@ -51,14 +51,11 @@ namespace FSW.Controls.Html
             Text = "";
         }
 
-        private async Task Button_OnClickedAsync(Core.AsyncLocks.IUnlockedAsyncServer unlockedAsyncServer, HtmlControlBase control)
+        private async Task Button_OnClickedAsync(HtmlControlBase control)
         {
-            State state;
-            using (await (unlockedAsyncServer as Core.AsyncLocks.UnlockedAsyncServer).EnterNonExclusiveReadOnlyLock())
-                state = State;
-            if (state != State.Disabled)
+            if (State != State.Disabled)
             {
-                var task = OnButtonClicked?.Invoke(unlockedAsyncServer, this);
+                var task = OnButtonClicked?.Invoke(this);
                 if (task != null)
                     await task;
             }

@@ -1,5 +1,4 @@
-﻿using FSW.Core.AsyncLocks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
@@ -14,9 +13,9 @@ namespace TestApplication.Pages.Examples.Semantic
         public FSW.Semantic.Controls.Html.ComboBox_Ajax CB_Test = new FSW.Semantic.Controls.Html.ComboBox_Ajax();
         public FSW.Semantic.Controls.Html.ComboBox CB_Test2 = new FSW.Semantic.Controls.Html.ComboBox();
 
-        public override async Task OnPageLoad(IRequireReadOnlyLock requireAsyncReadOnlyLock)
+        public override async Task OnPageLoad()
         {
-            await base.OnPageLoad(requireAsyncReadOnlyLock);
+            await base.OnPageLoad();
 
             CB_Test.OnAjaxRequest = GetComboDatas;
             CB_Test.AllowEmptyQuery = true;
@@ -26,26 +25,24 @@ namespace TestApplication.Pages.Examples.Semantic
             CB_Test.IsMultiple = true;
             CB_Test.OnSelectedIdsAndValuesChanged += CB_Test_OnSelectedIdsAndValuesChanged;
 
-            CB_Test2.AvailableChoices = await GetComboDatas(requireAsyncReadOnlyLock, "t");
+            CB_Test2.AvailableChoices = await GetComboDatas("t");
             CB_Test2.AllowTag = true;
             CB_Test2.IsMultiple = true;
             CB_Test2.OnSelectedIdsChanged += CB_Test2_OnSelectedIdsChanged;
         }
 
-        private async Task CB_Test2_OnSelectedIdsChanged(IUnlockedAsyncServer unlockedAsyncServer, FSW.Semantic.Controls.Html.ComboBox sender, string[] oldIds, string[] newIds)
+        private async Task CB_Test2_OnSelectedIdsChanged(FSW.Semantic.Controls.Html.ComboBox sender, string[] oldIds, string[] newIds)
         {
-            using (await unlockedAsyncServer.EnterAnyLock())
-                MessageBox.Success("yes2!", string.Join(", ", newIds));
+            MessageBox.Success("yes2!", string.Join(", ", newIds));
         }
 
 
-        private async Task CB_Test_OnSelectedIdsAndValuesChanged(IUnlockedAsyncServer unlockedAsyncServer, FSW.Semantic.Controls.Html.ComboBox_Ajax sender, Dictionary<string, string> oldId, Dictionary<string, string> newId)
+        private async Task CB_Test_OnSelectedIdsAndValuesChanged(FSW.Semantic.Controls.Html.ComboBox_Ajax sender, Dictionary<string, string> oldId, Dictionary<string, string> newId)
         {
-            using (await unlockedAsyncServer.EnterAnyLock())
-                MessageBox.Success("yes!", string.Join(", ", newId.Keys));
+            MessageBox.Success("yes!", string.Join(", ", newId.Keys));
         }
 
-        private Task<Dictionary<string, string>> GetComboDatas(IRequireReadOnlyLock requireAsyncReadOnlyLock, string search)
+        private Task<Dictionary<string, string>> GetComboDatas(string search)
         {
             return Task.FromResult(new Dictionary<string, string>
             {

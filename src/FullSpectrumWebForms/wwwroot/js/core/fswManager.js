@@ -52,7 +52,7 @@ var core;
                 $('#pageIdAuth').remove();
                 $('#typePath').remove();
                 this.connection = new signalR.HubConnectionBuilder()
-                    .withUrl("/Polinet/CommunicationHub")
+                    .withUrl("/FSW/CommunicationHub")
                     .configureLogging(signalR.LogLevel.Warning).build();
                 let that = this;
                 this.connection.on("error", function (error) {
