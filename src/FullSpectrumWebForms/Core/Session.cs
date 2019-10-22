@@ -18,14 +18,14 @@ namespace FSW.Core
             Id = id;
             Auth = Guid.NewGuid().ToString();
         }
-        private readonly Dictionary<string, object> SessionObjects = new Dictionary<string, object>();
-        public object this[string key]
+        private readonly Dictionary<string, object?> SessionObjects = new Dictionary<string, object?>();
+        public object? this[string key]
         {
             get
             {
                 lock (SessionObjects)
                 {
-                    SessionObjects.TryGetValue(key, out object v);
+                    SessionObjects.TryGetValue(key, out var v);
                     return v;
                 }
             }
@@ -35,9 +35,9 @@ namespace FSW.Core
                     SessionObjects[key] = value;
             }
         }
-        public T GetObject<T>(string key)
+        public T? GetObject<T>(string key) where T: class
         {
-            return (T)this[key];
+            return (T?)this[key];
         }
         public void RegisterNewPage(FSWPage page)
         {
@@ -74,11 +74,11 @@ namespace FSW.Core
                 Sessions.Add(id, session);
             return session;
         }
-        public static Session GetSession(string id, string auth)
+        public static Session? GetSession(string id, string auth)
         {
             lock (Lock_)
             {
-                Sessions.TryGetValue(id, out Session session);
+                Sessions.TryGetValue(id, out var session);
                 if (session?.Auth != auth)
                     return null;
                 return session;
@@ -86,7 +86,7 @@ namespace FSW.Core
         }
         public static void ClearTimedOutSessions()
         {
-            List<Session> sessionsToDelete = new List<Session>();
+            var sessionsToDelete = new List<Session>();
             var now = DateTime.Now;
             lock (Lock_)
             {

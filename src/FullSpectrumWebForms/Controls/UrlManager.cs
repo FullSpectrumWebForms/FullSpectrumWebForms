@@ -9,7 +9,7 @@ namespace FSW.Controls
     public class UrlManager : ControlBase
     {
         public string Url { get; private set; }
-        public IReadOnlyDictionary<string, string> Parameters { get; private set; }
+        public IReadOnlyDictionary<string, string>? Parameters { get; private set; }
 
 
         internal UrlManager(string url, Dictionary<string, string> parameters)
@@ -39,7 +39,7 @@ namespace FSW.Controls
             UpdateUrlWithoutReloading(Url, copyOfOldParameters);
         }
 
-        public void UpdateUrlWithoutReloading(string url, Dictionary<string, string> parameters = null)
+        public void UpdateUrlWithoutReloading(string url, Dictionary<string, string>? parameters = null)
         {
             Url = url;
             Parameters = parameters;
@@ -51,7 +51,7 @@ namespace FSW.Controls
             });
         }
 
-        public void UpdateUrlAndReload(string url, Dictionary<string, string> parameters = null)
+        public void UpdateUrlAndReload(string url, Dictionary<string, string>? parameters = null)
         {
             CallCustomClientEvent("redirect", new
             {
@@ -60,7 +60,7 @@ namespace FSW.Controls
             });
         }
 
-        public void OpenNewTab(string url, Dictionary<string, string> parameters = null)
+        public void OpenNewTab(string url, Dictionary<string, string>? parameters = null)
         {
             CallCustomClientEvent("openNewTab", new
             {

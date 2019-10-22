@@ -64,48 +64,52 @@ namespace FSW.Core
     [Route("FSW/[controller]")]
     public class CoreServices : Controller
     {
-        [HttpPost(nameof(OnComboBoxAjaxCall))]
-        public async Task<string> OnComboBoxAjaxCall([FromBody] Newtonsoft.Json.Linq.JObject data)
+        public class OnComboBoxAjaxCallParameters
         {
-            var controlId = data["controlId"].ToObject<string>();
-            var searchString = data["searchString"].ToObject<string>();
-            var connectionId = data["connectionId"].ToObject<string>();
-
+            public string controlId { get; set; }
+            public string searchString { get; set; }
+            public string connectionId { get; set; }
+        }
+        [HttpPost(nameof(OnComboBoxAjaxCall))]
+        public string OnComboBoxAjaxCall([FromBody] OnComboBoxAjaxCallParameters data)
+        {
             ControlBase control;
-            var page = CommunicationHub.GetPage(connectionId);
+            var page = CommunicationHub.GetPage(data.connectionId);
             return await page.Invoke(async () =>
             {
-                control = page.Manager.GetControl(controlId);
+                control = page.Manager.GetControl(data.controlId);
                 if (control is Controls.Html.ComboBox_Ajax combo)
-                    return JsonConvert.SerializeObject(await combo._OnAjaxRequestFromClient(searchString));
+                    return JsonConvert.SerializeObject(await combo._OnAjaxRequestFromClient(data.searchString));
                 else
                     return null;
             }, true);
         }
-        [HttpPost(nameof(OnDataGridComboBoxAjaxCall))]
-        public async Task<string> OnDataGridComboBoxAjaxCall([FromBody]Newtonsoft.Json.Linq.JObject data)
+        public class OnDataGridComboBoxAjaxCallParameters
         {
-            var controlId = data["controlId"].ToObject<string>();
-            var searchString = data.TryGetValue("searchString", out var searchString_) ? searchString_.ToObject<string>() : null;
-            var colId = data["colId"].ToObject<string>();
-            var row = data["row"].ToObject<int>();
-            var connectionId = data["connectionId"].ToObject<string>();
-
-            var page = CommunicationHub.GetPage(connectionId);
+            public string controlId { get; set; }
+            public string searchString { get; set; }
+            public string colId { get; set; }
+            public int row { get; set; }
+            public string connectionId { get; set; }
+        }
+        [HttpPost(nameof(OnDataGridComboBoxAjaxCall))]
+        public string OnDataGridComboBoxAjaxCall([FromBody] OnDataGridComboBoxAjaxCallParameters data)
+        {
+            var page = CommunicationHub.GetPage(data.connectionId);
             return await page.Invoke(async () =>
             {
-                var control = page.Manager.GetControl(controlId);
+                var control = page.Manager.GetControl(data.controlId);
                 if (control is Controls.Html.IDataGrid dataGrid)
                 {
-                    var col = dataGrid.GetColumns()[colId];
-                    if (dataGrid.MetaDatas.TryGetValue(row.ToString(), out var meta) && meta.Columns != null && meta.Columns.TryGetValue(colId, out var metaCol))
+                    var col = dataGrid.GetColumns()[data.colId];
+                    if (dataGrid.MetaDatas.TryGetValue(data.row.ToString(), out var meta) && meta.Columns != null && meta.Columns.TryGetValue(data.colId, out var metaCol))
                     {
                         if (metaCol.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor metaEditor)
-                            return JsonConvert.SerializeObject(await metaEditor.CallRequest(searchString));
+                            return JsonConvert.SerializeObject(await metaEditor.CallRequest(data.searchString));
                     }
 
                     if (col?.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor editor)
-                        return JsonConvert.SerializeObject(await editor.CallRequest(searchString));
+                        return JsonConvert.SerializeObject(await editor.CallRequest(data.searchString));
                 }
                 return null;
             }, true);
