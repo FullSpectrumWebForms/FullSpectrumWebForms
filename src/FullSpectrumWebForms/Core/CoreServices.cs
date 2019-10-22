@@ -71,7 +71,7 @@ namespace FSW.Core
             public string connectionId { get; set; }
         }
         [HttpPost(nameof(OnComboBoxAjaxCall))]
-        public string OnComboBoxAjaxCall([FromBody] OnComboBoxAjaxCallParameters data)
+        public async Task<string> OnComboBoxAjaxCall([FromBody] OnComboBoxAjaxCallParameters data)
         {
             ControlBase control;
             var page = CommunicationHub.GetPage(data.connectionId);
@@ -93,7 +93,7 @@ namespace FSW.Core
             public string connectionId { get; set; }
         }
         [HttpPost(nameof(OnDataGridComboBoxAjaxCall))]
-        public string OnDataGridComboBoxAjaxCall([FromBody] OnDataGridComboBoxAjaxCallParameters data)
+        public async Task<string> OnDataGridComboBoxAjaxCall([FromBody] OnDataGridComboBoxAjaxCallParameters data)
         {
             var page = CommunicationHub.GetPage(data.connectionId);
             return await page.Invoke(async () =>
