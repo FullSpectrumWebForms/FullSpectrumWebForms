@@ -175,7 +175,8 @@ var gen;
                         that.columnFilters[columnId] = $.trim($(this).val());
                         if (that.columnFilters[columnId].length == 0)
                             delete that.columnFilters[columnId];
-                        that.dataView.refresh();
+                        if (that.options.onSearchChanged)
+                            that.options.onSearchChanged();
                     }
                 });
                 this.grid.onHeaderRowCellRendered.subscribe(function (e, args) {
@@ -218,16 +219,16 @@ var gen;
         ToggleFormatter(value, spacer, data) {
             if (!value)
                 value = '';
-            value = value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            //value = value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             var idx = this.dataView.getIdxById(data.id);
             if (this.options.data[idx + 1] && this.options.data[idx + 1].indent > this.options.data[idx].indent) {
                 if (data._collapsed)
-                    return spacer + " <span class='toggle expand' style='width:10px'></span>&nbsp;" + value;
+                    return spacer + " <span class='toggle expand' style='width:10px; margin-right: 5px'></span>" + value;
                 else
-                    return spacer + " <span class='toggle collapse'style='width:10px'></span>&nbsp;" + value;
+                    return spacer + " <span class='toggle collapse'style='width:10px; margin-right: 5px'></span>" + value;
             }
             else
-                return spacer + " <span class='toggle'></span>&nbsp;" + value;
+                return spacer + " <span class='toggle'></span>" + value;
         }
         GroupSpacerFormatter(data) {
             return "<span style='display:inline-block;height:1px;width:" + (15 * data.indent) + "px'></span>";
@@ -241,30 +242,8 @@ var gen;
                     parent = this.options.data[parent.parent];
                 }
             }
-            if (this.options.activateHeaderSearchBoxes) {
-                var index = this.dataView.getItems().indexOf(item);
-                let keys = Object.keys(this.columnFilters);
-                for (let i = 0; i < keys.length; ++i) {
-                    let obj = keys[i];
-                    let cols = this.grid.getColumns();
-                    let colIndex_ = cols.findIndex(x => x.id == obj);
-                    var colIndex = this.grid.getColumnIndex(obj);
-                    var col = this.grid.getColumns()[colIndex];
-                    var value = this._getDisplayValue(index, colIndex, item, col) + '';
-                    var searchCond = false;
-                    var searchText = this.columnFilters[obj].toLocaleLowerCase();
-                    if (searchText.startsWith('!')) {
-                        searchText = searchText.substr(1);
-                        searchCond = true;
-                    }
-                    if (searchText.length == 0 && searchCond) {
-                        if (value.length != 0)
-                            return false;
-                    }
-                    else if (value.toLocaleLowerCase().includes(searchText) == searchCond)
-                        return false;
-                }
-            }
+            if (this.options.activateHeaderSearchBoxes)
+                return !item.datas.FilterOut;
             if (this.options.filter)
                 return this.options.filter(item, args);
             return true;

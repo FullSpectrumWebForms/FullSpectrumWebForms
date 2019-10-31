@@ -265,7 +265,12 @@ namespace FSW.Semantic.Controls.Html
         {
             if (lastValue is JObject lastValueDictionary)
                 lastValue = lastValueDictionary.ToObject<Dictionary<string, string>>();
-            OnSelectedIdsAndValuesChanged?.Invoke(this, (Dictionary<string, string>)lastValue, ((JObject)newValue)?.ToObject<Dictionary<string, string>>());
+            var newValueDic = ((JObject)newValue)?.ToObject<Dictionary<string, string>>();
+
+            if (newValueDic.Remove(""))
+                SelectedIdsAndValues = newValueDic;
+
+            OnSelectedIdsAndValuesChanged?.Invoke(this, (Dictionary<string, string>)lastValue, newValueDic);
         }
 
         private void OnSelectedIdAndValueChangedFromClient(Property property, object lastValue, object newValue)

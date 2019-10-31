@@ -22,6 +22,12 @@ namespace FSW.Controls.Html
 
         [JsonIgnore]
         public DataGridBase Parent { get; set; }
+
+        [DataGridColumn.IgnoreColumn]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public bool FilterOut = false;
+
+        public virtual bool IgnoreFilterAndAlwaysShow => false;
     }
     [Serializable]
     public class DataGridColumn
@@ -52,6 +58,8 @@ namespace FSW.Controls.Html
             public Action<DataGridColumn, object, object> ApplyNewValue;
             [JsonIgnore]
             public Func<DataGridColumn, object, object> ParseNewInputValue_SecondPass;
+            [JsonIgnore]
+            public Func<DataGridColumn, DataGridBase, string> GetValue;
 
             public EditorBase()
             {
@@ -65,13 +73,23 @@ namespace FSW.Controls.Html
                 type = underlaying ?? type;
                 return value != null ? Convert.ChangeType(value, type, CultureInfo.InvariantCulture) : null;
             }
-
+            public virtual object GetValueDefault(DataGridColumn colDef, DataGridBase item)
+            {
+                return item.GetType().GetField(colDef.Field).GetValue(item);
+            }
             public static void ApplyDictionaryValue(DataGridColumn colDef, object item, object newValue)
             {
                 var field = item.GetType().GetField(colDef.Field.Substring(0, colDef.Field.LastIndexOf('.')));
                 var dict = field.GetValue(item) as System.Collections.IDictionary;
                 var dictField = colDef.Field.Substring(colDef.Field.LastIndexOf('.') + 1);
                 dict[dictField] = newValue;
+            }
+            public static string GetDictionaryValue(DataGridColumn colDef, object item, object newValue)
+            {
+                var field = item.GetType().GetField(colDef.Field.Substring(0, colDef.Field.LastIndexOf('.')));
+                var dict = field.GetValue(item) as System.Collections.IDictionary;
+                var dictField = colDef.Field.Substring(colDef.Field.LastIndexOf('.') + 1);
+                return dict[dictField]?.ToString();
             }
 
             public abstract EditorBase Clone();
@@ -82,6 +100,12 @@ namespace FSW.Controls.Html
                 other.ApplyNewValue = ApplyNewValue;
                 other.ParseNewInputValue_SecondPass = ParseNewInputValue_SecondPass;
                 return other;
+            }
+
+            public virtual string GetDisplayText(DataGridColumn colDef, DataGridBase item)
+            {
+                var value = GetValue == null ? GetValueDefault(colDef, item) : GetValue(colDef, item);
+                return value?.ToString();
             }
         }
         public class TextEditor : EditorBase
@@ -138,12 +162,35 @@ namespace FSW.Controls.Html
             {
                 if (value == null)
                     return null;
-                return TimeSpan.FromHours(Convert.ToDouble(value));
+                if (colDef.RawType == typeof(TimeSpan) || colDef.RawType == typeof(TimeSpan?))
+                    return TimeSpan.FromHours(Convert.ToDouble(value));
+                else
+                    return (colDef.RawType == typeof(double) || colDef.RawType == typeof(double?)) ? Convert.ToDouble(value) : (float)Convert.ToDouble(value);
             }
         }
         public class TimeSpanHoursEditorAttribute : Attribute
         {
             public bool Format = true;
+        }
+        public class TextReplaceEditor : EditorBase
+        {
+            public string Text;
+
+            public TextReplaceEditor()
+            {
+            }
+            public TextReplaceEditor(string text)
+            {
+                Text = text;
+            }
+
+            public override EditorBase Clone()
+            {
+                return CloneInto(new ButtonEditor()
+                {
+                    Text = Text
+                });
+            }
         }
         public class ButtonEditor : EditorBase
         {
@@ -158,6 +205,10 @@ namespace FSW.Controls.Html
                     Text = Text,
                     TextDisabled = TextDisabled
                 });
+            }
+            public override string GetDisplayText(DataGridColumn colDef, DataGridBase item)
+            {
+                return Text;
             }
         }
         public class ButtonEditorAttribute : Attribute
@@ -190,7 +241,10 @@ namespace FSW.Controls.Html
             {
                 if (value == null)
                     return null;
-                return TimeSpan.FromHours(Convert.ToDouble(value));
+                if (colDef.RawType == typeof(TimeSpan) || colDef.RawType == typeof(TimeSpan?))
+                    return TimeSpan.FromHours(Convert.ToDouble(value));
+                else
+                    return (colDef.RawType == typeof(double) || colDef.RawType == typeof(double?)) ? Convert.ToDouble(value) : (float)Convert.ToDouble(value);
             }
         }
         public class TimeSpanEditorAttribute : Attribute
@@ -312,6 +366,13 @@ namespace FSW.Controls.Html
                     return (value as object[]).OfType<string>().ToArray();
                 return value;
             }
+            public override string GetDisplayText(DataGridColumn colDef, DataGridBase item)
+            {
+                var value = (string)GetValueDefault(colDef, item);
+                if (value == null)
+                    return "";
+                return AvailableChoices.TryGetValue(value, out var v) ? v : "";
+            }
         }
         public class ComboBoxAjaxEditor : EditorBase
         {
@@ -356,6 +417,12 @@ namespace FSW.Controls.Html
                     var dic = ((JObject)value);
                     return new KeyValuePair<string, string>((string)dic["id"], (string)dic["value"]);
                 }
+            }
+            public override string GetDisplayText(DataGridColumn colDef, DataGridBase item)
+            {
+                var value = (KeyValuePair<string, string>?)GetValueDefault(colDef, item);
+                return value?.Value;
+
             }
         }
         public class MetaDataColumn
@@ -479,6 +546,8 @@ namespace FSW.Controls.Html
         }
 
 
+        private ControlPropertyDictionary<string> ColumnFilters_;
+        public IReadOnlyDictionary<string, string> ColumnFilters => ColumnFilters_;
 
         public ControlPropertyDictionary<DataGridColumn> Columns { get; private set; }
         private Type RawDataType;
@@ -530,6 +599,7 @@ namespace FSW.Controls.Html
                 RefreshDatas();
             }
         }
+        public IEnumerable<DataType> FilteredDatas => Datas.Where(x => !x.FilterOut);
 
         public delegate void OnGenerateMetasDataHandler(int row, DataType item, out DataGridColumn.MetaData metaData);
         public event OnGenerateMetasDataHandler OnGenerateMetasData;
@@ -597,6 +667,7 @@ namespace FSW.Controls.Html
         {
             if (!skipMetaDatasGeneration)
                 RefreshMetaDatas();
+
             SendNewDatasToClient();
         }
 
@@ -619,11 +690,54 @@ namespace FSW.Controls.Html
 
         private void SendNewDatasToClient()
         {
-            if (EnableTreeTableView)
+            if (EnableTreeTableView || (ShowSearchHeader && ColumnFilters.Count != 0))
             {
                 for (var i = 0; i < Datas.Count; ++i)
                 {
                     var data = Datas[i];
+
+                    if (!data.IgnoreFilterAndAlwaysShow)
+                    {
+                        data.FilterOut = false;
+
+                        foreach (var col in ColumnFilters)
+                        {
+                            if (!Columns.TryGetValue(col.Key, out var colDef))
+                                continue;
+
+                            DataGridColumn.MetaDataColumn meta = null;
+                            if (MetaDatas.TryGetValue(i.ToString(), out var metaRow))
+                                metaRow?.Columns?.TryGetValue(col.Key, out meta);
+
+                            var text = meta?.Prepend ?? colDef?.Prepend ?? "";
+                            if (meta?.Editor != null)
+                                text += meta.Editor.GetDisplayText(colDef, data) ?? "";
+                            else if (colDef.Editor != null)
+                                text += colDef.Editor.GetDisplayText(colDef, data) ?? "";
+                            else
+                                text += data.GetType().GetField(colDef.Field).GetValue(data)?.ToString() ?? "";
+
+                            text += meta?.Append ?? colDef.Append ?? "";
+
+                            if (col.Value.StartsWith("!"))
+                            {
+                                if (text.ToLower().Contains(col.Value.Substring(1).ToLower()))
+                                {
+                                    data.FilterOut = true;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                if (!text.ToLower().Contains(col.Value.ToLower()))
+                                {
+                                    data.FilterOut = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
                     if (data.Parent != null)
                         data._Parent = Datas.IndexOf((DataType)data.Parent, 0, i);
                 }
@@ -799,8 +913,6 @@ namespace FSW.Controls.Html
             }
             else if (type.IsEquivalentTo(typeof(TimeSpan)))
             {
-
-
                 var attributes = fieldInfo?.GetCustomAttributes(typeof(DataGridColumn.TimeSpanEditorAttribute), true);
                 if (attributes != null && attributes.Length != 0)
                 {
@@ -910,6 +1022,7 @@ namespace FSW.Controls.Html
             base.InitializeProperties();
 
             Columns = new Utility.ControlPropertyDictionary<DataGridColumn>(this, nameof(Columns));
+            ColumnFilters_ = new ControlPropertyDictionary<string>(this, nameof(ColumnFilters));
             MetaDatas = new MetaDatasCollection(this, nameof(MetaDatas));
             AllowEdit = false;
             UseSingleClickEdit = false;
@@ -917,6 +1030,13 @@ namespace FSW.Controls.Html
             AutoEnterEdit = true;
             ShowSearchHeader = false;
             EnableTreeTableView = false;
+
+            GetPropertyInternal(nameof(ColumnFilters)).OnNewValueFromClient += ColumnFilters_OnNewValueFromClient;
+        }
+
+        private void ColumnFilters_OnNewValueFromClient(Property property, object lastValue, object newValue)
+        {
+            RefreshDatas();
         }
 
         public ControlPropertyDictionary<DataGridColumn> GetColumns()

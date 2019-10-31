@@ -45,6 +45,21 @@ namespace controls.html.dataGrid {
                 };
             }
         }
+        export class TextReplaceEditor extends baseEditor {
+            Text: string;
+
+            setup(col: Slick.Column<gen.treeTableData>, grid: dataGrid) {
+                super.setup(col, grid);
+
+                col.formatter = this.formatter.bind(this);
+            }
+            formatter(row: number, cell: number, value: string, columnDef: Slick.Column<any>, dataContext: Slick.SlickData) {
+                return this.Text;
+            }
+            onBeforeEditCell(e: Slick.EventData, data: Slick.OnBeforeEditCellEventArgs<gen.treeTableData>) {
+                return false;
+            }
+        }
         export class TimeSpanEditor extends baseEditor {
 
             EditorFormat: string;
@@ -205,9 +220,9 @@ namespace controls.html.dataGrid {
                 }
 
                 if (value)
-                    return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" checked />';
+                    return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" checked style="width: 17px; height: 17px"/>';
                 else
-                    return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" />';
+                    return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" style="width: 17px; height: 17px" />';
             }
         }
 
@@ -267,7 +282,7 @@ namespace controls.html.dataGrid {
             }
 
             formatter(row: number, cell: number, value: number, columnDef: Slick.Column<any>, dataContext: Slick.SlickData) {
-                if (value) {
+                if (value || value == 0) {
                     if (typeof value == 'string') {
                         try {
                             value = parseFloat(value);
@@ -596,6 +611,13 @@ namespace controls.html.dataGrid {
         set EnableTreeTableView(value: boolean) {
             this.setPropertyValue<this>("EnableTreeTableView", value);
         }
+        // ------------------------------------------------------------------------   ColumnFilters
+        get ColumnFilters(): { [id: string]: string } {
+            return this.getPropertyValue<this, { [id: string]: string }>("ColumnFilters");
+        }
+        set ColumnFilters(value: { [id: string]: string }) {
+            this.setPropertyValue<this>("ColumnFilters", value);
+        }
 
         // ------------------------------------------------------------------------   Columns
         get Columns(): { [name: string]: dataGridColumn } {
@@ -809,8 +831,10 @@ namespace controls.html.dataGrid {
                     autoEdit: this.UseSingleClickEdit,
                     forceFitColumns: this.ForceAutoFit,
                 },
-                hideExport: this.tryGetPropertyValue('HideExportContextMenu')
+                hideExport: this.tryGetPropertyValue('HideExportContextMenu'),
+                onSearchChanged: this.onFilterChangedInTreeTable.bind(this)
             } as gen.treeTableOptions<gen.treeTableData>);
+            this.treeTable.columnFilters = this.ColumnFilters;
             this.treeTable._create();
 
             this.treeTable.grid.onActiveCellChanged.subscribe(this.onActiveCellChangedFromClient.bind(this));
@@ -835,10 +859,15 @@ namespace controls.html.dataGrid {
                 }).observe(that.element[0]);
             }
         }
+        onFilterChangedInTreeTable() {
+            this.ColumnFilters = this.treeTable.columnFilters;
+        }
         onCellClicked(e: DOMEvent, data: Slick.OnClickEventArgs<gen.treeTableData>) {
 
+
+            var row = this.treeTable.dataView.getIdxById(this.treeTable.dataView.getItem(data.row).id);
             // check click for buttons and checkbox
-            let rowMeta = this.MetaDatas[data.row];
+            let rowMeta = this.MetaDatas[row];
             if (rowMeta && rowMeta.Columns) {
                 let colMeta = rowMeta.Columns[this.treeTable.grid.getColumns()[data.cell].id];
                 if (colMeta && colMeta.EditorInfo) {
