@@ -220,8 +220,6 @@ namespace FSW.Core
                 AddNewProperty(name, value);
         }
 
-        public IEnumerable<Property> ChangeProperties => Properties.Values.Where(x => x.HasValueChanged);
-
         public virtual string ControlType => GetType().Name;
         public string ControlType_
         {
@@ -232,11 +230,11 @@ namespace FSW.Core
         public class ServerToClientCustomEvent
         {
             public string Name;
-            public object Parameters;
+            public object? Parameters;
             [Newtonsoft.Json.JsonProperty(DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Ignore)]
             public int? ReturnId;
 
-            public ServerToClientCustomEvent(string name, object parameters = null, int? returnId = null)
+            public ServerToClientCustomEvent(string name, object? parameters = null, int? returnId = null)
             {
                 Name = name ?? throw new ArgumentNullException(nameof(name));
                 Parameters = parameters;
@@ -245,11 +243,12 @@ namespace FSW.Core
         }
         private List<ServerToClientCustomEvent> PendingCustomEvents = new List<ServerToClientCustomEvent>();
         private Dictionary<int, Func<Newtonsoft.Json.Linq.JProperty, Task>> AwaitingAnswerEvents = new Dictionary<int, Func<Newtonsoft.Json.Linq.JProperty, Task>>();
-        internal protected void CallCustomClientEvent(string name, object parameters = null)
+        internal protected void CallCustomClientEvent(string name, object? parameters = null)
         {
             PendingCustomEvents.Add(new ServerToClientCustomEvent(name, parameters));
+            Page.Manager.RegisterCustomClientEvent(this);
         }
-        internal protected void CallCustomClientEvent<T>(string name, Func<T, Task> callback, object parameters = null)
+        internal protected void CallCustomClientEvent<T>(string name, Func<T, Task> callback, object? parameters = null)
         {
             int id;
             do
@@ -259,6 +258,7 @@ namespace FSW.Core
             while (AwaitingAnswerEvents.ContainsKey(id));
 
             PendingCustomEvents.Add(new ServerToClientCustomEvent(name, parameters, id));
+            Page.Manager.RegisterCustomClientEvent(this);
 
             AwaitingAnswerEvents[id] = (obj) =>
             {
@@ -271,7 +271,7 @@ namespace FSW.Core
             };
         }
 
-        internal protected Task<T> CallCustomClientEvent<T>(string name, object parameters = null)
+        internal protected Task<T> CallCustomClientEvent<T>(string name, object? parameters = null)
         {
             return Page.Invoke(() =>
             {

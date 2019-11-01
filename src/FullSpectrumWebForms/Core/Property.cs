@@ -13,7 +13,6 @@ namespace FSW.Core
         public Property(string name)
         {
             Name = name;
-            HasValueChanged = false;
         }
 
         /// <summary>
@@ -26,10 +25,6 @@ namespace FSW.Core
         /// </summary>
         public string Name { get; private set; }
 
-        /// <summary>
-        /// True if the value of this property have changed since the beginning of this postback call
-        /// </summary>
-        public bool HasValueChanged { get; set; }
         /// <summary>
         /// The last knowned value of the property, before any change
         /// </summary>
@@ -48,7 +43,7 @@ namespace FSW.Core
                 LastValue = Value_;
                 if (Control.IsInitializing)
                     return;
-                HasValueChanged = true;
+                Control.Page.Manager.RegisterPropertyChange(this);
             }
         }
 
@@ -68,15 +63,6 @@ namespace FSW.Core
 
         public Func<object, object> ParseValueFromClient;
         public Func<object, object> ParseValueToClient;
-
-        /// <summary>
-        /// Raise a <see cref="OnNewValue"/> event. Obviously this is called for a <see cref="UpdateSource.Server"/> update
-        /// </summary>
-        public void UpdateValue()
-        {
-            LastValue = Value;
-            HasValueChanged = true;
-        }
 
         public static object ParseStringDictionary(object value)
         {

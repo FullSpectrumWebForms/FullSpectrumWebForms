@@ -17,7 +17,7 @@ namespace FSW.Core
         public Dictionary<string, ControlBase> Controls = new Dictionary<string, ControlBase>();
         public List<KeyValuePair<int, ControlBase>> PendingNewControls = new List<KeyValuePair<int, ControlBase>>();
         public List<string> PendingDeletionControls = new List<string>();
-
+        private Dictionary<string, List<Property>> ChangedControls = new Dictionary<string, List<Property>>();
 
         public ControlBase GetControl(string controlId)
         {
@@ -36,6 +36,18 @@ namespace FSW.Core
                 return control as T ?? throw new ArgumentException("Control cannot be casted:" + controlId); // return the control and ensure it's the right type
             throw new KeyNotFoundException($"Control not found: {controlId}");
 
+        }
+
+        internal void RegisterPropertyChange(Property property)
+        {
+            var control = property.Control;
+            if (control.NewlyAddedDynamicControl)
+                return;
+
+            if (!ChangedControls.TryGetValue(control.Id, out var properties))
+                ChangedControls[control.Id] = new List<Property> { property };
+            else if (!properties.Contains(property))
+                properties.Add(property);
         }
 
         /// <summary>
@@ -255,6 +267,15 @@ namespace FSW.Core
                 properties = changes
             };
         }
+
+        internal void RegisterCustomClientEvent(ControlBase control)
+        {
+            if (control.NewlyAddedDynamicControl)
+                return;
+            if (!ChangedControls.ContainsKey(control.Id))
+                ChangedControls[control.Id] = new List<Property>();
+        }
+
         public delegate void OnBeforeServerUnlockedHandler(FSWPage page);
         public event OnBeforeServerUnlockedHandler OnBeforeServerUnlocked;
 
@@ -270,18 +291,19 @@ namespace FSW.Core
             var answer = new CoreServerAnswer();
 
             // for each controls
-            foreach (var control in Controls)
+            foreach (var controlAndProperties in ChangedControls)
             {
-                if (control.Value.NewlyAddedDynamicControl)
+                var control = GetControl(controlAndProperties.Key);
+                if (control.NewlyAddedDynamicControl)// shouldn't happen, just to be sure
                     continue;
 
                 var controlProperties = new ExistingControlProperty()
                 {
-                    id = control.Key
+                    id = control.Id
                 };
 
                 // for each properties that has changed in the control
-                foreach (var property in forceAllProperties ? control.Value.Properties.Values : control.Value.ChangeProperties)
+                foreach (var property in controlAndProperties.Value)
                 {
                     // add the property to be sent to client
                     controlProperties.properties.Add(new ControlProperty_NoId()
@@ -289,16 +311,13 @@ namespace FSW.Core
                         property = property.Name,
                         value = property.ParseValueToClient == null ? property.Value : property.ParseValueToClient(property.Value)
                     });
-                    // call the update from server event
-                    property.UpdateValue();
-                    property.HasValueChanged = false; // and then mark as not changed anymore, because we've seen it
                 }
-                if (controlProperties.properties.Count != 0)
-                    answer.ChangedProperties.Add(controlProperties);
 
-                var events = control.Value.ExtractPendingCustomEvents();
+                answer.ChangedProperties.Add(controlProperties);
+
+                var events = control.ExtractPendingCustomEvents();
                 if (events.Count != 0)
-                    answer.CustomEvents[control.Key] = events;
+                    answer.CustomEvents[control.Id] = events;
 
             }
 
@@ -418,7 +437,6 @@ namespace FSW.Core
 
                 foreach (var property in control.Properties.Values)
                 {
-                    property.HasValueChanged = false;
                     // get all the properties
                     properties.Add(new ControlProperty_NoId()
                     {
