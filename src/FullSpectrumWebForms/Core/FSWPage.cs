@@ -234,7 +234,7 @@ namespace FSW.Core
                             else
                                 CommunicationHub.SendError(Page, e);
                         }
-                        catch (Exception e2)
+                        catch (Exception)
                         {
                             CommunicationHub.SendError(Page, e);
                         }
