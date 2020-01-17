@@ -499,6 +499,9 @@ namespace FSW.Controls.Html
         IReadOnlyDictionary<string, DataGridColumn.MetaData> MetaDatas { get; }
 
         bool HideExportContextMenu { get; set; }
+
+        public delegate void OnCellChangedHandler(DataGridColumn col, int row, object item, object newValue);
+        public event OnCellChangedHandler OnGenericCellChanged;
     }
     public class DataGrid<DataType> : HtmlControlBase, IDataGrid where DataType : DataGridBase
     {
@@ -558,6 +561,7 @@ namespace FSW.Controls.Html
         public delegate void OnButtonCellClickedHandler(DataGridColumn col, int row, DataType item);
         public event OnButtonCellClickedHandler OnButtonCellClicked;
 
+
         private event OnActiveCellChangedHandler OnActiveCellChanged_;
         public delegate void OnActiveCellChangedHandler(DataGridColumn col, int row, DataType item);
         public event OnActiveCellChangedHandler OnActiveCellChanged
@@ -603,6 +607,8 @@ namespace FSW.Controls.Html
 
         public delegate void OnGenerateMetasDataHandler(int row, DataType item, out DataGridColumn.MetaData metaData);
         public event OnGenerateMetasDataHandler OnGenerateMetasData;
+
+        public event IDataGrid.OnCellChangedHandler OnGenericCellChanged;
 
         public virtual void RefreshRow(int row, bool skipMetaDatasGeneration = false)
         {
@@ -820,6 +826,7 @@ namespace FSW.Controls.Html
                 field.SetValue(item, realValue);
             }
 
+            OnGenericCellChanged?.Invoke(colDef, row, item, realValue);
             OnCellChanged?.Invoke(colDef, row, item, realValue);
 
             return realValue;

@@ -45,7 +45,7 @@ namespace FSW.Core
 
         public abstract void ConfigureServices(IServiceCollection services);
 
-        public abstract void Configure(IApplicationBuilder app, IHostingEnvironment env);
+        public abstract void Configure(IApplicationBuilder app, IWebHostEnvironment env);
 
     }
 }

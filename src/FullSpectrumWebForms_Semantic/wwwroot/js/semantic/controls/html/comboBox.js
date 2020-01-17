@@ -263,12 +263,15 @@ var controls;
                 if (this.skipChange)
                     return;
                 if (this.IsMultiple) {
-                    let values = this.element.dropdown('get value').split(',');
-                    let texts = values.map(x => $(this.element.dropdown('get item', x)).text());
-                    let obj = {};
-                    for (let i = 0; i < values.length; ++i)
-                        obj[values[i]] = texts[i];
-                    this.SelectedIdsAndValues = obj;
+                    let that = this;
+                    setTimeout(function () {
+                        let values = that.element.dropdown('get value').split(',');
+                        let texts = values.map(x => $(that.element.dropdown('get item', x)).text());
+                        let obj = {};
+                        for (let i = 0; i < values.length; ++i)
+                            obj[values[i]] = texts[i];
+                        that.SelectedIdsAndValues = obj;
+                    }, 100);
                 }
                 else {
                     let value = this.element.dropdown('get value');

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace TestApplication
 {
@@ -24,12 +25,16 @@ namespace TestApplication
             FSW.Core.Startup.ConfigureServices(services);
 
 
-            var mvc = services.AddMvc();
+            var mvc = services.AddMvc(options =>
+            {
+                options.EnableEndpointRouting = false;
+            });
+
             FSW.Core.Startup.ConfigureMvc(mvc);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             FSW.Core.Startup.Configure(app, env);
 

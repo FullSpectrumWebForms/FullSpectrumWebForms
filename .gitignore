@@ -44,3 +44,6 @@
 /doc/FSWDocumentation/bin
 /doc/FSWDocumentation/obj
 /doc/FSWDocumentation/bin
+/TestBlazor/bin/Debug/netcoreapp3.0
+/TestBlazor/obj/Debug/netcoreapp3.0
+/TestBlazor/obj

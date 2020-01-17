@@ -301,15 +301,18 @@
 
             if (this.IsMultiple) {
 
-                let values = (this.element as any).dropdown('get value').split(',');
-                let texts = values.map(x => $((this.element as any).dropdown('get item', x)).text())
+                let that = this;
+                setTimeout(function () { // the timeout fix a bug with the 'get item' not returning the all the values correctly
+                    let values = (that.element as any).dropdown('get value').split(',');
+                    let texts = values.map(x => $((that.element as any).dropdown('get item', x)).text())
 
-                let obj: any = {};
+                    let obj: any = {};
 
-                for (let i = 0; i < values.length; ++i)
-                    obj[values[i]] = texts[i];
+                    for (let i = 0; i < values.length; ++i)
+                        obj[values[i]] = texts[i];
 
-                this.SelectedIdsAndValues = obj;
+                    that.SelectedIdsAndValues = obj;
+                }, 100);
 
             }
             else {
