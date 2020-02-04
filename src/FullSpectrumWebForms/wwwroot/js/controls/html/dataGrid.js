@@ -38,6 +38,19 @@ var controls;
                     }
                 }
                 editors.TextEditor = TextEditor;
+                class TextReplaceEditor extends baseEditor {
+                    setup(col, grid) {
+                        super.setup(col, grid);
+                        col.formatter = this.formatter.bind(this);
+                    }
+                    formatter(row, cell, value, columnDef, dataContext) {
+                        return this.Text;
+                    }
+                    onBeforeEditCell(e, data) {
+                        return false;
+                    }
+                }
+                editors.TextReplaceEditor = TextReplaceEditor;
                 class TimeSpanEditor extends baseEditor {
                     setup(col, grid) {
                         super.setup(col, grid);
@@ -179,9 +192,9 @@ var controls;
                                 allowEdit = false;
                         }
                         if (value)
-                            return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" checked />';
+                            return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" checked style="width: 17px; height: 17px"/>';
                         else
-                            return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" />';
+                            return '<input ' + (allowEdit ? '' : 'disabled') + ' type="checkbox" name="" value="' + value + '" style="width: 17px; height: 17px" />';
                     }
                 }
                 editors.BoolEditor = BoolEditor;
@@ -228,7 +241,7 @@ var controls;
                         col.formatter = this.formatter.bind(this);
                     }
                     formatter(row, cell, value, columnDef, dataContext) {
-                        if (value) {
+                        if (value || value == 0) {
                             if (typeof value == 'string') {
                                 try {
                                     value = parseFloat(value);
@@ -498,6 +511,13 @@ var controls;
                 set EnableTreeTableView(value) {
                     this.setPropertyValue("EnableTreeTableView", value);
                 }
+                // ------------------------------------------------------------------------   ColumnFilters
+                get ColumnFilters() {
+                    return this.getPropertyValue("ColumnFilters");
+                }
+                set ColumnFilters(value) {
+                    this.setPropertyValue("ColumnFilters", value);
+                }
                 // ------------------------------------------------------------------------   Columns
                 get Columns() {
                     return this.getPropertyValue("Columns");
@@ -674,8 +694,10 @@ var controls;
                             autoEdit: this.UseSingleClickEdit,
                             forceFitColumns: this.ForceAutoFit,
                         },
-                        hideExport: this.tryGetPropertyValue('HideExportContextMenu')
+                        hideExport: this.tryGetPropertyValue('HideExportContextMenu'),
+                        onSearchChanged: this.onFilterChangedInTreeTable.bind(this)
                     });
+                    this.treeTable.columnFilters = this.ColumnFilters;
                     this.treeTable._create();
                     this.treeTable.grid.onActiveCellChanged.subscribe(this.onActiveCellChangedFromClient.bind(this));
                     this.treeTable.grid.onClick.subscribe(this.onCellClicked.bind(this));
@@ -696,9 +718,13 @@ var controls;
                         }).observe(that.element[0]);
                     }
                 }
+                onFilterChangedInTreeTable() {
+                    this.ColumnFilters = this.treeTable.columnFilters;
+                }
                 onCellClicked(e, data) {
+                    var row = this.treeTable.dataView.getIdxById(this.treeTable.dataView.getItem(data.row).id);
                     // check click for buttons and checkbox
-                    let rowMeta = this.MetaDatas[data.row];
+                    let rowMeta = this.MetaDatas[row];
                     if (rowMeta && rowMeta.Columns) {
                         let colMeta = rowMeta.Columns[this.treeTable.grid.getColumns()[data.cell].id];
                         if (colMeta && colMeta.EditorInfo) {
