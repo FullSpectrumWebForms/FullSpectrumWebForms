@@ -1,6 +1,7 @@
 ﻿<input id="pageId" value="@PageId" />
 <input id="pageIdAuth" value="@Auth" />
 
+
 @code {
 
     [Parameter]
@@ -11,6 +12,11 @@
 
     public int PageId;
     public string Auth = "";
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+    }
 
     protected override async Task OnInitializedAsync()
     {

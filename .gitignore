@@ -47,3 +47,5 @@
 /TestBlazor/bin/Debug/netcoreapp3.0
 /TestBlazor/obj/Debug/netcoreapp3.0
 /TestBlazor/obj
+/TestBlazorApplication/obj
+/TestBlazorApplication/bin

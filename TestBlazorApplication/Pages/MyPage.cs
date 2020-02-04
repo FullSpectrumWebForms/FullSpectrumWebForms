@@ -12,17 +12,23 @@ namespace TestBlazorApplication.Pages
         public delegate void OnPageLoadedHandler(MyPage myPage);
         public event OnPageLoadedHandler OnPageLoaded;
 
-        public static int Shit = 0;
-        public int ShitShit = Shit;
-        public MyPage()
-        {
-            ++Shit;
-        }
+
         public override void OnPageLoad()
         {
             base.OnPageLoad();
 
+            Container.Width = "200px";
+            Container.Height = "200px";
+            Container.BackgroundColor = System.Drawing.Color.Blue;
+            Container.OnClicked += Container_OnClicked;
+
+
             OnPageLoaded?.Invoke(this);
+        }
+
+        private void Container_OnClicked(FSW.Controls.Html.HtmlControlBase control)
+        {
+            Container.BackgroundColor = System.Drawing.Color.Red;
         }
     }
 }

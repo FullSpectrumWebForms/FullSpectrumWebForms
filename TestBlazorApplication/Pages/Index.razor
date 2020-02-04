@@ -1,45 +1,44 @@
 ﻿@page "/"
+<input id="pageId" value="@PageId" />
+<input id="pageIdAuth" value="@Auth" />
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
 
-<FSWInit Page="@Page"></FSWInit>
+<span @onclick="_=>ProcessSuperClickEvent()">@Text</span>
 
-<span @onclick="_=>OnContainerClicked(null)">@Text</span>
+<div id="Container"></div>
 
 @code{
 
-    static MyPage Page = new MyPage();
+    public int PageId;
+    public string Auth = "";
+
+    MyPage Page = new MyPage();
 
     string Text = "yo";
-    static bool Done = false;
     protected override void OnInitialized()
     {
-        if (!Done)
-        {
-            Done = true;
-            return;
-        }
+        var res = FSW.ModelBase.RegisterFSWPage(Page, null, null, out var _, out var _2);
 
-        System.Threading.Tasks.Task.Run(() =>
+        PageId = res.id;
+        Auth = res.auth;
+
+
+        Page.OnPageLoaded += page =>
         {
-            System.Threading.Thread.Sleep(5000);
-            Page.Container.Width = "200px";
-            Page.Container.Height = "200px";
-            Page.Container.BackgroundColor = System.Drawing.Color.Blue;
-            Page.Container.OnClicked += OnContainerClicked;
-        });
+            Page.Container.OnClicked += _ => ProcessSuperClickEvent();
+        };
     }
 
-    private void OnContainerClicked(FSW.Controls.Html.HtmlControlBase htmlControlBase)
+    private void ProcessSuperClickEvent()
     {
         InvokeAsync(() =>
         {
             Text += " yo";
             StateHasChanged();
         });
-
     }
 
 }
