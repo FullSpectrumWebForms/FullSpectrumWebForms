@@ -10,9 +10,9 @@ namespace TestApplication.Pages.Examples
     public class ButtonPage : FSW.Core.FSWPage
     {
         public FSW.Controls.Html.Button BT_test = new FSW.Controls.Html.Button();
-        public override void OnPageLoad()
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad();
 
             BT_test.OnClicked += BT_test_OnClicked;
             BT_test.Text = "Button test";

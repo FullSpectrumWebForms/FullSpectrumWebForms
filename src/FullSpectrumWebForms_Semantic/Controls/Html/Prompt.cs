@@ -32,9 +32,9 @@ namespace FSW.Semantic.Controls.Html
         }
 
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             Text_Yes = "Yes";
             Text_No = "No";
@@ -42,25 +42,16 @@ namespace FSW.Semantic.Controls.Html
             Classes.AddRange(new List<string> { "ui", "tiny", "modal" });
         }
 
-        public Task<PromptAnswer> Show(string title, string message, bool allowCancel)
+        public async Task<PromptAnswer> Show(string title, string message, bool allowCancel)
         {
-            var source = new TaskCompletionSource<PromptAnswer>();
-
-            var ev = CallCustomClientEvent<string>("showPrompt", new
+            var ev = await CallCustomClientEvent<string>("showPrompt", new
             {
                 title,
                 message,
                 allowCancel
             });
-            new System.Threading.Thread(() =>
-            {
-                ev.Wait();
 
-                new System.Threading.Thread(() => source.SetResult((PromptAnswer)Enum.Parse(typeof(PromptAnswer), ev.Result, true))).Start();
-
-            }).Start();
-
-            return source.Task;
+            return (PromptAnswer)Enum.Parse(typeof(PromptAnswer), ev, true);
         }
     }
 }

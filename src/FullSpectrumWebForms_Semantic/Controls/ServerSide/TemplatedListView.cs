@@ -18,11 +18,5 @@ namespace FSW.Semantic.Controls.ServerSide
         public TemplatedListView(Core.FSWPage page = null):base(page)
         {
         }
-
-        public override void InitializeProperties()
-        {
-            base.InitializeProperties();
-
-        }
     }
 }

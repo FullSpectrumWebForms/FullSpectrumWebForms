@@ -52,9 +52,9 @@ namespace FSW.Semantic.Controls.Html
         public delegate void OnButtonClickedHandler(IconTextButton button);
         public event OnButtonClickedHandler OnButtonClicked;
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             Classes.AddRange(new List<string> { "ui", "icon", "button" });
             Text = null;
@@ -97,9 +97,9 @@ namespace FSW.Semantic.Controls.Html
 
         public IconLabeledButton(FSWPage page = null) : base(page)
         {}
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             Classes.AddRange(new List<string> { "labeled" });
         }

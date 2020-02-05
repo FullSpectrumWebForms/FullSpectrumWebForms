@@ -10,16 +10,27 @@ namespace TestApplication.Pages.Examples
 {
     public class DataGridPage : FSW.Core.FSWPage
     {
-        public override void OnPageLoad()
+        bool IsPageLoaded = true;
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad();
 
             Init_Basic();
             Init_Editing_Basic();
             Init_Editing_Advanced();
             Init_Formatting();
             Init_UpdateSingleRow();
+
+            OnPageUnload += DataGridPage_OnPageUnload;
         }
+
+        private Task DataGridPage_OnPageUnload()
+        {
+            IsPageLoaded = false;
+
+            return Task.CompletedTask;
+        }
+
         #region UpdateSingleRow
 
         public class Item5 : DataGridBase
@@ -51,19 +62,23 @@ namespace TestApplication.Pages.Examples
                 }
             };
 
-            // update the value every 2 seconds
+            _ = UpdateEvery2Seconds();
+        }
+
+        // update the value every 2 seconds
+        private async Task UpdateEvery2Seconds()
+        {
             var count = 0;
-            RegisterHostedService(TimeSpan.FromSeconds(2), () =>
+            while (IsPageLoaded)
             {
-                using (ServerSideLock)
-                {
-                    // write directly to the datas and the index we want
-                    Grid_UpdateSingleRow.Datas[1].Col2 = ++count;
-                    // and then update the index we juste modified
-                    // if not specified otherwise, this will also generate the metas for this row
-                    Grid_UpdateSingleRow.RefreshRow(1);
-                }
-            });
+                // write directly to the datas and the index we want
+                Grid_UpdateSingleRow.Datas[1].Col2 = ++count;
+                // and then update the index we juste modified
+                // if not specified otherwise, this will also generate the metas for this row
+                Grid_UpdateSingleRow.RefreshRow(1);
+
+                await Task.Delay(TimeSpan.FromSeconds(2));
+            }
         }
 
         private void Grid_UpdateSingleRow_OnGenerateMetasData(int row, Item5 item, out DataGridColumn.MetaData metaData)

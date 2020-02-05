@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FSW.Semantic.Controls.ServerSide
 {
@@ -307,9 +308,9 @@ namespace FSW.Semantic.Controls.ServerSide
             }
         }
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             Classes.AddRange(new List<string> { "ui", "list" });
         }
@@ -357,9 +358,10 @@ namespace FSW.Semantic.Controls.ServerSide
             }
         }
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
+
             ContainerHtmlDefaultTag = "a";
             Classes.Remove("list");
             Classes.Add("menu");

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FSW.Controls.Html;
 using FSW.Core;
+using System.Threading.Tasks;
 
 namespace FSW.Semantic.Controls.Html
 {
@@ -210,9 +211,9 @@ namespace FSW.Semantic.Controls.Html
             TabsContainer.Children.RemoveAt(index);
             Children.RemoveAt(index);
         }
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             TabsContainer = new HtmlControlBase(Page)
             {

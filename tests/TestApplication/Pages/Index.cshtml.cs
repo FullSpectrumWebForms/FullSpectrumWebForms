@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace TestApplication.Pages
 {
@@ -14,9 +15,9 @@ namespace TestApplication.Pages
         public TextBox TB_Test = new TextBox();
         public FSW.Controls.Html.Label LB_Test = new FSW.Controls.Html.Label();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad();
 
             TB_Test.Text = "saluuut";
             TB_Test.OnTextChanged += TB_Test_OnTextChanged;

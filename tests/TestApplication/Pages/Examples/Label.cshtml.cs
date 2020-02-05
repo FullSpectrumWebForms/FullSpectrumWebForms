@@ -12,9 +12,9 @@ namespace TestApplication.Pages.Examples
     {
         public FSW.Controls.Html.Label LB_Test = new FSW.Controls.Html.Label();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad();
 
             LB_Test.Text = "Lable example";
         }

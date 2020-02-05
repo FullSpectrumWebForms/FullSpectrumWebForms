@@ -13,9 +13,9 @@ namespace TestApplication.Pages.Examples.Semantic
         public FSW.Semantic.Controls.Html.ComboBox_Ajax CB_Test = new FSW.Semantic.Controls.Html.ComboBox_Ajax();
         public FSW.Semantic.Controls.Html.ComboBox CB_Test2 = new FSW.Semantic.Controls.Html.ComboBox();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad();
 
             CB_Test.OnAjaxRequest = GetComboDatas;
             CB_Test.AllowEmptyQuery = true;

@@ -24,6 +24,9 @@ namespace TestApplication
         {
             FSW.Core.Startup.ConfigureServices(services);
 
+            services.AddRazorPages();
+
+            services.AddServerSideBlazor();
 
             var mvc = services.AddMvc(options =>
             {
@@ -50,8 +53,15 @@ namespace TestApplication
 
             app.UseStaticFiles();
 
+            app.UseRouting();
+
             app.UseMvc();
-            
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapBlazorHub();
+                endpoints.MapFallbackToPage("/_Host");
+            });
         }
     }
 }

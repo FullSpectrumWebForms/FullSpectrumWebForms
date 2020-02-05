@@ -27,9 +27,9 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
 
         private Stack<HorizontalStackItem> Stacks = new Stack<HorizontalStackItem>();
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             CssProperties["display"] = "flex";
         }
@@ -99,20 +99,17 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
                 Vertical = true,
                 Width = width ?? DefaultWidth,
             };
-            listView.Extensions.Add<Extensions.Transition>();
+            listView.Extensions.Add<Transition>();
 
             if (options.GetText != null)
             {
                 options.RefreshItem = (item) =>
                 {
                     var v = options.GetText(item.Id);
-                    using (Page.ServerSideLock)
-                    {
-                        if (listView?.IsRemoved != false)
-                            return;
-                        item.Value = v;
-                        listView.UpdateItem(item);
-                    }
+                    if (listView?.IsRemoved != false)
+                        return;
+                    item.Value = v;
+                    listView.UpdateItem(item);
                 };
             }
 
@@ -186,7 +183,7 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
                 {
                     container.Children.Add(new Html.LoadingIcon(Page));
 
-                    Page.RegisterHostedService(() => options.RefreshItem(obj));
+                    Page.Manager.Invoke(() => options.RefreshItem(obj));
                 }
                 else
                 {
@@ -211,7 +208,7 @@ namespace FSW.Semantic.Controls.ServerSide.HorizontalStack
             mainContainer.Visible = VisibleState.Block;
 
             if (options.PopulateListView != null)
-                Page.RegisterHostedService(() => options.PopulateListView(listView), FSW.Core.FSWPage.HostedServicePriority.High);
+                Page.Manager.Invoke(() => options.PopulateListView(listView));
 
             return listView;
         }

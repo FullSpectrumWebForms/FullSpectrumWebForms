@@ -9,29 +9,27 @@ using FSW.Controls;
 
 namespace TestApplication.Pages
 {
-    public class GeoLocalisationPage: FSW.Core.FSWPage
+    public class GeoLocalisationPage : FSW.Core.FSWPage
     {
         Button BT_QueryLocalisation = new Button();
         Span SP_GeoLocalisation = new Span();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad();
 
             BT_QueryLocalisation.OnButtonClicked += BT_QueryLocalisation_OnButtonClicked;
         }
 
         private void BT_QueryLocalisation_OnButtonClicked(Button button)
         {
-            Page.Common.QueryGeoCoordinate(geo =>
+            Page.Common.QueryGeoCoordinate().ContinueWith(task =>
             {
-                using (ServerSideLock)
-                {
-                    if( geo == null )
-                        SP_GeoLocalisation.Text = "Error";
-                    else
-                        SP_GeoLocalisation.Text = geo.Longitude + ", " + geo.Latitude;
-                }
+                var geo = task.Result;
+                if (geo == null)
+                    SP_GeoLocalisation.Text = "Error";
+                else
+                    SP_GeoLocalisation.Text = geo.Longitude + ", " + geo.Latitude;
             });
         }
     }
