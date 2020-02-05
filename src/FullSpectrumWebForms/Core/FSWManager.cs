@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 
 // TODO: implement a lock system for an entire page
@@ -15,12 +17,32 @@ namespace FSW.Core
             Page = page;
         }
 
-        public readonly object _lock = new object();
+        private readonly Nito.AsyncEx.AsyncContextThread AsyncContextThread = new Nito.AsyncEx.AsyncContextThread();
+
 
         public Dictionary<string, ControlBase> Controls = new Dictionary<string, ControlBase>();
         public List<KeyValuePair<int, ControlBase>> PendingNewControls = new List<KeyValuePair<int, ControlBase>>();
         public List<string> PendingDeletionControls = new List<string>();
 
+        public async Task InvokeAsync(Func<Task> action, CancellationToken cancellationToken = default)
+        {
+            await await AsyncContextThread.Factory.StartNew(action, cancellationToken);
+        }
+
+        public async Task<T> InvokeAsync<T>(Func<Task<T>> action, CancellationToken cancellationToken = default)
+        {
+            return await await AsyncContextThread.Factory.StartNew(action, cancellationToken);
+        }
+
+        public Task<T> Invoke<T>(Func<T> action)
+        {
+            return AsyncContextThread.Factory.StartNew(action);
+        }
+
+        public Task Invoke(Action action)
+        {
+            return AsyncContextThread.Factory.StartNew(action);
+        }
 
         public ControlBase GetControl(string controlId)
         {
@@ -88,13 +110,14 @@ namespace FSW.Core
 
         internal class CustomControlEventResult
         {
+            public int eventId;
             public object result;
             public CoreServerAnswer properties;
         }
         /// <summary>
         /// Called from the client side to call custom method in a control, Ex. ticks event for the timer control
         /// </summary>
-        internal CustomControlEventResult CustomControlEvent(string controlId, string eventName, Newtonsoft.Json.Linq.JToken parameters)
+        internal async Task<CustomControlEventResult> CustomControlEvent(string controlId, string eventName, Newtonsoft.Json.Linq.JToken parameters)
         {
             // get the control associated with the event in the required page
             var control = Page.Manager.GetControl(controlId);
@@ -145,8 +168,15 @@ namespace FSW.Core
             // the actual call of the method/event
             var res = m.Invoke(control, parametersParsed);
 
+            if (res is Task task)
+            {
+                await task;
+
+                res = task.GetType().GetProperty("Result")?.GetValue(task); // try to get a result if the task was returning one...
+            }
+
             //process the property change in response to the event
-            var changes = ProcessPropertyChange(false);
+            var changes = await ProcessPropertyChange(false);
             //  return the changed properties and the return value of the method
             return new CustomControlEventResult()
             {
@@ -157,7 +187,7 @@ namespace FSW.Core
         /// <summary>
         /// Called from the client side to call custom method in a control, Ex. ticks event for the timer control
         /// </summary>
-        internal CustomControlEventResult CustomControlExtensionEvent(string controlId, string extension, string eventName, Newtonsoft.Json.Linq.JToken parameters)
+        internal async Task<CustomControlEventResult> CustomControlExtensionEvent(string controlId, string extension, string eventName, Newtonsoft.Json.Linq.JToken parameters)
         {
             // get the control associated with the event in the required page
             var control = Page.Manager.GetControl(controlId);
@@ -211,8 +241,15 @@ namespace FSW.Core
             // the actual call of the method/event
             var res = m.Invoke(controlExtension, parametersParsed);
 
+            if (res is Task task)
+            {
+                await task;
+
+                res = task.GetType().GetProperty("Result")?.GetValue(task); // try to get a result if the task was returning one...
+            }
+
             //process the property change in response to the event
-            var changes = ProcessPropertyChange(false);
+            var changes = await ProcessPropertyChange(false);
             //  return the changed properties and the return value of the method
             return new CustomControlEventResult()
             {
@@ -220,7 +257,7 @@ namespace FSW.Core
                 properties = changes
             };
         }
-        public delegate void OnBeforeServerUnlockedHandler (FSWPage page);
+        public delegate Task OnBeforeServerUnlockedHandler(FSWPage page);
         public event OnBeforeServerUnlockedHandler OnBeforeServerUnlocked;
 
         /// <summary>
@@ -228,9 +265,9 @@ namespace FSW.Core
         /// </summary>
         /// <param name="pageId"></param>
         /// <returns></returns>
-        internal CoreServerAnswer ProcessPropertyChange(bool forceAllProperties)
+        internal async Task<CoreServerAnswer> ProcessPropertyChange(bool forceAllProperties)
         {
-            OnBeforeServerUnlocked?.Invoke(Page);
+            await (OnBeforeServerUnlocked?.Invoke(Page) ?? Task.CompletedTask);
 
             var answer = new CoreServerAnswer();
 
@@ -294,15 +331,15 @@ namespace FSW.Core
         /// Called from the client side when a property has changed
         /// </summary>
         /// <returns>The changed property from the server</returns>
-        internal void OnPropertiesChangedFromClient(List<ExistingControlProperty> newValues)
+        internal async Task OnPropertiesChangedFromClient(List<ExistingControlProperty> newValues)
         {
             // for each properties that changed from the client
             foreach (var value in newValues)
             {
                 foreach (var prop in value.properties)
                 {
-                    // get the control associated with that property                            and update its value
-                    ControlBase c = null;
+                    // get the control associated with that property and update its value
+                    ControlBase? c = null;
                     try
                     {
                         c = GetControl<ControlBase>(value.id);
@@ -311,7 +348,7 @@ namespace FSW.Core
                     {
                     }
                     if (c != null)
-                        c.UpdatePropertyValueFromClient(prop.property, prop.value);
+                        await c.UpdatePropertyValueFromClient(prop.property, prop.value);
 
                 }
             }
@@ -321,12 +358,12 @@ namespace FSW.Core
         /// Called by the client at the beginning to get all the controls from the server
         /// This is what load the initial controls on the client side
         /// </summary>
-        internal InitializationCoreServerAnswer InitializePageFromClient(string connectionId, string url, Dictionary<string, string> urlParameters)
+        internal async Task<InitializationCoreServerAnswer> InitializePageFromClient(string connectionId, string url, Dictionary<string, string> urlParameters)
         {
-            Page.InitializeFSWControls(connectionId, url, urlParameters);
+            await Page.InitializeFSWControls(connectionId, url, urlParameters);
             var res = new InitializationCoreServerAnswer()
             {
-                Answer = ProcessPropertyChange(true)
+                Answer = await ProcessPropertyChange(true)
             };
 
             return res;
@@ -340,7 +377,7 @@ namespace FSW.Core
             return "_dc_" + (++DynamicControlsNextId);
         }
 
-        public void AddNewDynamicControl(ControlBase control, int index)
+        public async Task AddNewDynamicControl(ControlBase control, int index)
         {
             control.NewlyAddedDynamicControl = true;
             PendingNewControls.Add(new KeyValuePair<int, ControlBase>(index, control));
@@ -351,9 +388,9 @@ namespace FSW.Core
 
             var i = 0;
             foreach (var subControl in control.Children)
-                AddNewDynamicControl(subControl, i++);
+                await AddNewDynamicControl(subControl, i++);
 
-            control.ControlInitialized();
+            await control.ControlInitialized();
         }
         internal List<NewControlWithProperties> GetNewDynamicControls()
         {

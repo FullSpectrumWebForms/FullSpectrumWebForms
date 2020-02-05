@@ -18,9 +18,9 @@ namespace FSW.Controls
             Parameters = parameters ?? new Dictionary<string, string>();
         }
 
-        public override void InitializeProperties()
+        public override Task InitializeProperties()
         {
-
+            return Task.CompletedTask;
         }
 
         public void UpdateParameter(string parameterName, string value, bool clearEverythingElse = false)

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FSW.Controls.Html
 {
@@ -384,7 +385,7 @@ namespace FSW.Controls.Html
                 item.OnClick();
         }
 
-        public override void InitializeProperties()
+        public override Task InitializeProperties()
         {
             CssProperties_ = new Utility.ControlPropertyDictionary<string>(this, nameof(CssProperties));
             Attributes_ = new Utility.ControlPropertyDictionary<string>(this, nameof(Attributes));
@@ -394,6 +395,8 @@ namespace FSW.Controls.Html
             PopupTitle = null;
             PopupContent = null;
             PopupShowDelay = null;
+
+            return Task.CompletedTask;
         }
 
         public enum ScrollTarget

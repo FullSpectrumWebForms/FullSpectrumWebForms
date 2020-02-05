@@ -15,12 +15,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApplication", "tests\Te
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7251E020-65F6-4F7D-8E21-783D98B2FF75}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FSWDocumentation", "doc\FSWDocumentation\FSWDocumentation.csproj", "{31ACF212-5380-4C3D-875A-49A1552DE5AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestBlazorApplication", "TestBlazorApplication\TestBlazorApplication.csproj", "{48BEAAB0-8C49-42DE-A665-53321B490886}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestBlazorApplication", "TestBlazorApplication\TestBlazorApplication.csproj", "{48BEAAB0-8C49-42DE-A665-53321B490886}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

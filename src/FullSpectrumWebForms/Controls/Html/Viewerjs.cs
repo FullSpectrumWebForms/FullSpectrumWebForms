@@ -25,9 +25,10 @@ namespace FSW.Controls.Html
             set => Items_.Set(value.ToList());
         }
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
+
             Items_ = new ControlPropertyList<Item>(this,nameof(Items));
         }
     }

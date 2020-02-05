@@ -320,9 +320,9 @@ namespace FSW.Controls.ServerSide
         public event OnSelectedIdsChangedHandler OnSelectedItemsChanged;
 
 
-        protected internal override void ControlInitialized()
+        protected internal override async Task ControlInitialized()
         {
-            base.ControlInitialized();
+            await base.ControlInitialized();
 
             ClientAvailableChoices = new Utility.ControlPropertyDictionary<string>(this, "AvailableChoices");
             ClientSelectedIds = new Utility.ControlPropertyList<string>(this, "SelectedIds");
@@ -336,7 +336,7 @@ namespace FSW.Controls.ServerSide
 
         }
 
-        private void OnSelectedIdsChangedFromClient(Property property, object lastValue, object newValue)
+        private Task OnSelectedIdsChangedFromClient(Property property, object lastValue, object newValue)
         {
             if (lastValue is JArray lastValueArray)
                 lastValue = lastValueArray.ToObject<string[]>();
@@ -345,14 +345,18 @@ namespace FSW.Controls.ServerSide
             SelectedItems_.Datas = ((string[])lastValue).Select(x => AvailableChoices[int.Parse(x)]).ToList();
 
             OnSelectedItemsChanged?.Invoke(this, oldDatas, SelectedItems_.Datas);
+
+            return Task.CompletedTask;
         }
 
-        private void OnSelectedIdChangedFromClient(Property property, object lastValue, object newValue)
+        private Task OnSelectedIdChangedFromClient(Property property, object lastValue, object newValue)
         {
             var oldDatas = SelectedItems_.Datas;
             SelectedItems_.Datas = ((string[])lastValue).Select(x => AvailableChoices[int.Parse(x)]).ToList();
 
             OnSelectedItemsChanged?.Invoke(this, oldDatas, SelectedItems_.Datas);
+
+            return Task.CompletedTask;
         }
     }
 }

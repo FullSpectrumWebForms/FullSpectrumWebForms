@@ -178,7 +178,7 @@ namespace core {
             });
         }
         updateLocked = 0;
-        pendingPropertyUpdate: { [id: string]: controlProperty<any>[] } = {};
+        pendingPropertyUpdate: { [controlId: string]: controlProperty<any>[] } = {};
         // prevent the 'sendPropertyUpdate' from sending updates to the server
         // instead, the updates will be stacked and send all at once when unlocking the update
         lockPropertyUpdate() {
@@ -357,60 +357,49 @@ namespace core {
             });
 
         }
-        customEventAnswer(datas: { result: any, properties: any }) {
+        customEventAnswer(datas: { eventId: number, result: any, properties: any }) {
             datas = JSON.parse(datas as any);
             this.propertyUpdateFromServerStep1(datas.properties);
 
-
-            let def = this.customEventQueue[0];
-            this.customEventQueue.splice(0, 1);
+            let def = this.customEventQueue[datas.eventId];
+            delete this.customEventQueue[datas.eventId];
             def.resolve(datas.result);
         }
-        customEventQueue: JQueryDeferred<any>[] = [];
+        customEventId = 1;
+        customEventQueue: { [requestId: string]: JQueryDeferred<any> } = {};
         sendCustomControlEvent(controlId: string, eventName: string, parameters: any, forceSync?: boolean) {
             let that = this;
 
+            let currentEventId = ++this.customEventId;
 
-            function doCall() {
-
-                that.connection.send('CustomControlEvent', {
-                    controlId: controlId,
-                    eventName: eventName,
-                    parameters: parameters
-                });
-
-            };
             var def = $.Deferred();
-            this.customEventQueue.push(def);
+            this.customEventQueue[currentEventId] = def;
 
-            if (this.customEventQueue.length == 1)
-                doCall();
-            else
-                this.customEventQueue[this.customEventQueue.length - 2].done(doCall);
+            this.connection.send('CustomControlEvent', {
+                eventId: currentEventId,
+                controlId: controlId,
+                eventName: eventName,
+                parameters: parameters
+            });
 
             return def;
         }
         sendCustomControlExtensionEvent(controlId: string, extension: string, eventName: string, parameters: any, forceSync?: boolean) {
             let that = this;
 
+            let currentEventId = ++this.customEventId;
 
-            function doCall() {
-
-                that.connection.send('CustomControlExtensionEvent', {
-                    controlId: controlId,
-                    extension: extension,
-                    eventName: eventName,
-                    parameters: parameters
-                });
-
-            };
             var def = $.Deferred();
-            this.customEventQueue.push(def);
+            this.customEventQueue[currentEventId] = def;
 
-            if (this.customEventQueue.length == 1)
-                doCall();
-            else
-                this.customEventQueue[this.customEventQueue.length - 2].done(doCall);
+
+            that.connection.send('CustomControlExtensionEvent', {
+                eventId: currentEventId,
+                controlId: controlId,
+                extension: extension,
+                eventName: eventName,
+                parameters: parameters
+            });
 
             return def;
         }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FSW.Controls
@@ -11,9 +12,11 @@ namespace FSW.Controls
         public LoadingScreen(FSWPage page = null) : base(page)
         {
         }
-        public override void InitializeProperties()
+        public override Task InitializeProperties()
         {
+            return Task.CompletedTask;
         }
+
         int NbLoadingScreenShowned = 0;
         string LastMessage;
         public void Show(string message = null)

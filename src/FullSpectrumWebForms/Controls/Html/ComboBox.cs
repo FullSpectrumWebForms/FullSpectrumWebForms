@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FSW.Controls.Html
@@ -50,10 +51,9 @@ namespace FSW.Controls.Html
             get => GetProperty<string>(PropertyName());
             set => SetProperty(PropertyName(), value);
         }
-
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             IsMultiple = false;
             AllowNull = false;
@@ -105,9 +105,9 @@ namespace FSW.Controls.Html
             OnSelectedIdsChanged?.Invoke(this, oldIds, SelectedIds.ToArray());
         }
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             AvailableChoices = new Utility.ControlPropertyDictionary<string>(this, nameof(AvailableChoices));
             SelectedIds = new Utility.ControlPropertyList<string>(this, nameof(SelectedIds));
@@ -118,16 +118,20 @@ namespace FSW.Controls.Html
 
         }
 
-        private void OnSelectedIdsChangedFromClient(Property property, object lastValue, object newValue)
+        private Task OnSelectedIdsChangedFromClient(Property property, object lastValue, object newValue)
         {
             if (lastValue is JArray lastValueArray)
                 lastValue = lastValueArray.ToObject<string[]>();
             OnSelectedIdsChanged?.Invoke(this, (string[])lastValue, ((JArray)newValue)?.ToObject<string[]>());
+
+            return Task.CompletedTask;
         }
 
-        private void OnSelectedIdChangedFromClient(Property property, object lastValue, object newValue)
+        private Task OnSelectedIdChangedFromClient(Property property, object lastValue, object newValue)
         {
             OnSelectedIdChanged?.Invoke(this, (string)lastValue, (string)newValue);
+
+            return Task.CompletedTask;
         }
     }
     public class ComboBox_Ajax : HtmlControlBase
@@ -218,10 +222,9 @@ namespace FSW.Controls.Html
         {
             OnSelectedIdsAndValuesChanged?.Invoke(this, oldId, SelectedIdsAndValues.ToDictionary(x => x.Key, x => x.Value));
         }
-
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             SelectedIdsAndValues = new Utility.ControlPropertyDictionary<string>(this, nameof(SelectedIdsAndValues));
             SelectedIdAndValue = null;
@@ -244,16 +247,20 @@ namespace FSW.Controls.Html
             return OnAjaxRequest?.Invoke(searchString);
         }
 
-        private void OnSelectedIdAndValueChangedFromClient(Property property, object lastValue, object newValue)
+        private Task OnSelectedIdAndValueChangedFromClient(Property property, object lastValue, object newValue)
         {
             OnSelectedIdAndValueChanged?.Invoke(this, SelectedIdAndValue);
+
+            return Task.CompletedTask;
         }
 
-        private void OnSelectedIdsAndValuesChangedFromClient(Property property, object lastValue, object newValue)
+        private Task OnSelectedIdsAndValuesChangedFromClient(Property property, object lastValue, object newValue)
         {
             if (lastValue is JObject lastValueDictionary)
                 lastValue = lastValueDictionary.ToObject<Dictionary<string, string>>();
             OnSelectedIdsAndValuesChanged?.Invoke(this, (Dictionary<string, string>)lastValue, ((JObject)newValue)?.ToObject<Dictionary<string, string>>());
+
+            return Task.CompletedTask;
         }
 
     }

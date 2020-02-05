@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FSW.Controls.Html
@@ -37,9 +38,9 @@ namespace FSW.Controls.Html
         public delegate void OnContentsChangedHandler(RichTextBox sender, string previousText, string newText);
         public event OnContentsChangedHandler OnContentsChanged;
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             Text = "";
             Contents = "";
@@ -50,16 +51,20 @@ namespace FSW.Controls.Html
             GetPropertyInternal(nameof(Contents)).OnNewValue += Contents_OnNewValue;
         }
 
-        private void Text_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
+        private Task Text_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
         {
             if (source == Property.UpdateSource.Client)
                 OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue);
+
+            return Task.CompletedTask;
         }
 
-        private void Contents_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
+        private Task Contents_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
         {
             if (source == Property.UpdateSource.Client)
                 OnContentsChanged?.Invoke(this, (string)lastValue, (string)newValue);
+
+            return Task.CompletedTask;
         }
     }
 }

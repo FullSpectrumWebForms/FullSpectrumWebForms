@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FSW.Controls.Html
@@ -21,20 +22,20 @@ namespace FSW.Controls.Html
         
         public delegate void OnStateChangedHandler(Checkbox sender);
         public event OnStateChangedHandler OnCheckedChanged;
-
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             Checked = false;
 
             GetPropertyInternal(nameof(Checked)).OnNewValue += ComboBoxState_OnNewValue;
         }
 
-        private void ComboBoxState_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
+        private Task ComboBoxState_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
         {
             if (source == Property.UpdateSource.Client)
                 OnCheckedChanged?.Invoke(this);
+            return Task.CompletedTask;
         }
         
     }

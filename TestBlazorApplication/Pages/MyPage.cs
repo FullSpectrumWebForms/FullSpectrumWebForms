@@ -13,9 +13,9 @@ namespace TestBlazorApplication.Pages
         public event OnPageLoadedHandler OnPageLoaded;
 
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad();
 
             Container.Width = "200px";
             Container.Height = "200px";

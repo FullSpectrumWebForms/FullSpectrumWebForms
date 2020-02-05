@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Threading.Tasks;
 
 namespace FSW.Controls.Html
 {
@@ -203,9 +204,9 @@ namespace FSW.Controls.Html
             return res.Value;
         }
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             AspectRatio = 1.8f;
             CustomRangeEnd = null;
@@ -237,9 +238,11 @@ namespace FSW.Controls.Html
             GetPropertyInternal(nameof(CurrentView)).OnNewValueFromClient += Calendar_OnNewValueFromClient;
         }
 
-        private void Calendar_OnNewValueFromClient(Property property, object lastValue, object newValue)
+        private Task Calendar_OnNewValueFromClient(Property property, object lastValue, object newValue)
         {
             OnCurrentViewChanged?.Invoke();
+
+            return Task.CompletedTask;
         }
     }
 }

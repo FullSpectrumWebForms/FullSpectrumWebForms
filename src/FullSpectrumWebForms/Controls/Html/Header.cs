@@ -21,9 +21,9 @@ namespace FSW.Controls.Html
 
         public override string ControlType => nameof(HtmlControlBase);
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             Size = 1;
             Text = "";

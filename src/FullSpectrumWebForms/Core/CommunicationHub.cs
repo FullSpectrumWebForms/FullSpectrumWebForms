@@ -18,16 +18,12 @@ namespace FSW.Core
         }
 
 
-        public string ConnectionId => Context.ConnectionId;
+        private static readonly Dictionary<string, FSWPage?> Connections = new Dictionary<string, FSWPage?>();
+        private static readonly Dictionary<int, FSWPage> PageAwaitingConnections = new Dictionary<int, FSWPage>();
 
-        public static Dictionary<string, FSWPage> Connections = new Dictionary<string, FSWPage>();
-        public static Dictionary<int, FSWPage> PageAwaitingConnections = new Dictionary<int, FSWPage>();
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, StaticHostedServiceBase> StaticHostedServices = new System.Collections.Concurrent.ConcurrentDictionary<Guid, StaticHostedServiceBase>();
 
-        private static System.Collections.Concurrent.ConcurrentDictionary<Guid, StaticHostedServiceBase> StaticHostedServices = new System.Collections.Concurrent.ConcurrentDictionary<Guid, StaticHostedServiceBase>();
-
-        public FSWPage CurrentPage => GetPage(ConnectionId);
-
-        public static FSWPage GetPage(string connectionId)
+        public static FSWPage? GetPage(string connectionId)
         {
             lock (Connections)
                 return Connections[connectionId];
@@ -38,36 +34,37 @@ namespace FSW.Core
             if (!StaticHostedServices.TryAdd(pageType.GUID, service))
                 throw new Exception("Unable to add pageType to hosted services");
         }
+
         public Task OnNewConnection()
         {
             lock (Connections)
             {
-                if (Connections.ContainsKey(ConnectionId))
+                if (Connections.ContainsKey(Context.ConnectionId))
                     throw new Exception("Connection id already exist");
 
                 // use the connection ID 
                 // ( why dafuk would I do that ? )
                 // I don't remember. Let us just.. leave it like that and pray to our imaginary friend(s) that it's for a good reason
-                Connections.Add(ConnectionId, null);
+                Connections.Add(Context.ConnectionId, null);
             }
-            return null;
+            return Task.CompletedTask;
         }
-        public void OnConnectionClosed(Exception exception)
+
+        public async Task OnConnectionClosed(Exception exception)
         {
-            FSWPage page = null;
+            FSWPage? page = null;
             lock (Connections)
             {
-                if (Connections.ContainsKey(ConnectionId))
+                if (Connections.ContainsKey(Context.ConnectionId))
                 {
-                    page = Connections[ConnectionId];
-                    Connections.Remove(ConnectionId);
+                    page = Connections[Context.ConnectionId];
+                    Connections.Remove(Context.ConnectionId);
                 }
             }
 
             if (page != null)
             {
-                lock (page.Manager._lock)
-                    page.InvokePageUnload();
+                await page.Manager.InvokeAsync(page.InvokePageUnload);
 
                 var guid = page.GetType().GUID;
                 if (StaticHostedServices.TryGetValue(guid, out var service))
@@ -76,99 +73,120 @@ namespace FSW.Core
 
         }
 
-        public static void SendError(FSWPage page, Exception exception)
+        public static Task SendError(FSWPage page, Exception exception)
         {
-            SendAsync_ID(page.ID, "error", exception.ToString());
+            return SendAsync_ID(page.ID, "error", exception.ToString());
         }
+
         public Task PropertyUpdateFromClient(JObject data)
+        {
+            _ = PropertyUpdateFromClient_(data, Context.ConnectionId);
+            return Task.CompletedTask;
+        }
+        public async Task PropertyUpdateFromClient_(JObject data, string connectionId)
         {
             var changedProperties = data["changedProperties"].ToObject<List<ExistingControlProperty>>();
 
-            var page = CurrentPage;
+            var page = GetPage(connectionId);
             try
             {
                 try
                 {
-                    lock (page.Manager._lock)
+                    var res = await page.Manager.InvokeAsync(async () =>
                     {
-                        page.Manager.OnPropertiesChangedFromClient(changedProperties);
-                        return ProcessPropertyChange(page.Manager);
-                    }
+                        await page.Manager.OnPropertiesChangedFromClient(changedProperties);
+                        return await ProcessPropertyChange(page.Manager);
+                    });
+
+                    if (res?.IsEmpty != false)
+                        return;
+                    await SendAsync_ID(page.Manager.Page.ID, "propertyUpdateFromServer", JsonConvert.SerializeObject(res));
                 }
                 catch (Exception e)
                 {
                     if (page.OverrideErrorHandle is null)
                         throw;
                     else
-                        return page.OverrideErrorHandle(e);
+                        await page.OverrideErrorHandle(e);
                 }
             }
             catch (Exception e)
             {
-                SendAsync_ID(CurrentPage.ID, "error", e.ToString());
+                await SendAsync_ID(page.ID, "error", e.ToString());
+                throw;
+            }
+        }
+
+
+
+        public async Task CustomControlEvent_(JObject data, string connectionId)
+        {
+            var eventId = data["eventId"].ToObject<int>();
+            var controlId = data["controlId"].ToObject<string>();
+            var parameters = data["parameters"];
+            var eventName = data["eventName"].ToObject<string>();
+
+            var page = GetPage(connectionId);
+
+            try
+            {
+                try
+                {
+                    var res = await page.Manager.InvokeAsync(() =>
+                    {
+                        return page.Manager.CustomControlEvent(controlId, eventName, parameters);
+                    });
+                    res.eventId = eventId;
+                    await SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
+                }
+                catch (Exception e)
+                {
+                    if (page.OverrideErrorHandle is null)
+                        throw;
+                    else
+                    {
+                        await page.OverrideErrorHandle(e);
+                        await SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(new FSWManager.CustomControlEventResult()
+                        {
+                            eventId = eventId,
+                            properties = new CoreServerAnswer()
+                        }));
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                await SendAsync_ID(page.ID, "error", e.ToString());
                 throw;
             }
         }
         public Task CustomControlEvent(JObject data)
         {
-            var controlId = data["controlId"].ToObject<string>();
-            var parameters = data["parameters"];
-            var eventName = data["eventName"].ToObject<string>();
-
-            try
-            {
-                FSWManager.CustomControlEventResult res;
-                var page = CurrentPage;
-                try
-                {
-                    lock (page.Manager._lock)
-                    {
-                        res = page.Manager.CustomControlEvent(controlId, eventName, parameters);
-
-                        return SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
-                    }
-                }
-                catch (Exception e)
-                {
-                    if (page.OverrideErrorHandle is null)
-                        throw;
-                    else
-                    {
-                        return page.OverrideErrorHandle(e).ContinueWith((r) =>
-                        {
-                            return SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(new FSWManager.CustomControlEventResult()
-                            {
-                                properties = new CoreServerAnswer()
-                            }));
-                        });
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                SendAsync_ID(CurrentPage.ID, "error", e.ToString());
-                throw;
-            }
+            _ = CustomControlEvent_(data, Context.ConnectionId); // do not wait for this one, we want to free the communication hub thread as fast as possible
+            return Task.CompletedTask;
         }
         public Task CustomControlExtensionEvent(JObject data)
         {
+            _ = CustomControlExtensionEvent_(data, Context.ConnectionId);
+            return Task.CompletedTask; // do not wait for this one, we want to free the communication hub thread as fast as possible
+        }
+        public async Task CustomControlExtensionEvent_(JObject data, string connectionId)
+        {
+            var eventId = data["eventId"].ToObject<int>();
             var controlId = data["controlId"].ToObject<string>();
             var extension = data["extension"].ToObject<string>();
             var parameters = data["parameters"];
             var eventName = data["eventName"].ToObject<string>();
 
+            var page = GetPage(connectionId);
             try
             {
-                FSWManager.CustomControlEventResult res;
-                var page = CurrentPage;
                 try
                 {
-                    lock (page.Manager._lock)
-                    {
-                        res = page.Manager.CustomControlExtensionEvent(controlId, extension, eventName, parameters);
+                    var res = await page.Manager.InvokeAsync(() => page.Manager.CustomControlExtensionEvent(controlId, extension, eventName, parameters));
+                    res.eventId = eventId;
 
-                        return SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
-                    }
+                    await SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(res));
                 }
                 catch (Exception e)
                 {
@@ -176,52 +194,56 @@ namespace FSW.Core
                         throw;
                     else
                     {
-                        return page.OverrideErrorHandle(e).ContinueWith((r) =>
+                        await page.OverrideErrorHandle(e);
+                        await SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(new FSWManager.CustomControlEventResult()
                         {
-                            return SendAsync_ID(page.ID, "customEventAnswer", JsonConvert.SerializeObject(new FSWManager.CustomControlEventResult()
-                            {
-                                properties = new CoreServerAnswer()
-                            }));
-                        });
+                            eventId = eventId,
+                            properties = new CoreServerAnswer()
+                        }));
                     }
                 }
             }
             catch (Exception e)
             {
-                SendAsync_ID(CurrentPage.ID, "error", e.ToString());
+                await SendAsync_ID(page.ID, "error", e.ToString());
                 throw;
             }
         }
         // will run a checkup for modifications on the controls in the current page
-        public static Task ProcessPropertyChange(FSWManager manager, bool skipIfEmpty = false)
+        public static async Task<CoreServerAnswer?> ProcessPropertyChange(FSWManager manager)
         {
             try
             {
-                var res = manager.ProcessPropertyChange(false);
-                if (res.IsEmpty)
-                    return Task.CompletedTask;
-                return SendAsync_ID(manager.Page.ID, "propertyUpdateFromServer", JsonConvert.SerializeObject(res));
+                return await manager.ProcessPropertyChange(false);
             }
             catch (Exception e)
             {
                 if (manager.Page.OverrideErrorHandle is null)
                     throw;
-                else
-                    return manager.Page.OverrideErrorHandle(e);
+
+                manager.Page.OverrideErrorHandle(e);
+
+                return null;
             }
         }
-        // used to generate a polinet page on the fly when there are auth error or invalid connection ids
-        internal (int PageId, FSWPage? Page, string? SessionId, string? SessionAuth) GeneratePolinetPage(string typePath, string sessionId, string sessionAuth)
+        // used to generate a FSW page on the fly when there are auth error or invalid connection ids
+        internal (int PageId, FSWPage? Page, string? SessionId, string? SessionAuth) GenerateFSWPage(string typePath, string sessionId, string sessionAuth)
         {
             var type = Type.GetType(typePath);
             if (type == null)
                 return (0, null, null, null);
 
             var page = (FSWPage?)Activator.CreateInstance(type);
-            var pageId = FSW.ModelBase.RegisterFSWPage(page, sessionId, sessionAuth, out var newSessionId, out var newSessionAuth).id;
+            var pageId = ModelBase.RegisterFSWPage(page, sessionId, sessionAuth, out var newSessionId, out var newSessionAuth).id;
             return (pageId, page, newSessionId, newSessionAuth);
         }
+
         public Task InitializeCore(JObject data)
+        {
+            _ = InitializeCore_(data, Context.ConnectionId);
+            return Task.CompletedTask; // do not wait for this one, we want to free the communication hub thread as fast as possible
+        }
+        public async Task InitializeCore_(JObject data, string connectionId)
         {
             var pageId = data["pageId"].ToObject<int?>() ?? 0;
             var pageIdAuth = data["pageIdAuth"]?.ToObject<string>();
@@ -230,16 +252,19 @@ namespace FSW.Core
             var url = data["url"].ToObject<string>();
             var urlParameters = data["urlParameters"].ToObject<Dictionary<string, string>>();
 
-            FSWPage page;
+            FSWPage? page;
             lock (PageAwaitingConnections)
             {
                 if (!PageAwaitingConnections.ContainsKey(pageId))
                 {
                     var typePath = data["typePath"].ToObject<string>();
-                    var generatedPageInfos = GeneratePolinetPage(typePath, sessionId, sessionAuth);
+                    var generatedPageInfos = GenerateFSWPage(typePath, sessionId, sessionAuth);
                     page = generatedPageInfos.Page;
                     if (page == null)
-                        return SendAsync_ID(ConnectionId, "error", "typePath invalid");
+                    {
+                        _ = SendAsync_ID(connectionId, "error", "typePath invalid");
+                        return;
+                    }
                     sessionId = generatedPageInfos.SessionId;
                     sessionAuth = generatedPageInfos.SessionAuth;
                     pageIdAuth = page.PageAuth;
@@ -255,24 +280,29 @@ namespace FSW.Core
                 PageAwaitingConnections.Remove(pageId);
 
                 if (page.PageAuth != pageIdAuth)
-                    return SendAsync_ID(ConnectionId, "error", "Invalid page auth");
+                {
+                    _ = SendAsync_ID(connectionId, "error", "Invalid page auth");
+                    return;
+                }
             }
             lock (Connections)
             {
-                if (!Connections.ContainsKey(ConnectionId))
-                    return SendAsync_ID(ConnectionId, "error", "Id not found");
-                Connections[ConnectionId] = page;
+                if (!Connections.ContainsKey(connectionId))
+                {
+                    _ = SendAsync_ID(connectionId, "error", "Id not found");
+                    return;
+                }
+                Connections[connectionId] = page;
             }
 
             page.Session.RegisterNewPage(page);
 
-            InitializationCoreServerAnswer res;
             var manager = page.Manager;
-            lock (manager._lock)
-                res = manager.InitializePageFromClient(ConnectionId, url, urlParameters);
+            var res = await manager.InvokeAsync(() => manager.InitializePageFromClient(connectionId, url, urlParameters));
+
             res.SessionId = sessionId;
             res.SessionAuth = sessionAuth;
-            res.ConnectionId = ConnectionId;
+            res.ConnectionId = connectionId;
 
             // start writing the result right away
             var task = SendAsync_ID(page.ID, "initialized", JsonConvert.SerializeObject(res));
@@ -283,9 +313,7 @@ namespace FSW.Core
             if (StaticHostedServices.TryGetValue(guid, out var service))
                 service.AddNewConnection(page);
 
-            page.FSWPage_InitializedEvent.Set();
-
-            return task;
+            await task;
         }
 
         public static void RegisterFSWPage(int id, FSWPage page)
@@ -300,13 +328,18 @@ namespace FSW.Core
 
         public override Task OnConnectedAsync()
         {
-            var t = OnNewConnection();
-            return t ?? base.OnConnectedAsync();
+            return OnNewConnection();
         }
+
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            OnConnectionClosed(exception);
-            return base.OnDisconnectedAsync(exception);
+            _ = OnDisconnectedAsync_(exception);
+            return Task.CompletedTask;
+        }
+        public async Task OnDisconnectedAsync_(Exception exception)
+        {
+            await OnConnectionClosed(exception);
+            await base.OnDisconnectedAsync(exception);
         }
 
         public static Task SendAsync_ID(string connectionId, string key, string message)
