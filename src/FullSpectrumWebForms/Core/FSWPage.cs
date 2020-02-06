@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FSW.Core
@@ -85,6 +86,25 @@ namespace FSW.Core
         public event OnPageUnloadHandler OnPageUnload;
 
 
+        public Task InvokeAsync(Func<Task> action, CancellationToken cancellationToken = default)
+        {
+            return Manager.InvokeAsync(action, cancellationToken);
+        }
+
+        public Task<T> InvokeAsync<T>(Func<Task<T>> action, CancellationToken cancellationToken = default)
+        {
+            return Manager.InvokeAsync(action, cancellationToken);
+        }
+
+        public Task<T> Invoke<T>(Func<T> action)
+        {
+            return Manager.Invoke(action);
+        }
+
+        public Task Invoke(Action action)
+        {
+            return Manager.Invoke(action);
+        }
 
         #region Generic requests
 
