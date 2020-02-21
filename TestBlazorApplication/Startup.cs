@@ -33,6 +33,8 @@ namespace TestBlazorApplication
             services.AddServerSideBlazor();
 
             services.AddSingleton<WeatherForecastService>();
+
+            FSW.Core.Startup.ConfigureMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

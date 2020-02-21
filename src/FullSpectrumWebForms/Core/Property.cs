@@ -13,7 +13,6 @@ namespace FSW.Core
         public Property(string name)
         {
             Name = name;
-            HasValueChanged = false;
         }
 
         /// <summary>
@@ -26,10 +25,7 @@ namespace FSW.Core
         /// </summary>
         public string Name { get; private set; }
 
-        /// <summary>
-        /// True if the value of this property have changed since the beginning of this postback call
-        /// </summary>
-        public bool HasValueChanged { get; set; }
+
         /// <summary>
         /// The last knowned value of the property, before any change
         /// </summary>
@@ -46,9 +42,20 @@ namespace FSW.Core
             {
                 Value_ = value;
                 LastValue = Value_;
-                if (Control.IsInitializing)
-                    return;
-                HasValueChanged = true;
+                var page = Control.Page;
+
+                if (page != null)
+                {
+                    page.AddPropertyChange(Control, this);
+                }
+                else
+                {
+                    if (Control.PendingChangedProperties == null)
+                        Control.PendingChangedProperties = new Queue<Property>();
+                    if (!Control.PendingChangedProperties.Contains(this))
+                        Control.PendingChangedProperties.Enqueue(this);
+                }
+
             }
         }
 
@@ -82,7 +89,6 @@ namespace FSW.Core
         {
             OnNewValue?.Invoke(this, LastValue, Value, UpdateSource.Server);
             LastValue = Value;
-            HasValueChanged = true;
         }
         public static object? ParseStringDictionary(object value)
         {

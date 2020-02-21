@@ -35,6 +35,9 @@ namespace FSW.Core
             remove => Manager.OnBeforeServerUnlocked -= value;
         }
 
+        internal Dictionary<ControlBase, Queue<Property>> ChangedProperties { get; set; } = new Dictionary<ControlBase, Queue<Property>>();
+
+
         internal async Task InitializeFSWControls(string connectionId, string url, Dictionary<string, string> urlParameters)
         {
             ID = connectionId;
@@ -104,6 +107,44 @@ namespace FSW.Core
         public Task Invoke(Action action)
         {
             return Manager.Invoke(action);
+        }
+
+        private long WaitingForPropertyChangeUpdate = 0;
+        internal void AddPropertyChange(ControlBase control, Property? property)
+        {
+            if (!ChangedProperties.TryGetValue(control, out var queue))
+                ChangedProperties[control] = queue = new Queue<Property>();
+
+            if (property == null)
+                AddProcessPropertyChange();
+            else if (!queue.Contains(property))
+            {
+                queue.Enqueue(property);
+                AddProcessPropertyChange();
+            }
+        }
+        internal void AddProcessPropertyChange()
+        {
+            if (Interlocked.Exchange(ref WaitingForPropertyChangeUpdate, 1) == 0) // if it wasn't already in a pending state
+                InvokeAsync(ProcessPropertyChanges);
+        }
+
+        private async Task ProcessPropertyChanges()
+        {
+            try
+            {
+                var res = await CommunicationHub.ProcessPropertyChange(Manager);
+
+                if (res?.IsEmpty != false)
+                    return;
+
+                await CommunicationHub.SendPropertyUpdateFromServer(Manager, res);
+
+            }
+            finally
+            {
+                Interlocked.Exchange(ref WaitingForPropertyChangeUpdate, 0);
+            }
         }
 
         #region Generic requests

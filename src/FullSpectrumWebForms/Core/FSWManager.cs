@@ -19,29 +19,78 @@ namespace FSW.Core
 
         private readonly Nito.AsyncEx.AsyncContextThread AsyncContextThread = new Nito.AsyncEx.AsyncContextThread();
 
-
         public Dictionary<string, ControlBase> Controls = new Dictionary<string, ControlBase>();
         public List<KeyValuePair<int, ControlBase>> PendingNewControls = new List<KeyValuePair<int, ControlBase>>();
         public List<string> PendingDeletionControls = new List<string>();
 
+        private void HandleError(Exception exception)
+        {
+            if (Page.OverrideErrorHandle != null)
+                Page.OverrideErrorHandle.Invoke(exception);
+        }
+
         public async Task InvokeAsync(Func<Task> action, CancellationToken cancellationToken = default)
         {
-            await await AsyncContextThread.Factory.StartNew(action, cancellationToken);
+            await await AsyncContextThread.Factory.StartNew(async () =>
+            {
+                try
+                {
+                    await action();
+                }
+                catch(Exception exception)
+                {
+                    HandleError(exception);
+                    throw;
+                }
+            }, cancellationToken);
         }
 
         public async Task<T> InvokeAsync<T>(Func<Task<T>> action, CancellationToken cancellationToken = default)
         {
-            return await await AsyncContextThread.Factory.StartNew(action, cancellationToken);
+            return await await AsyncContextThread.Factory.StartNew(async () =>
+            {
+                try
+                {
+                    return await action();
+                }
+                catch (Exception exception)
+                {
+                    HandleError(exception);
+                    throw;
+                }
+            }, cancellationToken);
         }
 
         public Task<T> Invoke<T>(Func<T> action)
         {
-            return AsyncContextThread.Factory.StartNew(action);
+            return AsyncContextThread.Factory.StartNew(()=>
+            {
+                try
+                {
+                    return action();
+                }
+                catch(Exception exception)
+                {
+                    HandleError(exception);
+                    throw;
+                }
+            });
         }
 
         public Task Invoke(Action action)
         {
-            return AsyncContextThread.Factory.StartNew(action);
+            return AsyncContextThread.Factory.StartNew(() =>
+            {
+                try
+                {
+                    action();
+                }
+                catch (Exception exception)
+                {
+                    HandleError(exception);
+                    throw;
+                }
+            });
         }
 
         public ControlBase GetControl(string controlId)
@@ -271,19 +320,45 @@ namespace FSW.Core
 
             var answer = new CoreServerAnswer();
 
-            // for each controls
-            foreach (var control in Controls)
+
+            // chose between ALL controls and just the newly modified ones, depending on the parameter provided
+            var controls = forceAllProperties ? Controls.Select(x => new
             {
-                if (control.Value.NewlyAddedDynamicControl)
+                x.Key,
+                Properties = (IReadOnlyCollection<Property>)x.Value.Properties.Values
+            }) : Page.ChangedProperties.Select(x => new
+            {
+                Key = x.Key.Id,
+                Properties = (IReadOnlyCollection<Property>)x.Value
+            });
+            Page.ChangedProperties = new Dictionary<ControlBase, Queue<Property>>(); // reset it in case someone changes anything inside
+
+            // for each controls
+            foreach (var controlWithChangedProperties in controls)
+            {
+                if (controlWithChangedProperties.Key == null) // shouldn't happen but hey.. who knows..
+                    continue;
+
+                ControlBase control;
+                try
+                {
+                    control = GetControl(controlWithChangedProperties.Key);
+                }
+                catch(KeyNotFoundException)
+                {
+                    continue; // skip error, the control is probably simply deleted already
+                }
+
+                if (control.NewlyAddedDynamicControl)
                     continue;
 
                 var controlProperties = new ExistingControlProperty()
                 {
-                    id = control.Key
+                    id = controlWithChangedProperties.Key
                 };
 
                 // for each properties that has changed in the control
-                foreach (var property in forceAllProperties ? control.Value.Properties.Values : control.Value.ChangeProperties)
+                foreach (var property in controlWithChangedProperties.Properties)
                 {
                     // add the property to be sent to client
                     controlProperties.properties.Add(new ControlProperty_NoId()
@@ -293,14 +368,13 @@ namespace FSW.Core
                     });
                     // call the update from server event
                     property.UpdateValue();
-                    property.HasValueChanged = false; // and then mark as not changed anymore, because we've seen it
                 }
                 if (controlProperties.properties.Count != 0)
                     answer.ChangedProperties.Add(controlProperties);
 
-                var events = control.Value.ExtractPendingCustomEvents();
+                var events = control.ExtractPendingCustomEvents();
                 if (events.Count != 0)
-                    answer.CustomEvents[control.Key] = events;
+                    answer.CustomEvents[control.Id] = events;
 
             }
 
@@ -402,7 +476,6 @@ namespace FSW.Core
 
                 foreach (var property in control.Properties.Values)
                 {
-                    property.HasValueChanged = false;
                     // get all the properties
                     properties.Add(new ControlProperty_NoId()
                     {

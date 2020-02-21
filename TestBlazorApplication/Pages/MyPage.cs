@@ -29,6 +29,15 @@ namespace TestBlazorApplication.Pages
         private void Container_OnClicked(FSW.Controls.Html.HtmlControlBase control)
         {
             Container.BackgroundColor = System.Drawing.Color.Red;
+
+            Container.Children.Add(new FSW.Controls.Html.TextBox(this)
+            {
+                Text = "eheh"
+            });
+            Container.Children.Add(new FSW.Controls.Html.TextBox()
+            {
+                Text = "eheh2"
+            });
         }
     }
 }

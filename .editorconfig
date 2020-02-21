@@ -11,3 +11,6 @@ dotnet_diagnostic.CA2008.severity = silent
 
 # CA2007: Consider calling ConfigureAwait on the awaited task
 dotnet_diagnostic.CA2007.severity = silent
+
+# CA1030: Use events where appropriate
+dotnet_diagnostic.CA1030.severity = none

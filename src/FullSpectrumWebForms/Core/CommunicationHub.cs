@@ -13,11 +13,6 @@ namespace FSW.Core
         public static readonly int MaxJsonLength = 1024 * 1024 * 64;
         public static IHubContext<CommunicationHub> Hub;
 
-        public CommunicationHub()
-        {
-        }
-
-
         private static readonly Dictionary<string, FSWPage?> Connections = new Dictionary<string, FSWPage?>();
         private static readonly Dictionary<int, FSWPage> PageAwaitingConnections = new Dictionary<int, FSWPage>();
 
@@ -43,8 +38,6 @@ namespace FSW.Core
                     throw new Exception("Connection id already exist");
 
                 // use the connection ID 
-                // ( why dafuk would I do that ? )
-                // I don't remember. Let us just.. leave it like that and pray to our imaginary friend(s) that it's for a good reason
                 Connections.Add(Context.ConnectionId, null);
             }
             return Task.CompletedTask;
@@ -226,6 +219,22 @@ namespace FSW.Core
                 return null;
             }
         }
+        // will run a checkup for modifications on the controls in the current page
+        public static Task SendPropertyUpdateFromServer(FSWManager manager, CoreServerAnswer coreServerAnswer)
+        {
+            try
+            {
+                return SendAsync_ID(manager.Page.ID, "propertyUpdateFromServer", JsonConvert.SerializeObject(coreServerAnswer));
+            }
+            catch (Exception e)
+            {
+                if (manager.Page.OverrideErrorHandle is null)
+                    throw;
+                else
+                    return manager.Page.OverrideErrorHandle(e);
+            }
+        }
+
         // used to generate a FSW page on the fly when there are auth error or invalid connection ids
         internal (int PageId, FSWPage? Page, string? SessionId, string? SessionAuth) GenerateFSWPage(string typePath, string sessionId, string sessionAuth)
         {

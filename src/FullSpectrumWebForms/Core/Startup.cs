@@ -14,9 +14,9 @@ namespace FSW.Core
     {
         internal static List<string> AppFiles = new List<string>();
         internal static List<StartupBase> LoadedStartupBases = new List<StartupBase>();
-        public static void ConfigureMvc(IMvcBuilder mvc)
+        public static void ConfigureMvc()
         {
-            mvc.AddApplicationPart(typeof(Startup).Assembly);
+            //mvc.AddApplicationPart(typeof(Startup).Assembly);
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
@@ -26,7 +26,7 @@ namespace FSW.Core
                     {
                         var startupBase = (StartupBase?)Activator.CreateInstance(type);
                         LoadedStartupBases.Add(startupBase);
-                        startupBase.ConfigureMvc(mvc);
+                        //startupBase.ConfigureMvc(mvc);
                     }
                 }
             }

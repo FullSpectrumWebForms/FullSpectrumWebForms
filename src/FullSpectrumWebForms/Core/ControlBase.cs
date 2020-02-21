@@ -20,17 +20,18 @@ namespace FSW.Core
 
         public readonly ControlExtensionsCollection Extensions;
 
-        public ControlBase(FSWPage page = null)
+        internal Queue<Property>? PendingChangedProperties; // only used when properties are changed before the control is added to a page
+
+        public ControlBase(FSWPage? page = null)
         {
-            if (page != null)
-                Page = page;
+            Page = page;
 
             IsInitializing = true;
             IsRemoved = false;
             Children_.CollectionChanged += Children_CollectionChanged;
             Extensions = new ControlExtensionsCollection(this);
 
-            InternalInitialize(Page);
+            InternalInitialize(Page).Wait();
         }
 
         /// <summary>
@@ -220,8 +221,6 @@ namespace FSW.Core
                 AddNewProperty(name, value);
         }
 
-        public IEnumerable<Property> ChangeProperties => Properties.Values.Where(x => x.HasValueChanged);
-
         public virtual string ControlType => GetType().Name;
         public string ControlType_
         {
@@ -248,6 +247,9 @@ namespace FSW.Core
         internal protected void CallCustomClientEvent(string name, object parameters = null)
         {
             PendingCustomEvents.Add(new ServerToClientCustomEvent(name, parameters));
+
+            if (Page != null)
+                Page.AddPropertyChange(this, null);
         }
         internal protected void CallCustomClientEvent<T>(string name, Action<T> callback, object parameters = null)
         {
@@ -262,12 +264,15 @@ namespace FSW.Core
                 AwaitingAnswerEvents[id] = (obj) =>
                 {
                     if (obj == null)
-                        callback(default(T));
+                        callback(default);
                     else if (obj.HasValues)
                         callback(obj.Value.ToObject<T>());
                     else
                         callback(obj.ToObject<T>());
                 };
+
+                if (Page != null)
+                    Page.AddPropertyChange(this, null);
                 break;
             }
         }
@@ -289,7 +294,7 @@ namespace FSW.Core
             else
                 throw new Exception("Client answer id not found");
         }
-        
+
         internal List<ServerToClientCustomEvent> ExtractPendingCustomEvents()
         {
             if (PendingCustomEvents.Count == 0)
@@ -302,7 +307,6 @@ namespace FSW.Core
         internal async Task InternalInitialize(FSWPage page)
         {
             Page = page;
-            ControlType_ = ControlType;
 
             // you must not initialize the control when the session isn't active
             // if we did, we risked the custom code adding childrens, which is gonna crash
@@ -310,6 +314,15 @@ namespace FSW.Core
             // anyway just fucking leave this like that
             if (Page != null)
             {
+                if (PendingChangedProperties?.Count > 0)
+                {
+                    if (!Page.ChangedProperties.TryGetValue(this, out var properties))
+                        Page.ChangedProperties[this] = properties = new Queue<Property>();
+
+                    foreach (var property in PendingChangedProperties)
+                        Page.AddPropertyChange(this, property);
+                }
+                ControlType_ = ControlType;
                 ParentElementId = null;
                 await InitializeProperties();
                 IsInitializing = false;
