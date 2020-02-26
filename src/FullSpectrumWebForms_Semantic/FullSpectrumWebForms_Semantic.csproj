@@ -3,7 +3,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>FSW.Semantic</PackageId>
-    <Version>4.0.2.1-beta</Version>
+    <Version>4.0.2.2</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
     <IsPackable>true</IsPackable>
