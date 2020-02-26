@@ -42,9 +42,6 @@
     <Content Update="Pages\Examples\SmartDataGrid.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Update="Pages\Examples\PropertyBinding.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
     <Content Update="Pages\TestT.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

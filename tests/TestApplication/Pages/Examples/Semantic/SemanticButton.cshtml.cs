@@ -14,9 +14,9 @@ namespace TestApplication.Pages.Examples.Semantic
         public FSW.Semantic.Controls.Html.IconLabeledButton BT_TestSecondary = new FSW.Semantic.Controls.Html.IconLabeledButton();
         public FSW.Semantic.Controls.Html.IconLabeledButton BT_TestLabel = new FSW.Semantic.Controls.Html.IconLabeledButton();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad();
 
             BT_Test.Text = "Test Text";
             BT_Test.Icon = "heart";

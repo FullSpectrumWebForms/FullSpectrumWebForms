@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FSW.Controls.Html
@@ -52,9 +53,9 @@ namespace FSW.Controls.Html
             OnStateChanged?.Invoke(this);
         }
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             Checked = false;
             Text = "";
@@ -65,10 +66,12 @@ namespace FSW.Controls.Html
             GetPropertyInternal(nameof(Checked)).OnNewValue += TextBox_OnNewValue;
         }
 
-        private void TextBox_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
+        private Task TextBox_OnNewValue(Property property, object lastValue, object newValue, Property.UpdateSource source)
         {
             if (source == Property.UpdateSource.Client)
                 OnTextChanged?.Invoke(this, (string)lastValue, (string)newValue);
+
+            return Task.CompletedTask;
         }
     }
 }

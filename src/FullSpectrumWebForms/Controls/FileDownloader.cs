@@ -56,17 +56,18 @@ namespace FSW.Controls
             });
         }
         
-        protected internal override void ControlInitialized()
+        protected internal override async Task ControlInitialized()
         {
-            base.ControlInitialized();
+            await base.ControlInitialized();
 
             Page.RegisterNewGenericRequest("FileDownloader_" + Id, OnFileDownloadRequest);
 
             OnControlRemoved += FileDownloader_OnControlRemoved;
         }
 
-        public override void InitializeProperties()
+        public override Task InitializeProperties()
         {
+            return Task.CompletedTask;
         }
 
         private void FileDownloader_OnControlRemoved(ControlBase control)

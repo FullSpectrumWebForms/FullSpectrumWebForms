@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FSW.Controls.Html
@@ -11,9 +12,10 @@ namespace FSW.Controls.Html
         public Div(FSWPage page = null) : base(page)
         {
         }
-        public override void InitializeProperties()
+
+        public override Task InitializeProperties()
         {
-            base.InitializeProperties();
+            return base.InitializeProperties();
         }
     }
 }

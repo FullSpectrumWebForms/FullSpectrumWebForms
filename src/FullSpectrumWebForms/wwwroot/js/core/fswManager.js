@@ -14,7 +14,8 @@ var core;
             this.controls = {};
             this.updateLocked = 0;
             this.pendingPropertyUpdate = {};
-            this.customEventQueue = [];
+            this.customEventId = 1;
+            this.customEventQueue = {};
         }
         getControl(id) {
             return this.controls[id];
@@ -198,8 +199,12 @@ var core;
                     let controlProperties = answer.ChangedProperties[i].properties;
                     for (let j = 0; j < controlProperties.length; ++j) {
                         var prop = control.properties[controlProperties[j].property];
+                        // if the property doesn't already exist, create it right now
+                        if (!prop)
+                            prop = control.properties[controlProperties[j].property] = new core.controlProperty(control, controlProperties[j].property, controlProperties[j].value);
                         let last = prop.value;
-                        prop.value = controlProperties[j].value;
+                        prop.value = controlProperties[j].value; // assign the new value
+                        // and then invoke the on changed event
                         prop.onChangedFromServer.invoke({
                             new: prop.value,
                             old: last
@@ -241,45 +246,35 @@ var core;
         customEventAnswer(datas) {
             datas = JSON.parse(datas);
             this.propertyUpdateFromServerStep1(datas.properties);
-            let def = this.customEventQueue[0];
-            this.customEventQueue.splice(0, 1);
+            let def = this.customEventQueue[datas.eventId];
+            delete this.customEventQueue[datas.eventId];
             def.resolve(datas.result);
         }
         sendCustomControlEvent(controlId, eventName, parameters, forceSync) {
             let that = this;
-            function doCall() {
-                that.connection.send('CustomControlEvent', {
-                    controlId: controlId,
-                    eventName: eventName,
-                    parameters: parameters
-                });
-            }
-            ;
+            let currentEventId = ++this.customEventId;
             var def = $.Deferred();
-            this.customEventQueue.push(def);
-            if (this.customEventQueue.length == 1)
-                doCall();
-            else
-                this.customEventQueue[this.customEventQueue.length - 2].done(doCall);
+            this.customEventQueue[currentEventId] = def;
+            this.connection.send('CustomControlEvent', {
+                eventId: currentEventId,
+                controlId: controlId,
+                eventName: eventName,
+                parameters: parameters
+            });
             return def;
         }
         sendCustomControlExtensionEvent(controlId, extension, eventName, parameters, forceSync) {
             let that = this;
-            function doCall() {
-                that.connection.send('CustomControlExtensionEvent', {
-                    controlId: controlId,
-                    extension: extension,
-                    eventName: eventName,
-                    parameters: parameters
-                });
-            }
-            ;
+            let currentEventId = ++this.customEventId;
             var def = $.Deferred();
-            this.customEventQueue.push(def);
-            if (this.customEventQueue.length == 1)
-                doCall();
-            else
-                this.customEventQueue[this.customEventQueue.length - 2].done(doCall);
+            this.customEventQueue[currentEventId] = def;
+            that.connection.send('CustomControlExtensionEvent', {
+                eventId: currentEventId,
+                controlId: controlId,
+                extension: extension,
+                eventName: eventName,
+                parameters: parameters
+            });
             return def;
         }
     }

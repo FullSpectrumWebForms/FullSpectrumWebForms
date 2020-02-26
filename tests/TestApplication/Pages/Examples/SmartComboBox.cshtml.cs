@@ -17,9 +17,9 @@ namespace TestApplication.Pages.Examples
         }
 
         public FSW.Controls.ServerSide.SmartComboBox<ComboItem> CB_Smart = new FSW.Controls.ServerSide.SmartComboBox<ComboItem>();
-        public override void OnPageLoad()
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad(); ;
 
             CB_Smart.AvailableChoices = new[]
             {

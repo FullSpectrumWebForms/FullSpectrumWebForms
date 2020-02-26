@@ -13,9 +13,9 @@ namespace TestApplication.Pages
         public TextBox TB_Test = new TextBox();
         public Label LB_Test = new Label();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad();
 
             TB_Test.OnTextChanged += TB_Test_OnTextChanged;
         }

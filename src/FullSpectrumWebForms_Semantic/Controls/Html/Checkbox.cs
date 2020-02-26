@@ -41,9 +41,10 @@ namespace FSW.Semantic.Controls.Html
         { }
 
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
+
             Checked = false;
             IsToggleType = false;
             Text = "";
@@ -53,9 +54,11 @@ namespace FSW.Semantic.Controls.Html
             GetPropertyInternal(nameof(Checked)).OnNewValueFromClient += ComboBoxState_OnNewValueFromClient;
         }
 
-        private void ComboBoxState_OnNewValueFromClient(Property property, object lastValue, object newValue)
+        private Task ComboBoxState_OnNewValueFromClient(Property property, object lastValue, object newValue)
         {
             OnStateChanged?.Invoke(this);
+
+            return Task.CompletedTask;
         }
 
     }

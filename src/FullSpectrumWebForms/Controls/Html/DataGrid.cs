@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FSW.Controls.Html
@@ -1023,10 +1024,9 @@ namespace FSW.Controls.Html
         {
             Columns.Set(columns);
         }
-
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             Columns = new Utility.ControlPropertyDictionary<DataGridColumn>(this, nameof(Columns));
             ColumnFilters_ = new ControlPropertyDictionary<string>(this, nameof(ColumnFilters));
@@ -1041,9 +1041,11 @@ namespace FSW.Controls.Html
             GetPropertyInternal(nameof(ColumnFilters)).OnNewValueFromClient += ColumnFilters_OnNewValueFromClient;
         }
 
-        private void ColumnFilters_OnNewValueFromClient(Property property, object lastValue, object newValue)
+        private Task ColumnFilters_OnNewValueFromClient(Property property, object lastValue, object newValue)
         {
             RefreshDatas();
+
+            return Task.CompletedTask;
         }
 
         public ControlPropertyDictionary<DataGridColumn> GetColumns()

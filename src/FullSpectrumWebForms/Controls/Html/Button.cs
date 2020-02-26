@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FSW.Controls.Html
 {
@@ -41,22 +42,23 @@ namespace FSW.Controls.Html
         }
 
 
-        public delegate void OnButtonClickedHandler(Button button);
+        public delegate Task OnButtonClickedHandler(Button button);
         public event OnButtonClickedHandler OnButtonClicked;
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             OnClicked += Button_OnClicked;
 
             Text = "";
         }
 
-        private void Button_OnClicked(HtmlControlBase control)
+        private Task Button_OnClicked(HtmlControlBase control)
         {
             if (State != State.Disabled )
-                OnButtonClicked?.Invoke(this);
+                return OnButtonClicked?.Invoke(this) ?? Task.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

@@ -12,9 +12,9 @@ namespace TestApplication.Pages
     {
         public Calendar C_Test = new Calendar();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad();
 
 
             C_Test.OnRefreshRequest += C_Test_OnRefreshRequest;

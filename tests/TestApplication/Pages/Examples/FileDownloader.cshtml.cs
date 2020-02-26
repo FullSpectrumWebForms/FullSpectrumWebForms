@@ -15,9 +15,9 @@ namespace TestApplication.Pages.Examples
         public FSW.Controls.Html.Button BT_UploadFile = new FSW.Controls.Html.Button();
 
         public FileDownloader FileDownloader = new FileDownloader();
-        public override void OnPageLoad()
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad();
 
             var upload = new FSW.Controls.Extensions.FileUploadExtension();
             upload.GetOnFileUploadReceivedFromClient += Upload_GetOnFileUploadReceivedFromClient;
@@ -26,20 +26,14 @@ namespace TestApplication.Pages.Examples
 
         private void Upload_GetOnFileUploadReceivedFromClient(List<IFormFile> files, TaskCompletionSource<IActionResult> TaskCompletionSource)
         {
-            RegisterHostedService(() =>
-            {
-                var stream = new MemoryStream();
+            var stream = new MemoryStream();
 
-                files[0].CopyTo(stream);
-                stream.Position = 0;
+            files[0].CopyTo(stream);
+            stream.Position = 0;
 
-                using (Page.ServerSideLock)
-                {
-                    FileDownloader.SendStreamThenDispose(stream, files[0].FileName);
-                }
+            FileDownloader.SendStreamThenDispose(stream, files[0].FileName);
 
-                TaskCompletionSource.SetResult(new OkResult());
-            });
+            TaskCompletionSource.SetResult(new OkResult());
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FSW.Core
 {
@@ -12,7 +13,6 @@ namespace FSW.Core
         public Property(string name)
         {
             Name = name;
-            HasValueChanged = false;
         }
 
         /// <summary>
@@ -25,10 +25,7 @@ namespace FSW.Core
         /// </summary>
         public string Name { get; private set; }
 
-        /// <summary>
-        /// True if the value of this property have changed since the beginning of this postback call
-        /// </summary>
-        public bool HasValueChanged { get; set; }
+
         /// <summary>
         /// The last knowned value of the property, before any change
         /// </summary>
@@ -45,10 +42,20 @@ namespace FSW.Core
             {
                 Value_ = value;
                 LastValue = Value_;
-                if (Control.IsInitializing)
-                    return;
-                OnInstantNewValue?.Invoke(this, LastValue, Value_, UpdateSource.Server);
-                HasValueChanged = true;
+                var page = Control.Page;
+
+                if (page != null)
+                {
+                    page.AddPropertyChange(Control, this);
+                }
+                else
+                {
+                    if (Control.PendingChangedProperties == null)
+                        Control.PendingChangedProperties = new Queue<Property>();
+                    if (!Control.PendingChangedProperties.Contains(this))
+                        Control.PendingChangedProperties.Enqueue(this);
+                }
+
             }
         }
 
@@ -59,27 +66,21 @@ namespace FSW.Core
         {
             Client, Server
         }
-        public delegate void OnNewValueEvent(Property property, object lastValue, object newValue, UpdateSource source);
+        public delegate Task OnNewValueEvent(Property property, object lastValue, object newValue, UpdateSource source);
         /// <summary>
         /// Called when the value is updated 
         /// </summary>
         public event OnNewValueEvent OnNewValue;
 
-        public delegate void OnNewValueFromClientEvent(Property property, object lastValue, object newValue);
+        public delegate Task OnNewValueFromClientEvent(Property property, object lastValue, object newValue);
         /// <summary>
         /// Called when the value is updated from the client
         /// </summary>
         public event OnNewValueFromClientEvent OnNewValueFromClient;
-        /// <summary>
-        /// Instantly called when the <see cref="Value"/> is modified from server side,
-        /// or call just before the <see cref="OnNewValue"/> is called if modified from client side
-        /// <para/>
-        /// Use this if you don't want the event to be fired only when the postback is about to end
-        /// </summary>
-        public event OnNewValueEvent OnInstantNewValue;
 
-        public Func<object, object> ParseValueFromClient;
-        public Func<object, object> ParseValueToClient;
+
+        public Func<object, object>? ParseValueFromClient { get; set; }
+        public Func<object, object>? ParseValueToClient { get; set; }
 
         /// <summary>
         /// Raise a <see cref="OnNewValue"/> event. Obviously this is called for a <see cref="UpdateSource.Server"/> update
@@ -88,9 +89,8 @@ namespace FSW.Core
         {
             OnNewValue?.Invoke(this, LastValue, Value, UpdateSource.Server);
             LastValue = Value;
-            HasValueChanged = true;
         }
-        public static object ParseStringDictionary(object value)
+        public static object? ParseStringDictionary(object value)
         {
             if (value == null)
                 return null;
@@ -104,15 +104,14 @@ namespace FSW.Core
         /// Set the new <see cref="Value"/> then Raise <see cref="OnInstantNewValue"/>, and then <see cref="OnNewValue"/>
         /// This is called when the client update the value
         /// </summary>
-        public void UpdateValue(object newValue)
+        public async Task UpdateValue(object newValue)
         {
             if (ParseValueFromClient != null)
                 newValue = ParseValueFromClient(newValue);
 
             Value_ = newValue;
-            OnInstantNewValue?.Invoke(this, LastValue, newValue, UpdateSource.Client);
-            OnNewValue?.Invoke(this, LastValue, newValue, UpdateSource.Client);
-            OnNewValueFromClient?.Invoke(this, LastValue, newValue);
+            await (OnNewValue?.Invoke(this, LastValue, newValue, UpdateSource.Client) ?? Task.CompletedTask);
+            await (OnNewValueFromClient?.Invoke(this, LastValue, newValue) ?? Task.CompletedTask);
             LastValue = newValue;
         }
 

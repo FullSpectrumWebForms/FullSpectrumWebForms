@@ -41,10 +41,12 @@ namespace FSW.Controls
         }
 
 
-        public override void InitializeProperties()
+        public override Task InitializeProperties()
         {
             MaxInactivityDelay = TimeSpan.FromMinutes(1);
             Enabled = true;
+
+            return Task.CompletedTask;
         }
     }
 }

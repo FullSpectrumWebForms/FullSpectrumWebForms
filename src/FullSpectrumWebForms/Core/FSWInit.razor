@@ -1,0 +1,30 @@
+﻿<input id="pageId" value="@PageId" />
+<input id="pageIdAuth" value="@Auth" />
+
+
+@code {
+
+    [Parameter]
+    public Type? PageType { get; set; }
+
+    [Parameter]
+    public FSWPage? Page { get; set; }
+
+    public int PageId;
+    public string Auth = "";
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var res = FSW.ModelBase.RegisterFSWPage(Page, null, null, out var _, out var _2);
+
+        PageId = res.id;
+        Auth = res.auth;
+    }
+
+
+}

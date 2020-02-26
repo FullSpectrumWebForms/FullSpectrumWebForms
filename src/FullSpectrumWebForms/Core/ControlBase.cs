@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace FSW.Core
 {
@@ -19,17 +20,18 @@ namespace FSW.Core
 
         public readonly ControlExtensionsCollection Extensions;
 
-        public ControlBase(FSWPage page = null)
+        internal Queue<Property>? PendingChangedProperties; // only used when properties are changed before the control is added to a page
+
+        public ControlBase(FSWPage? page = null)
         {
-            if (page != null)
-                Page = page;
+            Page = page;
 
             IsInitializing = true;
             IsRemoved = false;
             Children_.CollectionChanged += Children_CollectionChanged;
             Extensions = new ControlExtensionsCollection(this);
 
-            InternalInitialize(Page);
+            InternalInitialize(Page).Wait();
         }
 
         /// <summary>
@@ -118,9 +120,9 @@ namespace FSW.Core
                     control.NewlyAddedDynamicControl = true;
                     control.Parent = this;
                     if (control.IsInitializing)
-                        control.InternalInitialize(Page);
+                        control.InternalInitialize(Page).Wait();
                     if (Id != null) // if initialized
-                        Page.Manager.AddNewDynamicControl(control, Children.IndexOf(control));
+                        Page.Manager.AddNewDynamicControl(control, Children.IndexOf(control)).Wait();
 
                     Children_backup.Add(control);
                 }
@@ -219,8 +221,6 @@ namespace FSW.Core
                 AddNewProperty(name, value);
         }
 
-        public IEnumerable<Property> ChangeProperties => Properties.Values.Where(x => x.HasValueChanged);
-
         public virtual string ControlType => GetType().Name;
         public string ControlType_
         {
@@ -247,6 +247,9 @@ namespace FSW.Core
         internal protected void CallCustomClientEvent(string name, object parameters = null)
         {
             PendingCustomEvents.Add(new ServerToClientCustomEvent(name, parameters));
+
+            if (Page != null)
+                Page.AddPropertyChange(this, null);
         }
         internal protected void CallCustomClientEvent<T>(string name, Action<T> callback, object parameters = null)
         {
@@ -261,19 +264,22 @@ namespace FSW.Core
                 AwaitingAnswerEvents[id] = (obj) =>
                 {
                     if (obj == null)
-                        callback(default(T));
+                        callback(default);
                     else if (obj.HasValues)
                         callback(obj.Value.ToObject<T>());
                     else
                         callback(obj.ToObject<T>());
                 };
+
+                if (Page != null)
+                    Page.AddPropertyChange(this, null);
                 break;
             }
         }
 
-        internal protected System.Threading.Tasks.Task<T> CallCustomClientEvent<T>(string name, object parameters = null)
+        internal protected Task<T> CallCustomClientEvent<T>(string name, object parameters = null)
         {
-            var src = new System.Threading.Tasks.TaskCompletionSource<T>();
+            var src = new TaskCompletionSource<T>();
 
             CallCustomClientEvent<T>(name, (res) => src.TrySetResult(res), parameters);
 
@@ -288,7 +294,7 @@ namespace FSW.Core
             else
                 throw new Exception("Client answer id not found");
         }
-        
+
         internal List<ServerToClientCustomEvent> ExtractPendingCustomEvents()
         {
             if (PendingCustomEvents.Count == 0)
@@ -298,10 +304,9 @@ namespace FSW.Core
             PendingCustomEvents = new List<ServerToClientCustomEvent>();
             return res;
         }
-        internal void InternalInitialize(FSWPage page)
+        internal async Task InternalInitialize(FSWPage page)
         {
             Page = page;
-            ControlType_ = ControlType;
 
             // you must not initialize the control when the session isn't active
             // if we did, we risked the custom code adding childrens, which is gonna crash
@@ -309,8 +314,17 @@ namespace FSW.Core
             // anyway just fucking leave this like that
             if (Page != null)
             {
+                if (PendingChangedProperties?.Count > 0)
+                {
+                    if (!Page.ChangedProperties.TryGetValue(this, out var properties))
+                        Page.ChangedProperties[this] = properties = new Queue<Property>();
+
+                    foreach (var property in PendingChangedProperties)
+                        Page.AddPropertyChange(this, property);
+                }
+                ControlType_ = ControlType;
                 ParentElementId = null;
-                InitializeProperties();
+                await InitializeProperties();
                 IsInitializing = false;
             }
 
@@ -321,45 +335,77 @@ namespace FSW.Core
             foreach (var child in Children)
             {
                 if (child.IsInitializing)
-                    child.InternalInitialize(Page);
+                    await child.InternalInitialize(Page);
             }
         }
         internal bool IsInitializing { get; private set; }
-        public abstract void InitializeProperties();
-        internal void UpdatePropertyValueFromClient(string propertyName, object newValue)
+        public abstract Task InitializeProperties();
+        internal Task UpdatePropertyValueFromClient(string propertyName, object newValue)
         {
             if (Properties.TryGetValue(propertyName, out var value))
-                value.UpdateValue(newValue);
+                return value.UpdateValue(newValue);
             else
                 throw new ArgumentException($"Property not found:{propertyName} in control:{Id.ToString()}");
         }
 
-        virtual protected internal void ControlInitialized()
+        virtual protected internal Task ControlInitialized()
         {
+            return Task.CompletedTask;
         }
 
         public enum VariableWatchType
         {
             WatchVariableValue, WatchEveryFields, WatchEveryFieldsAndObjectValue
         }
-        public void RegisterVariableWatch(Func<object> variableToWatch, Action callback, bool autoInvoke = false)
+        public void RegisterVariableWatch(Func<object> variableToWatch, Func<Task> callback, bool autoInvoke = false)
         {
             var valueType = variableToWatch().GetType();
             if (valueType.IsPrimitive || valueType == typeof(string))
                 RegisterVariableWatch(variableToWatch, VariableWatchType.WatchVariableValue, callback, autoInvoke);
             else
                 RegisterVariableWatch(variableToWatch, VariableWatchType.WatchEveryFieldsAndObjectValue, callback, autoInvoke);
-
         }
-        public void RegisterVariableWatchValue(Func<object> variableToWatch, Action callback, bool autoInvoke = false)
+        public void RegisterVariableWatch(Func<object> variableToWatch, Action callback, bool autoInvoke = false)
+        {
+            RegisterVariableWatch(variableToWatch, () =>
+            {
+                callback();
+                return Task.CompletedTask;
+            }, autoInvoke);
+        }
+        public void RegisterVariableWatchValue(Func<object> variableToWatch, Func<Task> callback, bool autoInvoke = false)
         {
             RegisterVariableWatch(variableToWatch, VariableWatchType.WatchVariableValue, callback, autoInvoke);
         }
+        public void RegisterVariableWatchValue(Func<object> variableToWatch, Action callback, bool autoInvoke = false)
+        {
+            RegisterVariableWatchValue(variableToWatch, () =>
+            {
+                callback();
+                return Task.CompletedTask;
+            }, autoInvoke);
+        }
         public void RegisterVariableWatchFields(Func<object> variableToWatch, Action callback, bool autoInvoke = false)
+        {
+            RegisterVariableWatchFields(variableToWatch, () =>
+            {
+                callback();
+                return Task.CompletedTask;
+            }, autoInvoke);
+        }
+        public void RegisterVariableWatchFields(Func<object> variableToWatch, Func<Task> callback, bool autoInvoke = false)
         {
             RegisterVariableWatch(variableToWatch, VariableWatchType.WatchEveryFields, callback, autoInvoke);
         }
         public void RegisterVariableWatch(Func<object> variableToWatch, VariableWatchType variableWatchType, Action callback, bool autoInvoke = false)
+        {
+            RegisterVariableWatch(variableToWatch, variableWatchType, () =>
+            {
+                callback();
+                return Task.CompletedTask;
+            }, autoInvoke);
+        }
+        public void RegisterVariableWatch(Func<object> variableToWatch, VariableWatchType variableWatchType, Func<Task> callback, bool autoInvoke = false)
         {
             var lastValue = variableToWatch();
 
@@ -398,69 +444,21 @@ namespace FSW.Core
                 };
             }
 
-            void onBeforeServerUnlocked(FSWPage a)
+            Task onBeforeServerUnlocked(FSWPage a)
             {
                 var newValue = variableToWatch();
                 var isSame = validator(lastValue, newValue);
                 lastValue = newValue;
 
                 if (!isSame)
-                    callback();
+                    return callback();
+                return Task.CompletedTask;
             }
 
             OnBeforeServerUnlocked += onBeforeServerUnlocked;
 
             if (autoInvoke)
-                callback();
+                _ = callback();
         }
-
-        public void BindProperty(Action action, params Expression<Func<object>>[] checkExpression)
-        {
-            var knownedProperties = new List<KeyValuePair<ControlBase, string>>();
-            foreach (var propertyExpression in checkExpression)
-            {
-                var possibleMemberExpression = propertyExpression.Body is UnaryExpression unaryExpression ? unaryExpression.Operand : (object)propertyExpression.Body;
-
-                if (possibleMemberExpression is MemberExpression memberExpression)
-                {
-                    var me = memberExpression.Expression as MemberExpression;
-                    var ce = (ConstantExpression)me.Expression;
-                    var fieldInfo = ce.Value.GetType().GetField(me.Member.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    var value = (ControlBase)fieldInfo.GetValue(ce.Value);
-                    var propertyName = memberExpression.Member.Name;
-
-                    if (!value.Properties.ContainsKey(propertyName))
-                    {
-                        var attribute = memberExpression.Member.GetCustomAttribute<PropertyWrapperAttribute>();
-                        if (attribute is null)
-                            throw new Exception($"Unable to find control property or property wrapper for property '{propertyName}'");
-                        propertyName = attribute.Property;
-                    }
-
-                    var property = value.GetPropertyInternal(propertyName);
-
-                    if (!knownedProperties.Contains(new KeyValuePair<ControlBase, string>(value, propertyName)))
-                        knownedProperties.Add(new KeyValuePair<ControlBase, string>(value, propertyName));
-                    else
-                        continue;
-
-                    void callback(Property prop, object lastValue, object newValue, Property.UpdateSource source)
-                    {
-                        action();
-                    }
-                    property.OnInstantNewValue += callback;
-
-                    // prevent the other control from triggering this control, if this one doesn't even exist anymore!
-                    OnControlRemoved += (control) =>
-                    {
-                        property.OnInstantNewValue -= callback;
-                    };
-
-                    continue;
-                }
-                throw new Exception($"Unable to parse {propertyExpression.Body.ToString()}");
-            }
-        }
-
     }
 }

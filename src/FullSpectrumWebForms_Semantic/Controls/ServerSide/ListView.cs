@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FSW.Semantic.Controls.ServerSide
 {
@@ -178,14 +179,16 @@ namespace FSW.Semantic.Controls.ServerSide
 
         public int ItemCount => Items_.Count;
 
-        private void OnItemClickedFromClient(HtmlControlBase control)
+        private Task OnItemClickedFromClient(HtmlControlBase control)
         {
             var index = FindItemIndex(control);
             if (index == -1)
-                return; // shouldn't happen, but who knows
+                return Task.CompletedTask; // shouldn't happen, but who knows
             var item = Items_[index];
 
             SelectedIndex = index;
+
+            return Task.CompletedTask;
         }
         public ListViewItem SelectedItem
         {
@@ -307,9 +310,9 @@ namespace FSW.Semantic.Controls.ServerSide
             }
         }
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
 
             Classes.AddRange(new List<string> { "ui", "list" });
         }
@@ -357,9 +360,10 @@ namespace FSW.Semantic.Controls.ServerSide
             }
         }
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
+
             ContainerHtmlDefaultTag = "a";
             Classes.Remove("list");
             Classes.Add("menu");

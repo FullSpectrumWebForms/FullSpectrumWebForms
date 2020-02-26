@@ -13,9 +13,9 @@ namespace TestApplication.Pages.Examples
         public Span spanTest1 = new Span();
         public TextBox spanTest2 = new TextBox();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad();
 
 
         }

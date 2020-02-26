@@ -24,28 +24,7 @@ namespace FSW.Controls
         
         public Task<GeoCoordinate> QueryGeoCoordinate()
         {
-            var taskCompletion = new TaskCompletionSource<GeoCoordinate>();
-            Page.RegisterHostedService(() =>
-            {
-                Task<GeoCoordinate> task;
-                using (Page.ServerSideLock)
-                    task = CallCustomClientEvent<GeoCoordinate>("queryGeoCoordinate");
-
-                task.Wait();
-                taskCompletion.SetResult(task.Result);
-
-            }, Core.FSWPage.HostedServicePriority.NewThread);
-            return taskCompletion.Task;
-        }
-
-        public void QueryGeoCoordinate(Action<GeoCoordinate> callback)
-        {
-            var task = QueryGeoCoordinate();
-
-            task.ContinueWith((geo) =>
-            {
-                callback(geo.Result);
-            });
+            return CallCustomClientEvent<GeoCoordinate>("queryGeoCoordinate");
         }
 
         public void SetCookie(string name, string value)
@@ -59,26 +38,7 @@ namespace FSW.Controls
 
         public Task<string> QueryCookie(string name)
         {
-            var taskCompletion = new TaskCompletionSource<string>();
-            Page.RegisterHostedService(() =>
-            {
-                Task<string> task;
-                using (Page.ServerSideLock)
-                    task = CallCustomClientEvent<string>("queryCookie", name);
-
-                task.Wait();
-                taskCompletion.SetResult(task.Result);
-            });
-            return taskCompletion.Task;
-        }
-
-        public void QueryCookie(string name, Action<string> callback)
-        {
-            var task = QueryCookie(name);
-            task.ContinueWith(x =>
-            {
-                callback(x.Result);
-            });
+            return CallCustomClientEvent<string>("queryCookie", name);
         }
 
         public Task PerformLifeCycle()
@@ -102,10 +62,11 @@ namespace FSW.Controls
             });
         }
 
-        public override void InitializeProperties()
+        public override Task InitializeProperties()
         {
             IsMobile = null;
 
+            return Task.CompletedTask;
         }
 
     }

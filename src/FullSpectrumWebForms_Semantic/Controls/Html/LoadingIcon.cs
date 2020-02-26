@@ -13,9 +13,10 @@ namespace FSW.Semantic.Controls.Html
         { }
 
 
-        public override void InitializeProperties()
+        public override async Task InitializeProperties()
         {
-            base.InitializeProperties();
+            await base.InitializeProperties();
+
             HtmlDefaultTag = "i";
             Classes.AddRange(new List<string> { "ui", "icon", "loading", "spinner" });
         }

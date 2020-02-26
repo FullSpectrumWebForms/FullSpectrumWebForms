@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FSW.Controls
@@ -49,11 +50,13 @@ namespace FSW.Controls
         {
             OnTick?.Invoke(this);
         }
-        public override void InitializeProperties()
+        public override Task InitializeProperties()
         {
             Interval = TimeSpan.FromSeconds(10);
             Enabled = true;
             OnlyOnce = false;
+
+            return Task.CompletedTask;
         }
 
         public void Reset()

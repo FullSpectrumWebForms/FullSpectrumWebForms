@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FSW.Controls.Html
 {
@@ -70,7 +71,7 @@ namespace FSW.Controls.Html
         // When set BEFORE the new control is sent to the client,
         // the client will search for the control using the provided selector ( Ex ".customCssClass" )
         // it will search inside the control parent ( kinda $(parent).find( control.CustomSelector ); )
-        public string CustomSelector
+        public string? CustomSelector
         {
             get => TryGetProperty(PropertyName(), out string value) ? value : null;
             set => SetProperty(PropertyName(), value);
@@ -110,7 +111,7 @@ namespace FSW.Controls.Html
         }
 
 
-        public delegate void OnClickedHandler(HtmlControlBase control);
+        public delegate Task OnClickedHandler(HtmlControlBase control);
         private event OnClickedHandler OnClicked_;
         public event OnClickedHandler OnClicked
         {
@@ -128,9 +129,9 @@ namespace FSW.Controls.Html
         }
 
         [CoreEvent]
-        protected void OnClickedFromClient()
+        protected Task OnClickedFromClient()
         {
-            OnClicked_?.Invoke(this);
+            return OnClicked_?.Invoke(this) ?? Task.CompletedTask;
         }
 
 
@@ -384,7 +385,7 @@ namespace FSW.Controls.Html
                 item.OnClick();
         }
 
-        public override void InitializeProperties()
+        public override Task InitializeProperties()
         {
             CssProperties_ = new Utility.ControlPropertyDictionary<string>(this, nameof(CssProperties));
             Attributes_ = new Utility.ControlPropertyDictionary<string>(this, nameof(Attributes));
@@ -394,6 +395,8 @@ namespace FSW.Controls.Html
             PopupTitle = null;
             PopupContent = null;
             PopupShowDelay = null;
+
+            return Task.CompletedTask;
         }
 
         public enum ScrollTarget

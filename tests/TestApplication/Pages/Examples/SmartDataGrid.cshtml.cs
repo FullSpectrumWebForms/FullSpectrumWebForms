@@ -28,9 +28,9 @@ namespace TestApplication.Pages.Examples
         }
 
         private SmartDataGrid<RowData> DG_Test = new SmartDataGrid<RowData>();
-        public override void OnPageLoad()
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad();
 
             DG_Test.AllowEdit = true;
             DG_Test.EnableTreeTableView = true;

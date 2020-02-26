@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 
@@ -22,9 +23,9 @@ namespace FSW.Controls
         }
         private static readonly List<string> MessageType_StringEquivalent = new List<string> { "alert", "warning", "success", "error" };
 
-        public override void InitializeProperties()
+        public override Task InitializeProperties()
         {
-
+            return Task.CompletedTask;
         }
         public void Error(string title, string text)
         {

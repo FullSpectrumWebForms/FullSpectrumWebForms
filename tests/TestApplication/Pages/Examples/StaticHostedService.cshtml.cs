@@ -15,9 +15,9 @@ namespace TestApplication.Pages
         public Div DIV_Feed = new Div();
         public TextBox TB_Feed = new TextBox();
 
-        public override void OnPageLoad()
+        public override async Task OnPageLoad()
         {
-            base.OnPageLoad();
+            await base.OnPageLoad();
 
             DIV_Feed.Width = "400px";
             DIV_Feed.CssProperties["border"] = "dashed 1px";
@@ -53,11 +53,8 @@ namespace TestApplication.Pages
         }
         public void AddTexts(List<string> texts, bool own)
         {
-            using (ServerSideLock)
-            {
-                foreach (var text in texts)
-                    AddText(text, own);
-            }
+            foreach (var text in texts)
+                AddText(text, own);
         }
 
     }

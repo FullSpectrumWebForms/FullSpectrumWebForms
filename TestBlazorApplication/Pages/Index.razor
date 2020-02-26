@@ -1,0 +1,44 @@
+﻿@page "/"
+<input id="pageId" value="@PageId" />
+<input id="pageIdAuth" value="@Auth" />
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<span @onclick="_=>ProcessSuperClickEvent()">@Text</span>
+
+<div id="Container"></div>
+
+@code{
+
+    public int PageId;
+    public string Auth = "";
+
+    MyPage Page = new MyPage();
+
+    string Text = "yo";
+    protected override void OnInitialized()
+    {
+        var res = FSW.ModelBase.RegisterFSWPage(Page, null, null, out var _, out var _2);
+
+        PageId = res.id;
+        Auth = res.auth;
+
+
+        Page.OnPageLoaded += page =>
+        {
+            Page.Container.OnClicked += _ => ProcessSuperClickEvent();
+        };
+    }
+
+    private Task ProcessSuperClickEvent()
+    {
+        return InvokeAsync(() =>
+        {
+            Text += " yo";
+            StateHasChanged();
+        });
+    }
+
+}
