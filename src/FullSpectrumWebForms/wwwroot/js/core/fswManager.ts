@@ -314,9 +314,15 @@ namespace core {
                     for (let j = 0; j < controlProperties.length; ++j) {
 
                         var prop = control.properties[controlProperties[j].property];
-                        let last = prop.value;
-                        prop.value = controlProperties[j].value;
 
+                        // if the property doesn't already exist, create it right now
+                        if (!prop) 
+                            prop = control.properties[controlProperties[j].property] = new controlProperty(control, controlProperties[j].property, controlProperties[j].value);
+
+                        let last = prop.value;
+                        prop.value = controlProperties[j].value; // assign the new value
+
+                        // and then invoke the on changed event
                         prop.onChangedFromServer.invoke({
                             new: prop.value,
                             old: last

@@ -26,7 +26,7 @@ namespace TestBlazorApplication.Pages
             OnPageLoaded?.Invoke(this);
         }
 
-        private void Container_OnClicked(FSW.Controls.Html.HtmlControlBase control)
+        private Task Container_OnClicked(FSW.Controls.Html.HtmlControlBase control)
         {
             Container.BackgroundColor = System.Drawing.Color.Red;
 
@@ -38,6 +38,8 @@ namespace TestBlazorApplication.Pages
             {
                 Text = "eheh2"
             });
+
+            return Task.CompletedTask;
         }
     }
 }

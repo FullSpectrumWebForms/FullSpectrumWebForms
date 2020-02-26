@@ -92,10 +92,10 @@ namespace FSW.Semantic.Controls.Html
             set => SetProperty(PropertyName(), value);
         }
 
-        public delegate void OnSelectedIdChangedHandler(ComboBox sender, string oldId, string newId);
+        public delegate Task OnSelectedIdChangedHandler(ComboBox sender, string oldId, string newId);
         public event OnSelectedIdChangedHandler OnSelectedIdChanged;
 
-        public delegate void OnSelectedIdsChangedHandler(ComboBox sender, string[] oldIds, string[] newIds);
+        public delegate Task OnSelectedIdsChangedHandler(ComboBox sender, string[] oldIds, string[] newIds);
         public event OnSelectedIdsChangedHandler OnSelectedIdsChanged;
 
         public ComboBox(FSWPage page = null) : base(page)
@@ -126,16 +126,12 @@ namespace FSW.Semantic.Controls.Html
         {
             if (lastValue is JArray lastValueArray)
                 lastValue = lastValueArray.ToObject<string[]>();
-            OnSelectedIdsChanged?.Invoke(this, (string[])lastValue, ((JArray)newValue)?.ToObject<string[]>());
-
-            return Task.CompletedTask;
+            return OnSelectedIdsChanged?.Invoke(this, (string[])lastValue, ((JArray)newValue)?.ToObject<string[]>()) ?? Task.CompletedTask;
         }
 
         private Task OnSelectedIdChangedFromClient(Property property, object lastValue, object newValue)
         {
-            OnSelectedIdChanged?.Invoke(this, (string)lastValue, (string)newValue);
-
-            return Task.CompletedTask;
+            return OnSelectedIdChanged?.Invoke(this, (string)lastValue, (string)newValue) ?? Task.CompletedTask;
         }
     }
 
@@ -222,7 +218,7 @@ namespace FSW.Semantic.Controls.Html
         /// <summary>
         /// If the ComboBox is ajax, set the fonction to be called when the user enter something in the ComboBox
         /// </summary>
-        public Func<string, Dictionary<string, string>> OnAjaxRequest { get; set; }
+        public Func<string, Task<Dictionary<string, string>>> OnAjaxRequest { get; set; }
 
 
         /// <summary>
@@ -235,10 +231,10 @@ namespace FSW.Semantic.Controls.Html
         }
 
 
-        public delegate void OnSelectedIdAndValueChangedHandler(ComboBox_Ajax sender, KeyValuePair<string, string>? newId);
+        public delegate Task OnSelectedIdAndValueChangedHandler(ComboBox_Ajax sender, KeyValuePair<string, string>? newId);
         public event OnSelectedIdAndValueChangedHandler OnSelectedIdAndValueChanged;
 
-        public delegate void OnSelectedIdsAndValuesChangedHandler(ComboBox_Ajax sender, Dictionary<string, string> oldId, Dictionary<string, string> newId);
+        public delegate Task OnSelectedIdsAndValuesChangedHandler(ComboBox_Ajax sender, Dictionary<string, string> oldId, Dictionary<string, string> newId);
         public event OnSelectedIdsAndValuesChangedHandler OnSelectedIdsAndValuesChanged;
 
         public ComboBox_Ajax(FSWPage page = null) : base(page)
@@ -275,22 +271,18 @@ namespace FSW.Semantic.Controls.Html
             if (newValueDic.Remove(""))
                 SelectedIdsAndValues = newValueDic;
 
-            OnSelectedIdsAndValuesChanged?.Invoke(this, (Dictionary<string, string>)lastValue, newValueDic);
-
-            return Task.CompletedTask;
+            return OnSelectedIdsAndValuesChanged?.Invoke(this, (Dictionary<string, string>)lastValue, newValueDic) ?? Task.CompletedTask;
         }
 
         private Task OnSelectedIdAndValueChangedFromClient(Property property, object lastValue, object newValue)
         {
-            OnSelectedIdAndValueChanged?.Invoke(this, SelectedIdAndValue);
-
-            return Task.CompletedTask;
+            return OnSelectedIdAndValueChanged?.Invoke(this, SelectedIdAndValue) ?? Task.CompletedTask;
         }
 
         [CoreEvent]
-        internal protected Dictionary<string, string> _OnAjaxRequestFromClient(string searchString)
+        internal protected Task<Dictionary<string, string>> _OnAjaxRequestFromClient(string searchString)
         {
-            return OnAjaxRequest?.Invoke(searchString);
+            return OnAjaxRequest?.Invoke(searchString) ?? Task.FromResult<Dictionary<string, string>>(null);
         }
     }
 

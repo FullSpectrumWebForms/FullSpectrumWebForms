@@ -32,9 +32,9 @@ Welcome to your new app.
         };
     }
 
-    private void ProcessSuperClickEvent()
+    private Task ProcessSuperClickEvent()
     {
-        InvokeAsync(() =>
+        return InvokeAsync(() =>
         {
             Text += " yo";
             StateHasChanged();

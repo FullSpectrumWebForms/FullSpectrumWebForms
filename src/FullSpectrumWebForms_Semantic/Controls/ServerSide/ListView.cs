@@ -179,14 +179,16 @@ namespace FSW.Semantic.Controls.ServerSide
 
         public int ItemCount => Items_.Count;
 
-        private void OnItemClickedFromClient(HtmlControlBase control)
+        private Task OnItemClickedFromClient(HtmlControlBase control)
         {
             var index = FindItemIndex(control);
             if (index == -1)
-                return; // shouldn't happen, but who knows
+                return Task.CompletedTask; // shouldn't happen, but who knows
             var item = Items_[index];
 
             SelectedIndex = index;
+
+            return Task.CompletedTask;
         }
         public ListViewItem SelectedItem
         {

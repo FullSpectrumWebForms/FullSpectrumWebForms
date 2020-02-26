@@ -30,8 +30,8 @@ namespace FSW.Core
                     }
                 }
             }
-
         }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public static void ConfigureServices(IServiceCollection services)
         {
@@ -41,6 +41,8 @@ namespace FSW.Core
             var signalr_ = services.AddSignalR().AddNewtonsoftJsonProtocol();
 
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, FSWSessionCleanerService>();
+
+            services.AddControllers();
 
             foreach (var loadedStartupBase in LoadedStartupBases)
                 loadedStartupBase.ConfigureServices(services);
@@ -63,6 +65,7 @@ namespace FSW.Core
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
 
+
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
@@ -72,6 +75,11 @@ namespace FSW.Core
                     config.ApplicationMaxBufferSize = 1024 * 1024 * 10;
                     config.TransportMaxBufferSize = 1024 * 1024 * 10;
                 });
+
+                endpoints.MapControllers();
+                endpoints.MapControllerRoute("default", "{controller=CoreServices}");
+
+                endpoints.MapRazorPages();
             });
 
             foreach (var loadedStartupBase in LoadedStartupBases)

@@ -86,6 +86,22 @@ namespace FSW.Core
             public int row { get; set; }
             public string connectionId { get; set; }
         }
+        //private readonly RequestDelegate _next;
+        //
+        //public AjaxRequestsMiddleware(RequestDelegate next)
+        //{
+        //    _next = next;
+        //}
+        //
+        //
+        //public async Task Invoke(HttpContext context)
+        //{
+        //    var path = context.Request.Path; // /FSW/CoreServices/GenericRequest/_dc_251OnPDFRequest/L56NZdgWlOD3HXR2oUfLRA/Format&PDF
+        //
+        //
+        //    await _next(context);
+        //}
+
         [HttpPost(nameof(OnDataGridComboBoxAjaxCall))]
         public string OnDataGridComboBoxAjaxCall([FromBody] OnDataGridComboBoxAjaxCallParameters data)
         {

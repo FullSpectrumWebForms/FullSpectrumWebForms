@@ -42,7 +42,7 @@ namespace FSW.Controls.Html
         }
 
 
-        public delegate void OnButtonClickedHandler(Button button);
+        public delegate Task OnButtonClickedHandler(Button button);
         public event OnButtonClickedHandler OnButtonClicked;
 
         public override async Task InitializeProperties()
@@ -54,10 +54,11 @@ namespace FSW.Controls.Html
             Text = "";
         }
 
-        private void Button_OnClicked(HtmlControlBase control)
+        private Task Button_OnClicked(HtmlControlBase control)
         {
             if (State != State.Disabled )
-                OnButtonClicked?.Invoke(this);
+                return OnButtonClicked?.Invoke(this) ?? Task.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

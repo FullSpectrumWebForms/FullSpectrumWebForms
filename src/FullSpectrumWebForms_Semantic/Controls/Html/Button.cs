@@ -8,8 +8,6 @@ using FSW.Core;
 
 namespace FSW.Semantic.Controls.Html
 {
-    
-
     public interface ITextButton
     {
         string Text { get; set; }
@@ -49,7 +47,7 @@ namespace FSW.Semantic.Controls.Html
             }
         }
 
-        public delegate void OnButtonClickedHandler(IconTextButton button);
+        public delegate Task OnButtonClickedHandler(IconTextButton button);
         public event OnButtonClickedHandler OnButtonClicked;
 
         public override async Task InitializeProperties()
@@ -71,10 +69,11 @@ namespace FSW.Semantic.Controls.Html
             });
         }
 
-        private void IconTextButton_OnClicked(HtmlControlBase control)
+        private Task IconTextButton_OnClicked(HtmlControlBase control)
         {
             if( State == State.Enabled)
-                OnButtonClicked?.Invoke(this);
+                return OnButtonClicked?.Invoke(this) ?? Task.CompletedTask;
+            return Task.CompletedTask;
         }
     }
     public class IconLabeledButton : IconTextButton
