@@ -702,9 +702,10 @@ namespace FSW.Controls.Html
                 {
                     var data = Datas[i];
 
+                    data.FilterOut = false;
+
                     if (!data.IgnoreFilterAndAlwaysShow)
                     {
-                        data.FilterOut = false;
 
                         foreach (var col in ColumnFilters)
                         {
@@ -747,6 +748,11 @@ namespace FSW.Controls.Html
                     if (data.Parent != null)
                         data._Parent = Datas.IndexOf((DataType)data.Parent, 0, i);
                 }
+            }
+            else if (ShowSearchHeader)
+            {
+                foreach (var data in Datas)
+                    data.FilterOut = false;
             }
 
             CallCustomClientEvent("RefreshDatasFromServer", new Dictionary<string, object>
