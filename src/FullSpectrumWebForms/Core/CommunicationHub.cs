@@ -279,11 +279,6 @@ namespace FSW.Core
                     pageIdAuth = page.PageAuth;
                     pageId = generatedPageInfos.PageId;
                 }
-                else
-                {
-                    // just indicate we don't need to refresh the session id and auth :
-                    sessionId = sessionAuth = null;
-                }
 
                 page = PageAwaitingConnections[pageId];
                 PageAwaitingConnections.Remove(pageId);

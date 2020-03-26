@@ -113,12 +113,14 @@ var core;
                 this.connection.send('InitializeCore', {
                     pageId: that.pageId,
                     pageIdAuth: that.pageIdAuth,
-                    sessionId: Cookies.get('FSWSessionId'),
-                    sessionAuth: Cookies.get('FSWSessionAuth'),
+                    sessionId: $('#newFSWSessionId').val(),
+                    sessionAuth: $('#newFSWSessionAuth').val(),
                     typePath: that.typePath,
                     url: document.location.pathname,
                     urlParameters: URLToArray(document.location.search)
                 });
+                $('#newFSWSessionId').remove();
+                $('#newFSWSessionAuth').remove();
             });
         }
         // prevent the 'sendPropertyUpdate' from sending updates to the server

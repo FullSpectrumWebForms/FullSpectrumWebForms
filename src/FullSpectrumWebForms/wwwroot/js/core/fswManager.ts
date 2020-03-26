@@ -166,16 +166,20 @@ namespace core {
             }
 
             await this.connection.start();
+            
+            
 
             this.connection.send('InitializeCore', {
                 pageId: that.pageId,
                 pageIdAuth: that.pageIdAuth,
-                sessionId: Cookies.get('FSWSessionId'),
-                sessionAuth: Cookies.get('FSWSessionAuth'),
+                sessionId: $('#newFSWSessionId').val(),
+                sessionAuth: $('#newFSWSessionAuth').val(),
                 typePath: that.typePath,
                 url: document.location.pathname,
                 urlParameters: URLToArray(document.location.search)
             });
+            $('#newFSWSessionId').remove();
+            $('#newFSWSessionAuth').remove();
         }
         updateLocked = 0;
         pendingPropertyUpdate: { [controlId: string]: controlProperty<any>[] } = {};
