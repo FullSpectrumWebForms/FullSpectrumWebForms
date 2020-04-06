@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Web;
+#pragma warning disable CA1051 // Do not declare visible instance fields
 
 namespace FSW.Controls.Html
 {
@@ -378,7 +379,7 @@ namespace FSW.Controls.Html
         public class ComboBoxAjaxEditor : EditorBase
         {
             [JsonIgnore]
-            public Func<string, Dictionary<string, string>> OnRequest;
+            public Func<string, Task<Dictionary<string, string>>> OnRequest;
 
             public bool IsMultiple = false;
             public bool UseLargeDropDown = false;
@@ -397,9 +398,11 @@ namespace FSW.Controls.Html
                 });
             }
 
-            public Dictionary<string, string> CallRequest(string searchString)
+            public async Task<Dictionary<string, string>?> CallRequest(string searchString)
             {
-                return OnRequest?.Invoke(searchString);
+                if(OnRequest != null)
+                    return await OnRequest(searchString);
+                return null;
             }
             public override object ParseNewInputValue(DataGridColumn colDef, object value)
             {
@@ -501,7 +504,7 @@ namespace FSW.Controls.Html
 
         bool HideExportContextMenu { get; set; }
 
-        public delegate void OnCellChangedHandler(DataGridColumn col, int row, object item, object newValue);
+        public delegate Task OnCellChangedHandler(DataGridColumn col, int row, object item, object newValue);
         public event OnCellChangedHandler OnGenericCellChanged;
     }
     public class DataGrid<DataType> : HtmlControlBase, IDataGrid where DataType : DataGridBase
@@ -556,15 +559,15 @@ namespace FSW.Controls.Html
         public ControlPropertyDictionary<DataGridColumn> Columns { get; private set; }
         private Type RawDataType;
 
-        public delegate void OnCellChangedHandler(DataGridColumn col, int row, DataType item, object newValue);
+        public delegate Task OnCellChangedHandler(DataGridColumn col, int row, DataType item, object newValue);
         public event OnCellChangedHandler OnCellChanged;
 
-        public delegate void OnButtonCellClickedHandler(DataGridColumn col, int row, DataType item);
+        public delegate Task OnButtonCellClickedHandler(DataGridColumn col, int row, DataType item);
         public event OnButtonCellClickedHandler OnButtonCellClicked;
 
 
         private event OnActiveCellChangedHandler OnActiveCellChanged_;
-        public delegate void OnActiveCellChangedHandler(DataGridColumn col, int row, DataType item);
+        public delegate Task OnActiveCellChangedHandler(DataGridColumn col, int row, DataType item);
         public event OnActiveCellChangedHandler OnActiveCellChanged
         {
             add
@@ -594,91 +597,88 @@ namespace FSW.Controls.Html
         public MetaDatasCollection MetaDatas { get; private set; }
         IReadOnlyDictionary<string, DataGridColumn.MetaData> IDataGrid.MetaDatas => MetaDatas;
 
-        private List<DataType> Datas_;
-        public List<DataType> Datas
-        {
-            get => Datas_;
-            set
-            {
-                Datas_ = value;
-                RefreshDatas();
-            }
-        }
+        public List<DataType> Datas { get; protected set; }
+
         public IEnumerable<DataType> FilteredDatas => Datas.Where(x => !x.FilterOut);
 
-        public delegate void OnGenerateMetasDataHandler(int row, DataType item, out DataGridColumn.MetaData metaData);
+        public delegate Task<DataGridColumn.MetaData?> OnGenerateMetasDataHandler(int row, DataType item);
         public event OnGenerateMetasDataHandler OnGenerateMetasData;
 
         public event IDataGrid.OnCellChangedHandler OnGenericCellChanged;
 
-        public virtual void RefreshRow(int row, bool skipMetaDatasGeneration = false)
+        public virtual async Task RefreshRow(int row, bool skipMetaDatasGeneration = false)
         {
             if (row == -1)
                 return;
-            RefreshRows(new List<int> { row }, skipMetaDatasGeneration);
+            await RefreshRows(new List<int> { row }, skipMetaDatasGeneration);
         }
         // if you can't read the name of the method and see that this will bypass the update (client-side) of this metadata
         // I'd say you shouldn't be programming at all...
         // But since It's not very nice: Just GTFO
-        private bool GenerateSingleMetaData_BypassUpdate(int row, out DataGridColumn.MetaData metaData)
+        private async Task<(bool Done, DataGridColumn.MetaData? MetaData)> GenerateSingleMetaData_BypassUpdate(int row)
         {
             if (OnGenerateMetasData == null)
-            {
-                metaData = null;
-                return false;
-            }
-            OnGenerateMetasData(row, Datas[row], out metaData);
+                return (false, null);
+
+            var metaData = await OnGenerateMetasData(row, Datas[row]);
+
             if (metaData != null)
             {
                 MetaDatas.UpdateValueDirectly(row.ToString(), metaData);
-                return true;
+
+                return (true, metaData);
             }
-            return false;
+
+            return (false, null);
         }
-        public virtual void RefreshRows(List<int> rows, bool skipMetaDatasGeneration = false)
+
+        public virtual async Task RefreshRows(List<int> rows, bool skipMetaDatasGeneration = false)
         {
             rows = rows.Where(x => x != -1).ToList();
             if (rows.Count == 0)
                 return;
 
+            var allRowsIncludingMetadatas = new List<Dictionary<string, object?>>(rows.Count);
+            foreach (var row in rows)
+            {
+                var rowParameters = new Dictionary<string, object?>()
+                {
+                    ["Row"] = row,
+                    ["Data"] = Datas[row]
+                };
+                if (!skipMetaDatasGeneration)
+                {
+                    var (updateDone, metaData) = await GenerateSingleMetaData_BypassUpdate(row);
+                    if (!updateDone)
+                    {
+                        var row_ = row.ToString();
+                        if (MetaDatas.ContainsKey(row_))
+                        {
+                            metaData = new DataGridColumn.MetaData();
+                            MetaDatas.RemoveValueDirectly(row_);
+                        }
+                    }
+                    rowParameters["Meta"] = metaData;
+                }
+
+                allRowsIncludingMetadatas.Add(rowParameters);
+            }
+
             CallCustomClientEvent("RefreshRowsFromServer", new Dictionary<string, object>
             {
-                ["Rows"] = rows.Select((row) =>
-                {
-                    var dct = new Dictionary<string, object>
-                    {
-                        ["Row"] = row,
-                        ["Data"] = Datas[row]
-                    };
-                    if (!skipMetaDatasGeneration)
-                    {
-                        // since we were asked to generate the meta data, we will force the metas of this row to ensure
-                        // we clear any existing metas data
-                        // duh, only if this return null, which means "force no meta"
-                        if (!GenerateSingleMetaData_BypassUpdate(row, out var metaData))
-                        {
-                            var row_ = row.ToString();
-                            if (MetaDatas.ContainsKey(row_))
-                            {
-                                metaData = new DataGridColumn.MetaData();
-                                MetaDatas.RemoveValueDirectly(row_);
-                            }
-                        }
-                        dct["Meta"] = metaData;
-                    }
-                    return dct;
-                }).ToList()
+                ["Rows"] = allRowsIncludingMetadatas
             });
         }
-        public virtual void RefreshDatas(bool skipMetaDatasGeneration = false)
+        public virtual async Task RefreshDatas(List<DataType> datas, bool skipMetaDatasGeneration = false)
         {
+            Datas = datas;
             if (!skipMetaDatasGeneration)
-                RefreshMetaDatas();
+                await RefreshMetaDatas();
 
             SendNewDatasToClient();
         }
 
-        public void RefreshMetaDatas()
+        public async Task RefreshMetaDatas()
         {
             if (OnGenerateMetasData == null)
                 MetaDatas.Set(new Dictionary<string, DataGridColumn.MetaData>());
@@ -687,7 +687,7 @@ namespace FSW.Controls.Html
                 var dct = new Dictionary<string, DataGridColumn.MetaData>();
                 for (var i = 0; i < Datas.Count; ++i)
                 {
-                    OnGenerateMetasData.Invoke(i, Datas[i], out var metaData);
+                    var metaData = await OnGenerateMetasData.Invoke(i, Datas[i]);
                     if (metaData != null)
                         dct[i.ToString()] = metaData;
                 }
@@ -756,11 +756,12 @@ namespace FSW.Controls.Html
             });
         }
         [CoreEvent]
-        protected object OnActiveCellChangedFromClient(int row, string col)
+        protected async Task<object?> OnActiveCellChangedFromClient(int row, string col)
         {
             if (row == -1 && col == null)
             {
-                OnActiveCellChanged_?.Invoke(null, -1, null);
+                if (OnActiveCellChanged_ != null)
+                    await OnActiveCellChanged_.Invoke(null, -1, null);
                 return null;
             }
             if (row >= Datas.Count)
@@ -771,12 +772,13 @@ namespace FSW.Controls.Html
                 throw new Exception($"Invalid col {col} in control {Id}");
 
             var item = Datas[row];
-            OnActiveCellChanged_?.Invoke(colDef, row, item);
+            if (OnActiveCellChanged_ != null)
+                await OnActiveCellChanged_.Invoke(colDef, row, item);
             return null;
         }
 
         [CoreEvent]
-        protected void OnButtonCellClickedFromClient(int row, string col)
+        protected async Task OnButtonCellClickedFromClient(int row, string col)
         {
             if (row >= Datas.Count)
                 throw new Exception($"Invalid row {row} in control {Id}");
@@ -786,11 +788,12 @@ namespace FSW.Controls.Html
                 throw new Exception($"Invalid col {col} in control {Id}");
             var item = Datas[row];
 
-            OnButtonCellClicked?.Invoke(colDef, row, item);
+            if (OnButtonCellClicked != null)
+                await OnButtonCellClicked.Invoke(colDef, row, item);
         }
 
         [CoreEvent]
-        protected object OnCellChangedFromClient(int row, string col, object value = null)
+        protected async Task<object> OnCellChangedFromClient(int row, string col, object value = null)
         {
             if (row >= Datas.Count)
                 throw new Exception($"Invalid row {row} in control {Id}");
@@ -827,17 +830,21 @@ namespace FSW.Controls.Html
                 field.SetValue(item, realValue);
             }
 
-            OnGenericCellChanged?.Invoke(colDef, row, item, realValue);
-            OnCellChanged?.Invoke(colDef, row, item, realValue);
+            if (OnGenericCellChanged != null)
+                await OnGenericCellChanged.Invoke(colDef, row, item, realValue);
+
+            if (OnCellChanged != null)
+                await OnCellChanged.Invoke(colDef, row, item, realValue);
 
             return realValue;
         }
-        public void ClearDatas()
+
+        public async Task ClearDatas()
         {
             if (Datas != null)
             {
                 Datas.Clear();
-                RefreshDatas();
+                await RefreshDatas(Datas);
             }
         }
 
@@ -1041,11 +1048,9 @@ namespace FSW.Controls.Html
             GetPropertyInternal(nameof(ColumnFilters)).OnNewValueFromClient += ColumnFilters_OnNewValueFromClient;
         }
 
-        private Task ColumnFilters_OnNewValueFromClient(Property property, object lastValue, object newValue)
+        private async Task ColumnFilters_OnNewValueFromClient(Property property, object lastValue, object newValue)
         {
-            RefreshDatas();
-
-            return Task.CompletedTask;
+            await RefreshDatas(Datas);
         }
 
         public ControlPropertyDictionary<DataGridColumn> GetColumns()
@@ -1055,3 +1060,5 @@ namespace FSW.Controls.Html
     }
 
 }
+
+#pragma warning enable CA1051 // Do not declare visible instance fields

@@ -103,7 +103,7 @@ namespace FSW.Core
         //}
 
         [HttpPost(nameof(OnDataGridComboBoxAjaxCall))]
-        public string OnDataGridComboBoxAjaxCall([FromBody] OnDataGridComboBoxAjaxCallParameters data)
+        public async Task<string> OnDataGridComboBoxAjaxCall([FromBody] OnDataGridComboBoxAjaxCallParameters data)
         {
             var control = CommunicationHub.GetPage(data.connectionId).Manager.GetControl(data.controlId);
             if (control is Controls.Html.IDataGrid dataGrid)
@@ -112,11 +112,11 @@ namespace FSW.Core
                 if (dataGrid.MetaDatas.TryGetValue(data.row.ToString(), out var meta) && meta.Columns != null && meta.Columns.TryGetValue(data.colId, out var metaCol))
                 {
                     if (metaCol.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor metaEditor)
-                        return JsonConvert.SerializeObject(metaEditor.CallRequest(data.searchString));
+                        return JsonConvert.SerializeObject(await metaEditor.CallRequest(data.searchString));
                 }
 
                 if (col?.Editor is Controls.Html.DataGridColumn.ComboBoxAjaxEditor editor)
-                    return JsonConvert.SerializeObject(editor.CallRequest(data.searchString));
+                    return JsonConvert.SerializeObject(await editor.CallRequest(data.searchString));
             }
             return null;
         }

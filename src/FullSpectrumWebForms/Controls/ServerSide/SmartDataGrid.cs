@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FSW.Controls.ServerSide.DataGrid
 {
@@ -79,24 +80,26 @@ namespace FSW.Controls.ServerSide.DataGrid
 
     public class SmartDataGrid<DataType> : DataGrid<DataType> where DataType : DataGridBase
     {
-        public delegate void OnSmartCellChangedHandler(DataGridColumn col, int row, DataType item, object newValue);
+        public delegate Task OnSmartCellChangedHandler(DataGridColumn col, int row, DataType item, object newValue);
         public event OnSmartCellChangedHandler OnSmartCellChanged;
 
         private Dictionary<string, (string cssName, DataInterfaces.RequiredColAttribute attribute)> RequiredCols = new Dictionary<string, (string cssName, DataInterfaces.RequiredColAttribute attribute)>();
 
-        public delegate void OnInitializeNewEmptyRowHandler(out DataType item, out int? row);
+        public delegate Task<(DataType item, int? row)> OnInitializeNewEmptyRowHandler();
         public event OnInitializeNewEmptyRowHandler OnInitializeNewEmptyRow;
 
-        public delegate void OnNewRowValidatedHandler(DataType item, int row);
+        public delegate Task OnNewRowValidatedHandler(DataType item, int row);
         public event OnNewRowValidatedHandler OnNewRowValidated;
 
-        public delegate void OnValidateInvalidOrIncompleteRowHandler(DataType item, out bool isInvalidOrIncomplete);
+        // return if isInvalidOrIncomplete
+        public delegate Task<bool> OnValidateInvalidOrIncompleteRowHandler(DataType item);
         public event OnValidateInvalidOrIncompleteRowHandler OnValidateInvalidOrIncompleteRow;
 
-        public delegate void OnDeleteExistingRowHandler(DataType item, int row, out bool removeAndRefresh);
+        // return removeAndRefresh
+        public delegate Task<bool> OnDeleteExistingRowHandler(DataType item, int row);
         public event OnDeleteExistingRowHandler OnDeleteExistingRow;
 
-        public delegate DataInterfaces.ITotalRow OnInitializeNewTotalRowHandler();
+        public delegate Task<DataInterfaces.ITotalRow> OnInitializeNewTotalRowHandler();
         public event OnInitializeNewTotalRowHandler OnInitializeNewTotalRow;
 
         public event OnGenerateMetasDataHandler OnSmartDataGridGenerateMetasData;
@@ -122,39 +125,41 @@ namespace FSW.Controls.ServerSide.DataGrid
             }
         }
 
-        public void InvokeOnValidateInvalidOrIncompleteRow(DataType item, out bool isInvalidOrIncomplete)
+        public async Task<bool> InvokeOnValidateInvalidOrIncompleteRow(DataType item)
         {
             if (OnValidateInvalidOrIncompleteRow == null)
-                isInvalidOrIncomplete = false;
+                return false;
             else
-                OnValidateInvalidOrIncompleteRow(item, out isInvalidOrIncomplete);
+                return await OnValidateInvalidOrIncompleteRow(item);
         }
 
-        public void InitializeSmartDataGrid()
+        public async Task InitializeSmartDataGrid()
         {
             if (Datas == null)
-                Datas = new List<DataType>();
+                await RefreshDatas(new List<DataType>());
 
             InitializeColumns();
 
             OnCellChanged += SmartDataGrid_OnCellChanged;
             OnGenerateMetasData += SmartDataGrid_OnGenerateMetasData;
 
-            RevalidateEmptyRowCreation();
+            await RevalidateEmptyRowCreation();
         }
 
-        public override void RefreshRows(List<int> rows, bool skipMetaDatasGeneration = false)
+        public override async Task RefreshRows(List<int> rows, bool skipMetaDatasGeneration = false)
         {
-            RevalidateTotalRowCreation();
-            base.RefreshRows(rows, skipMetaDatasGeneration);
+            await RevalidateTotalRowCreation();
+
+            await base.RefreshRows(rows, skipMetaDatasGeneration);
         }
-        public override void RefreshDatas(bool skipMetaDatasGeneration = false)
+        public override async Task RefreshDatas(List<DataType> datas, bool skipMetaDatasGeneration = false)
         {
-            RevalidateEmptyRowCreation();
+            Datas = datas;
+            await RevalidateEmptyRowCreation();
 
-            RevalidateTotalRowCreation(true);
+            await RevalidateTotalRowCreation(true);
 
-            base.RefreshDatas(skipMetaDatasGeneration);
+            await base.RefreshDatas(datas, skipMetaDatasGeneration);
         }
 
         public override void InitializeColumns(Type forceType = null)
@@ -203,16 +208,15 @@ namespace FSW.Controls.ServerSide.DataGrid
             }
         }
 
-        private void SmartDataGrid_OnGenerateMetasData(int row, DataType item, out DataGridColumn.MetaData metaData)
+        private async Task<DataGridColumn.MetaData?> SmartDataGrid_OnGenerateMetasData(int row, DataType item)
         {
+            DataGridColumn.MetaData? metaData = null;
             if (OnSmartDataGridGenerateMetasData != null)
-                OnSmartDataGridGenerateMetasData.Invoke(row, item, out metaData);
-            else
-                metaData = null;
+                metaData = await OnSmartDataGridGenerateMetasData.Invoke(row, item);
 
             var invalid = false;
             if (item is DataInterfaces.IAutomaticInvalidOrIncompleteRow automaticInvalidOrIncompleteRow)
-                invalid = automaticInvalidOrIncompleteRow.IsRowInvalidOrIncomplete_Automatic(this);
+                invalid = await automaticInvalidOrIncompleteRow.IsRowInvalidOrIncomplete_Automatic(this);
             else if (item is DataInterfaces.IInvalidOrIncompleteRow invalidOrIncompleteRow)
                 invalid = invalidOrIncompleteRow.IsInvalidOrIncomplete;
 
@@ -307,34 +311,38 @@ namespace FSW.Controls.ServerSide.DataGrid
                     }
                 }
             }
+
+            return metaData;
         }
 
-        private void SmartDataGrid_OnCellChanged(DataGridColumn col, int row, DataType item, object newValue)
+        private async Task SmartDataGrid_OnCellChanged(DataGridColumn col, int row, DataType item, object newValue)
         {
             var isDeleted = (item as DataInterfaces.IDeleteRow)?.IsRowDeleted ?? false;
 
             if (isDeleted)
             {
-                var removeAndRefresh = false;
-                OnDeleteExistingRow?.Invoke(item, row, out removeAndRefresh);
-                if (removeAndRefresh)
+                if (OnDeleteExistingRow != null)
                 {
-                    Datas.Remove(item);
-                    RefreshDatas();
+                    var removeAndRefresh = await OnDeleteExistingRow(item, row);
+                    if (removeAndRefresh)
+                    {
+                        Datas.Remove(item);
+                        await RefreshDatas(Datas);
+                    }
                 }
                 return;
             }
 
             var isInvalidOrIncomplete = false;
             if (item is DataInterfaces.IAutomaticInvalidOrIncompleteRow automaticInvalidOrIncompleteRow)
-                isInvalidOrIncomplete = automaticInvalidOrIncompleteRow.IsRowInvalidOrIncomplete_Automatic(this);
+                isInvalidOrIncomplete = await automaticInvalidOrIncompleteRow.IsRowInvalidOrIncomplete_Automatic(this);
             else if (item is DataInterfaces.IInvalidOrIncompleteRow invalidOrIncompleteRow)
                 isInvalidOrIncomplete = invalidOrIncompleteRow.IsInvalidOrIncomplete;
 
             if (isInvalidOrIncomplete)
             {
-                RefreshRow(row);
-                RevalidateEmptyRowCreation();
+                await RefreshRow(row);
+                await RevalidateEmptyRowCreation();
                 return;
             }
 
@@ -344,21 +352,22 @@ namespace FSW.Controls.ServerSide.DataGrid
             {
                 OnNewRowValidated?.Invoke(item, row);
 
-                RefreshRow(row);
+                await RefreshRow(row);
 
-                RevalidateEmptyRowCreation();
-                RevalidateTotalRowCreation();
+                await RevalidateEmptyRowCreation();
+                await RevalidateTotalRowCreation();
                 return;
             }
 
 
-            OnSmartCellChanged?.Invoke(col, row, item, newValue);
+            if (OnSmartCellChanged != null)
+                await OnSmartCellChanged(col, row, item, newValue);
 
-            RevalidateEmptyRowCreation();
-            RevalidateTotalRowCreation();
+            await RevalidateEmptyRowCreation();
+            await RevalidateTotalRowCreation();
         }
 
-        private void RevalidateTotalRowCreation(bool skipRefreshRow = false)
+        private async Task RevalidateTotalRowCreation(bool skipRefreshRow = false)
         {
             if (typeof(DataType).GetInterface(nameof(DataInterfaces.ITotalRow)) != typeof(DataInterfaces.ITotalRow))
                 return;
@@ -366,14 +375,14 @@ namespace FSW.Controls.ServerSide.DataGrid
             var totalRow = Datas.OfType<DataInterfaces.ITotalRow>().FirstOrDefault(x => x.IsTotalRow);
             if (totalRow is null)
             {
-                totalRow = OnInitializeNewTotalRow != null ? OnInitializeNewTotalRow() : (DataInterfaces.ITotalRow)Activator.CreateInstance(typeof(DataType));
+                totalRow = OnInitializeNewTotalRow != null ? await OnInitializeNewTotalRow() : (DataInterfaces.ITotalRow)Activator.CreateInstance(typeof(DataType));
 
                 totalRow.IsTotalRow = true;
 
                 Datas.Add((DataType)totalRow);
                 if (!skipRefreshRow)
                 {
-                    RefreshDatas(); // this will cause the RevalidateTotalRowCreation() to be called again,
+                    await RefreshDatas(Datas); // this will cause the RevalidateTotalRowCreation() to be called again,
                     return; // so just return right away
                 }
             }
@@ -404,10 +413,10 @@ namespace FSW.Controls.ServerSide.DataGrid
                 }
             }
             if (!skipRefreshRow)
-                base.RefreshRows(new List<int> { Datas.Count - 1 });
+                await base.RefreshRows(new List<int> { Datas.Count - 1 });
         }
 
-        private void RevalidateEmptyRowCreation()
+        private async Task RevalidateEmptyRowCreation()
         {
             if (OnInitializeNewEmptyRow == null)
                 return;
@@ -415,7 +424,7 @@ namespace FSW.Controls.ServerSide.DataGrid
             var refresh = false;
             while (true)
             {
-                OnInitializeNewEmptyRow(out var newRow, out var rowIndex);
+                var (newRow, rowIndex) = await OnInitializeNewEmptyRow();
 
                 if (newRow != null)
                 {
@@ -429,7 +438,7 @@ namespace FSW.Controls.ServerSide.DataGrid
                     break;
             }
             if (refresh)
-                RefreshDatas();
+                await RefreshDatas(Datas);
         }
 
     }
@@ -466,7 +475,7 @@ namespace FSW.Controls.ServerSide.DataGrid
             }
             return row.IsEmpty;
         }
-        public static bool IsRowInvalidOrIncomplete_Automatic<DataType>(this DataInterfaces.IAutomaticInvalidOrIncompleteRow row, SmartDataGrid<DataType> smartDataGrid) where DataType : DataGridBase
+        public static async Task<bool> IsRowInvalidOrIncomplete_Automatic<DataType>(this DataInterfaces.IAutomaticInvalidOrIncompleteRow row, SmartDataGrid<DataType> smartDataGrid) where DataType : DataGridBase
         {
             if (!row.SkipAutomaticValidation)
             {
@@ -503,7 +512,7 @@ namespace FSW.Controls.ServerSide.DataGrid
 
             }
 
-            smartDataGrid.InvokeOnValidateInvalidOrIncompleteRow((DataType)row, out var isInvalidOrIncomplete);
+            var isInvalidOrIncomplete = await smartDataGrid.InvokeOnValidateInvalidOrIncompleteRow((DataType)row);
 
             return isInvalidOrIncomplete || ((row as DataInterfaces.IInvalidOrIncompleteRow)?.IsInvalidOrIncomplete ?? false);
         }
