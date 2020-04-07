@@ -400,7 +400,7 @@ namespace FSW.Controls.Html
 
             public async Task<Dictionary<string, string>?> CallRequest(string searchString)
             {
-                if(OnRequest != null)
+                if (OnRequest != null)
                     return await OnRequest(searchString);
                 return null;
             }
@@ -758,10 +758,21 @@ namespace FSW.Controls.Html
         [CoreEvent]
         protected async Task<object?> OnActiveCellChangedFromClient(int row, string col)
         {
+            async Task Invoke(DataGridColumn? col, int row, DataType? item)
+            {
+                if (OnActiveCellChanged_ == null)
+                    return;
+
+                var invocationList = OnActiveCellChanged_.GetInvocationList();
+
+                foreach (var invoke in invocationList.Reverse())
+                    await ((Func<DataGridColumn, int, DataType, Task>)invoke)(col, row, item);
+            }
+
             if (row == -1 && col == null)
             {
                 if (OnActiveCellChanged_ != null)
-                    await OnActiveCellChanged_.Invoke(null, -1, null);
+                    await Invoke(null, -1, null);
                 return null;
             }
             if (row >= Datas.Count)
@@ -773,7 +784,7 @@ namespace FSW.Controls.Html
 
             var item = Datas[row];
             if (OnActiveCellChanged_ != null)
-                await OnActiveCellChanged_.Invoke(colDef, row, item);
+                await Invoke(colDef, row, item);
             return null;
         }
 
@@ -831,10 +842,28 @@ namespace FSW.Controls.Html
             }
 
             if (OnGenericCellChanged != null)
-                await OnGenericCellChanged.Invoke(colDef, row, item, realValue);
+            {
+                var invocationList = OnGenericCellChanged.GetInvocationList();
+
+                foreach (var invoke in invocationList)
+                {
+                    var task = (Task?)invoke.DynamicInvoke(colDef, row, item, realValue);
+                    if (task != null)
+                        await task;
+                }
+            }
 
             if (OnCellChanged != null)
-                await OnCellChanged.Invoke(colDef, row, item, realValue);
+            {
+                var invocationList = OnCellChanged.GetInvocationList();
+
+                foreach (var invoke in invocationList)
+                {
+                    var task = (Task?)invoke.DynamicInvoke(colDef, row, item, realValue);
+                    if (task != null)
+                        await task;
+                }
+            }
 
             return realValue;
         }
