@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System;
@@ -17,6 +18,7 @@ namespace FSW.Core
         public Controls.LoadingScreen LoadingScreen;
         public Controls.UrlManager UrlManager;
         public Controls.CommonInformations Common;
+        public FSWComponentBase MainComponent { get; internal set; }
 
         public string ID { get; private set; }
         public string PageAuth { get; internal set; }
@@ -89,14 +91,14 @@ namespace FSW.Core
         public event OnPageUnloadHandler OnPageUnload;
 
 
-        public Task InvokeAsync(Func<Task> action, CancellationToken cancellationToken = default)
+        public Task InvokeAsync(Func<Task> action)
         {
-            return Manager.InvokeAsync(action, cancellationToken);
+            return Manager.InvokeAsync(action);
         }
 
-        public Task<T> InvokeAsync<T>(Func<Task<T>> action, CancellationToken cancellationToken = default)
+        public Task<T> InvokeAsync<T>(Func<Task<T>> action)
         {
-            return Manager.InvokeAsync(action, cancellationToken);
+            return Manager.InvokeAsync(action);
         }
 
         public Task<T> Invoke<T>(Func<T> action)

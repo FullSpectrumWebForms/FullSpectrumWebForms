@@ -17,8 +17,6 @@ namespace FSW.Core
             Page = page;
         }
 
-        private readonly Nito.AsyncEx.AsyncContextThread AsyncContextThread = new Nito.AsyncEx.AsyncContextThread();
-
         public Dictionary<string, ControlBase> Controls = new Dictionary<string, ControlBase>();
         public List<KeyValuePair<int, ControlBase>> PendingNewControls = new List<KeyValuePair<int, ControlBase>>();
         public List<string> PendingDeletionControls = new List<string>();
@@ -29,68 +27,104 @@ namespace FSW.Core
                 Page.OverrideErrorHandle.Invoke(exception);
         }
 
-        public async Task InvokeAsync(Func<Task> action, CancellationToken cancellationToken = default)
+        public async Task InvokeAsync(Func<Task> action)
         {
-            await await AsyncContextThread.Factory.StartNew(async () =>
-            {
-                try
-                {
-                    await action();
-                }
-                catch(Exception exception)
-                {
-                    HandleError(exception);
-                    throw;
-                }
-            }, cancellationToken);
-        }
+            var completionSource = new TaskCompletionSource<bool>();
 
-        public async Task<T> InvokeAsync<T>(Func<Task<T>> action, CancellationToken cancellationToken = default)
-        {
-            return await await AsyncContextThread.Factory.StartNew(async () =>
+            await Page.MainComponent.DoInvokeAsync(() =>
             {
                 try
                 {
-                    return await action();
+                    System.Threading.SynchronizationContext.Current.Post(async x =>
+                    {
+                        await action();
+                        completionSource.SetResult(true);
+                    }, 1);
                 }
                 catch (Exception exception)
                 {
-                    HandleError(exception);
-                    throw;
-                }
-            }, cancellationToken);
-        }
-
-        public Task<T> Invoke<T>(Func<T> action)
-        {
-            return AsyncContextThread.Factory.StartNew(()=>
-            {
-                try
-                {
-                    return action();
-                }
-                catch(Exception exception)
-                {
+                    completionSource.SetException(exception);
                     HandleError(exception);
                     throw;
                 }
             });
+
+            await completionSource.Task;
         }
 
-        public Task Invoke(Action action)
+        public async Task<T> InvokeAsync<T>(Func<Task<T>> action)
         {
-            return AsyncContextThread.Factory.StartNew(() =>
+            var completionSource = new TaskCompletionSource<T>();
+
+            await Page.MainComponent.DoInvokeAsync(() =>
             {
                 try
                 {
-                    action();
+                    System.Threading.SynchronizationContext.Current.Post(async x =>
+                    {
+                        
+                        completionSource.SetResult(await action());
+                    }, 1);
                 }
                 catch (Exception exception)
                 {
+                    completionSource.SetException(exception);
                     HandleError(exception);
                     throw;
                 }
             });
+
+            return await completionSource.Task;
+        }
+
+        public async Task<T> Invoke<T>(Func<T> action)
+        {
+            var completionSource = new TaskCompletionSource<T>();
+
+            await Page.MainComponent.DoInvokeAsync(() =>
+            {
+                try
+                {
+                    System.Threading.SynchronizationContext.Current.Post(x =>
+                    {
+                        completionSource.SetResult(action());
+                    }, 1);
+                }
+                catch (Exception exception)
+                {
+                    completionSource.SetException(exception);
+                    HandleError(exception);
+                    throw;
+                }
+            });
+
+            return await completionSource.Task;
+        }
+
+        public async Task Invoke(Action action)
+        {
+            var completionSource = new TaskCompletionSource<bool>();
+
+            await Page.MainComponent.DoInvokeAsync(() =>
+            {
+                try
+                {
+                    System.Threading.SynchronizationContext.Current.Post(x =>
+                    {
+                        action();
+
+                        completionSource.SetResult(true);
+                    }, 1);
+                }
+                catch (Exception exception)
+                {
+                    completionSource.SetException(exception);
+                    HandleError(exception);
+                    throw;
+                }
+            });
+
+            await completionSource.Task;
         }
 
         public ControlBase GetControl(string controlId)
@@ -344,7 +378,7 @@ namespace FSW.Core
                 {
                     control = GetControl(controlWithChangedProperties.Key);
                 }
-                catch(KeyNotFoundException)
+                catch (KeyNotFoundException)
                 {
                     continue; // skip error, the control is probably simply deleted already
                 }

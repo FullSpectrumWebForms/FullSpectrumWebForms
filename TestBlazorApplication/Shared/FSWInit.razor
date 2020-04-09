@@ -1,4 +1,5 @@
-﻿<input id="pageId" value="@PageId" />
+﻿@inherits FSW.Core.FSWComponentBase
+<input id="pageId" value="@PageId" />
 <input id="pageIdAuth" value="@Auth" />
 
 <div id="Container"></div>
@@ -14,10 +15,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (Page == null )
+        if (Page == null)
             return;
 
-        if( Page.IsRegistered )
+        if (Page.IsRegistered)
         {
             PageId = Page.ID;
             Auth = Page.PageAuth;
@@ -25,7 +26,7 @@
         }
 
 
-        var res = FSW.ModelBase.RegisterFSWPage(Page, null, null, out var _, out var _2);
+        var res = FSW.Core.FSWComponentBase.RegisterFSWPage(Page, null, null, this, out var _, out var _2);
 
         PageId = res.id.ToString();
         Auth = res.auth;

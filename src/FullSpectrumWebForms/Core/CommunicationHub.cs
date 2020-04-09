@@ -214,7 +214,7 @@ namespace FSW.Core
                 if (manager.Page.OverrideErrorHandle is null)
                     throw;
 
-                manager.Page.OverrideErrorHandle(e);
+                _ = manager.Page.OverrideErrorHandle(e);
 
                 return null;
             }
@@ -236,16 +236,16 @@ namespace FSW.Core
         }
 
         // used to generate a FSW page on the fly when there are auth error or invalid connection ids
-        internal (int PageId, FSWPage? Page, string? SessionId, string? SessionAuth) GenerateFSWPage(string typePath, string sessionId, string sessionAuth)
-        {
-            var type = Type.GetType(typePath);
-            if (type == null)
-                return (0, null, null, null);
-
-            var page = (FSWPage?)Activator.CreateInstance(type);
-            var pageId = ModelBase.RegisterFSWPage(page, sessionId, sessionAuth, out var newSessionId, out var newSessionAuth).id;
-            return (pageId, page, newSessionId, newSessionAuth);
-        }
+        //internal (int PageId, FSWPage? Page, string? SessionId, string? SessionAuth) GenerateFSWPage(string typePath, string sessionId, string sessionAuth)
+        //{
+        //    var type = Type.GetType(typePath);
+        //    if (type == null)
+        //        return (0, null, null, null);
+        //
+        //    var page = (FSWPage?)Activator.CreateInstance(type);
+        //    var pageId = FSW.Core.ComponentBase.RegisterFSWPage(page, sessionId, sessionAuth, out var newSessionId, out var newSessionAuth).id;
+        //    return (pageId, page, newSessionId, newSessionAuth);
+        //}
 
         public Task InitializeCore(JObject data)
         {
@@ -266,18 +266,20 @@ namespace FSW.Core
             {
                 if (!PageAwaitingConnections.ContainsKey(pageId))
                 {
-                    var typePath = data["typePath"].ToObject<string>();
-                    var generatedPageInfos = GenerateFSWPage(typePath, sessionId, sessionAuth);
-                    page = generatedPageInfos.Page;
-                    if (page == null)
-                    {
-                        _ = SendAsync_ID(connectionId, "error", "typePath invalid");
-                        return;
-                    }
-                    sessionId = generatedPageInfos.SessionId;
-                    sessionAuth = generatedPageInfos.SessionAuth;
-                    pageIdAuth = page.PageAuth;
-                    pageId = generatedPageInfos.PageId;
+                    //var typePath = data["typePath"].ToObject<string>();
+                    //var generatedPageInfos = GenerateFSWPage(typePath, sessionId, sessionAuth);
+                    //page = generatedPageInfos.Page;
+                    //if (page == null)
+                    //{
+                    //    _ = SendAsync_ID(connectionId, "error", "typePath invalid");
+                    //    return;
+                    //}
+                    //sessionId = generatedPageInfos.SessionId;
+                    //sessionAuth = generatedPageInfos.SessionAuth;
+                    //pageIdAuth = page.PageAuth;
+                    //pageId = generatedPageInfos.PageId;
+
+                    throw new Exception("connection unknowned");
                 }
 
                 page = PageAwaitingConnections[pageId];

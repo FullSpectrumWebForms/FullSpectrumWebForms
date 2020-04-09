@@ -1,4 +1,5 @@
-﻿@page "/"
+﻿@inherits FSW.Core.FSWComponentBase
+@page "/"
 <input id="pageId" value="@PageId" />
 <input id="pageIdAuth" value="@Auth" />
 
@@ -20,7 +21,7 @@ Welcome to your new app.
     string Text = "yo";
     protected override void OnInitialized()
     {
-        var res = FSW.ModelBase.RegisterFSWPage(Page, null, null, out var _, out var _2);
+        var res = FSW.Core.FSWComponentBase.RegisterFSWPage(Page, null, null, this, out var _, out var _2);
 
         PageId = res.id;
         Auth = res.auth;
