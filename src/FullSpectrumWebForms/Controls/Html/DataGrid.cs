@@ -765,8 +765,8 @@ namespace FSW.Controls.Html
 
                 var invocationList = OnActiveCellChanged_.GetInvocationList();
 
-                foreach (var invoke in invocationList.Reverse())
-                    await ((Func<DataGridColumn, int, DataType, Task>)invoke)(col, row, item);
+                foreach (var invoke in invocationList)
+                    await ((Task?)invoke.DynamicInvoke(col, row, item) ?? Task.CompletedTask);
             }
 
             if (row == -1 && col == null)
