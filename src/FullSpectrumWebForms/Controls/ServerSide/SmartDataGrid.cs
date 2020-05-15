@@ -172,7 +172,7 @@ namespace FSW.Controls.ServerSide.DataGrid
                     var cssName = Id + "_requiredCol_" + field.Name;
                     InternalStyles["." + cssName + "_row ." + cssName] = new Dictionary<string, string>
                     {
-                        ["background-color"] = "red !important"
+                        ["background-color"] = "orange !important"
                     };
 
                     if (Columns.ContainsKey(field.Name))
