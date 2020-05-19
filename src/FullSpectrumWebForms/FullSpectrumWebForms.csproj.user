@@ -5,6 +5,9 @@
     <ShowAllFiles>false</ShowAllFiles>
     <NameOfLastUsedPublishProfile>Polinet - Web Deploy</NameOfLastUsedPublishProfile>
     <ToolsVersionPromptShown>3.4</ToolsVersionPromptShown>
-    <ActiveDebugProfile>IIS Express</ActiveDebugProfile>
+    <ActiveDebugProfile>FullSpectrumWebForms</ActiveDebugProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

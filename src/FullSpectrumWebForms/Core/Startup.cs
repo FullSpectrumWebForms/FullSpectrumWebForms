@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -75,11 +75,11 @@ namespace FSW.Core
                     config.ApplicationMaxBufferSize = 1024 * 1024 * 10;
                     config.TransportMaxBufferSize = 1024 * 1024 * 10;
                 });
-
+                
                 endpoints.MapControllers();
                 endpoints.MapControllerRoute("default", "{controller=CoreServices}");
-
-                endpoints.MapRazorPages();
+                //
+                //endpoints.MapRazorPages();
             });
 
             foreach (var loadedStartupBase in LoadedStartupBases)
