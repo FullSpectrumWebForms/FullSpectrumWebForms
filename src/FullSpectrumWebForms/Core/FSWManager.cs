@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -37,8 +37,17 @@ namespace FSW.Core
                 {
                     System.Threading.SynchronizationContext.Current.Post(async x =>
                     {
-                        await action();
-                        completionSource.SetResult(true);
+                        try
+                        {
+                            await action();
+                            completionSource.SetResult(true);
+                        }
+                        catch (Exception exception)
+                        {
+                            completionSource.SetException(exception);
+                            HandleError(exception);
+                            throw;
+                        }
                     }, 1);
                 }
                 catch (Exception exception)
@@ -62,8 +71,16 @@ namespace FSW.Core
                 {
                     System.Threading.SynchronizationContext.Current.Post(async x =>
                     {
-                        
-                        completionSource.SetResult(await action());
+                        try
+                        {
+                            completionSource.SetResult(await action());
+                        }
+                        catch (Exception exception)
+                        {
+                            completionSource.SetException(exception);
+                            HandleError(exception);
+                            throw;
+                        }
                     }, 1);
                 }
                 catch (Exception exception)
@@ -87,7 +104,16 @@ namespace FSW.Core
                 {
                     System.Threading.SynchronizationContext.Current.Post(x =>
                     {
-                        completionSource.SetResult(action());
+                        try
+                        {
+                            completionSource.SetResult(action());
+                        }
+                        catch (Exception exception)
+                        {
+                            completionSource.SetException(exception);
+                            HandleError(exception);
+                            throw;
+                        }
                     }, 1);
                 }
                 catch (Exception exception)
@@ -109,11 +135,20 @@ namespace FSW.Core
             {
                 try
                 {
-                    System.Threading.SynchronizationContext.Current.Post(x =>
+                    SynchronizationContext.Current.Post(x =>
                     {
-                        action();
+                        try
+                        {
+                            action();
 
-                        completionSource.SetResult(true);
+                            completionSource.SetResult(true);
+                        }
+                        catch (Exception exception)
+                        {
+                            completionSource.SetException(exception);
+                            HandleError(exception);
+                            throw;
+                        }
                     }, 1);
                 }
                 catch (Exception exception)
