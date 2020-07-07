@@ -1,4 +1,4 @@
-﻿declare var ResizeObserver: any;
+declare var ResizeObserver: any;
 namespace controls.html.dataGrid {
     export interface onValidateValueCellChangeArgs<type> {
         column: Slick.Column<type>;
@@ -484,7 +484,7 @@ namespace controls.html.dataGrid {
                                 controlId: that.control.id,
                                 searchString: searchString.term,
                                 colId: that.col.id,
-                                row: that.grid.treeTable.grid.getActiveCell().row
+                                row: that.grid.treeTable.dataView.getIdxById(that.grid.treeTable.grid.getDataItem(that.grid.treeTable.grid.getActiveCell().row).id)
                             });
                         },
                         processResults: function (data: { [id: string]: string }) {

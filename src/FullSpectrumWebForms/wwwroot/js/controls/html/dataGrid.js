@@ -419,7 +419,7 @@ var controls;
                                         controlId: that.control.id,
                                         searchString: searchString.term,
                                         colId: that.col.id,
-                                        row: that.grid.treeTable.grid.getActiveCell().row
+                                        row: that.grid.treeTable.dataView.getIdxById(that.grid.treeTable.grid.getDataItem(that.grid.treeTable.grid.getActiveCell().row).id)
                                     });
                                 },
                                 processResults: function (data) {
