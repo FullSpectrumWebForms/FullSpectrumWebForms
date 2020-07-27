@@ -1,4 +1,4 @@
-﻿using FSW.Core;
+using FSW.Core;
 using FSW.Utility;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -1049,6 +1049,8 @@ namespace FSW.Controls.Html
 
         private void ColumnFilters_OnNewValueFromClient(Property property, object lastValue, object newValue)
         {
+            RefreshDatas();
+
             RefreshDatas();
         }
 
