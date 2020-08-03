@@ -1,4 +1,4 @@
-﻿using FSW.Core;
+using FSW.Core;
 using FSW.Utility;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -695,59 +695,64 @@ namespace FSW.Controls.Html
             }
         }
 
+        private void RefreshFilteredRows()
+        {
+            for (var i = 0; i < Datas.Count; ++i)
+            {
+                var data = Datas[i];
+
+                if (!data.IgnoreFilterAndAlwaysShow)
+                {
+                    data.FilterOut = false;
+
+                    foreach (var col in ColumnFilters)
+                    {
+                        if (!Columns.TryGetValue(col.Key, out var colDef))
+                            continue;
+
+                        DataGridColumn.MetaDataColumn meta = null;
+                        if (MetaDatas.TryGetValue(i.ToString(), out var metaRow))
+                            metaRow?.Columns?.TryGetValue(col.Key, out meta);
+
+                        var text = meta?.Prepend ?? colDef?.Prepend ?? "";
+                        if (meta?.Editor != null)
+                            text += meta.Editor.GetDisplayText(colDef, data) ?? "";
+                        else if (colDef.Editor != null)
+                            text += colDef.Editor.GetDisplayText(colDef, data) ?? "";
+                        else
+                            text += data.GetType().GetField(colDef.Field).GetValue(data)?.ToString() ?? "";
+
+                        text += meta?.Append ?? colDef.Append ?? "";
+
+                        if (col.Value.StartsWith("!"))
+                        {
+                            if (text.ToLower().Contains(col.Value.Substring(1).ToLower()))
+                            {
+                                data.FilterOut = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if (!text.ToLower().Contains(col.Value.ToLower()))
+                            {
+                                data.FilterOut = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (data.Parent != null)
+                    data._Parent = Datas.IndexOf((DataType)data.Parent, 0, i);
+            }
+        }
+
         private void SendNewDatasToClient()
         {
             if (EnableTreeTableView || (ShowSearchHeader && ColumnFilters.Count != 0))
             {
-                for (var i = 0; i < Datas.Count; ++i)
-                {
-                    var data = Datas[i];
-
-                    if (!data.IgnoreFilterAndAlwaysShow)
-                    {
-                        data.FilterOut = false;
-
-                        foreach (var col in ColumnFilters)
-                        {
-                            if (!Columns.TryGetValue(col.Key, out var colDef))
-                                continue;
-
-                            DataGridColumn.MetaDataColumn meta = null;
-                            if (MetaDatas.TryGetValue(i.ToString(), out var metaRow))
-                                metaRow?.Columns?.TryGetValue(col.Key, out meta);
-
-                            var text = meta?.Prepend ?? colDef?.Prepend ?? "";
-                            if (meta?.Editor != null)
-                                text += meta.Editor.GetDisplayText(colDef, data) ?? "";
-                            else if (colDef.Editor != null)
-                                text += colDef.Editor.GetDisplayText(colDef, data) ?? "";
-                            else
-                                text += data.GetType().GetField(colDef.Field).GetValue(data)?.ToString() ?? "";
-
-                            text += meta?.Append ?? colDef.Append ?? "";
-
-                            if (col.Value.StartsWith("!"))
-                            {
-                                if (text.ToLower().Contains(col.Value.Substring(1).ToLower()))
-                                {
-                                    data.FilterOut = true;
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                if (!text.ToLower().Contains(col.Value.ToLower()))
-                                {
-                                    data.FilterOut = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (data.Parent != null)
-                        data._Parent = Datas.IndexOf((DataType)data.Parent, 0, i);
-                }
+                RefreshFilteredRows();
             }
 
             CallCustomClientEvent("RefreshDatasFromServer", new Dictionary<string, object>
@@ -1079,6 +1084,9 @@ namespace FSW.Controls.Html
 
         private async Task ColumnFilters_OnNewValueFromClient(Property property, object lastValue, object newValue)
         {
+            // Must call the refresh filtered rows before the RefreshDatas, in case the metadatas are using the filtered rows
+            RefreshFilteredRows();
+
             await RefreshDatas(Datas);
         }
 

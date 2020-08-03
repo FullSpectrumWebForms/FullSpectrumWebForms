@@ -3,7 +3,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>FSW</PackageId>
-    <Version>4.2.1.10</Version>
+    <Version>4.2.1.11</Version>
     <Authors>Pascal Arnold, Olivier Bastien</Authors>
     <Company>N/A</Company>
     <PackageTags>FSW</PackageTags>
