@@ -1,4 +1,4 @@
-﻿using FSW.Controls.Html;
+using FSW.Controls.Html;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -396,9 +396,14 @@ namespace FSW.Controls.ServerSide.DataGrid
                 if (attribute?.Length == 1)
                 {
                     dynamic total = null;
-                    for (var i = 0; i < Datas.Count - 1; ++i)
+
+                    IEnumerable<DataType> source = ShowSearchHeader ? FilteredDatas : Datas;
+                    foreach (dynamic currentRow in source)
                     {
-                        dynamic value = field.GetValue(Datas[i]);
+                        if (currentRow == totalRow)
+                            continue;
+
+                        dynamic value = field.GetValue(currentRow);
 
                         if (value != null)
                         {
