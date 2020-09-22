@@ -672,6 +672,9 @@ namespace FSW.Controls.Html
         public virtual async Task RefreshDatas(List<DataType> datas, bool skipMetaDatasGeneration = false)
         {
             Datas = datas;
+
+            RefreshFilteredRows();
+
             if (!skipMetaDatasGeneration)
                 await RefreshMetaDatas();
 
@@ -750,11 +753,6 @@ namespace FSW.Controls.Html
 
         private void SendNewDatasToClient()
         {
-            if (EnableTreeTableView || (ShowSearchHeader && ColumnFilters.Count != 0))
-            {
-                RefreshFilteredRows();
-            }
-
             CallCustomClientEvent("RefreshDatasFromServer", new Dictionary<string, object>
             {
                 ["Datas"] = Datas
@@ -1084,9 +1082,6 @@ namespace FSW.Controls.Html
 
         private async Task ColumnFilters_OnNewValueFromClient(Property property, object lastValue, object newValue)
         {
-            // Must call the refresh filtered rows before the RefreshDatas, in case the metadatas are using the filtered rows
-            RefreshFilteredRows();
-
             await RefreshDatas(Datas);
         }
 
