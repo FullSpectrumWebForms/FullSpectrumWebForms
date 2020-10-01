@@ -734,6 +734,14 @@ namespace FSW.Controls.Html
                                     break;
                                 }
                             }
+                            else if( col.Value == "=")
+                            {
+                                if(!string.IsNullOrEmpty(text.ToLower()))
+                                {
+                                    data.FilterOut = true;
+                                    break;
+                                }
+                            }
                             else
                             {
                                 if (!text.ToLower().Contains(col.Value.ToLower()))
