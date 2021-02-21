@@ -56,4 +56,5 @@ var controls;
     controls.inactivityDetector = inactivityDetector;
 })(controls || (controls = {}));
 core.controlTypes['InactivityDetector'] = () => new controls.inactivityDetector();
+export {};
 //# sourceMappingURL=InactivityDetector.js.map
