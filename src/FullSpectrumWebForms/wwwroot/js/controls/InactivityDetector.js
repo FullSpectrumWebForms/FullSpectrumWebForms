@@ -33,6 +33,8 @@ var controls;
             window.removeEventListener('mousemove', this.activityTriggerCallback, false);
             window.removeEventListener('keyup', this.activityTriggerCallback, false);
         }
+        test() {
+        }
         activityTrigger() {
             this.lastActivity = moment();
             if (this.isInactive) {
@@ -56,5 +58,4 @@ var controls;
     controls.inactivityDetector = inactivityDetector;
 })(controls || (controls = {}));
 core.controlTypes['InactivityDetector'] = () => new controls.inactivityDetector();
-export {};
 //# sourceMappingURL=InactivityDetector.js.map

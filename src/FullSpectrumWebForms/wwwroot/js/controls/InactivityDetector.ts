@@ -44,7 +44,9 @@ namespace controls {
             window.removeEventListener('mousemove', this.activityTriggerCallback, false);
             window.removeEventListener('keyup', this.activityTriggerCallback, false);
         }
+        test() {
 
+        }
         activityTrigger() {
             this.lastActivity = moment();
             if (this.isInactive) {
